@@ -104,8 +104,10 @@ export const PROFIL_REGELN = {
     } as Record<ErfahrungChoice, number>,
     einkommen: {
       sicher: 2,
+      volatil_branche: 1,
       teilzeit: 1,
       schwankend: 0,
+      auszeit_geplant: 0,
     } as Record<EinkommenChoice, number>,
     ziel: {
       altersvorsorge: 2,
@@ -181,25 +183,30 @@ export function calculateProfile(answers: Answers): ScoreBreakdown {
       appliedOverride = "Priorität Kapitalschutz und geringe Verlusttoleranz: Begrenzung auf 'Vorsichtig', um dir absolute Gelassenheit und ruhigen Schlaf zu sichern.";
     }
   }
-  // 4. Überschreibung: Schwankendes Einkommen + Unterbrechung geplant oder aktuell -> höchstens Ausgewogen
-  else if (answers.einkommen === "schwankend" && answers.unterbrechung !== "nein") {
+  // 4. Überschreibung: Schwankendes Einkommen, Branchenrisiko oder bevorstehende Auszeit + Unterbrechung geplant/aktuell -> höchstens Ausgewogen
+  else if (
+    (answers.einkommen === "schwankend" ||
+      answers.einkommen === "auszeit_geplant" ||
+      answers.einkommen === "volatil_branche") &&
+    answers.unterbrechung !== "nein"
+  ) {
     if (finalProfile === "Offensiv") {
       finalProfile = "Ausgewogen";
-      appliedOverride = "Schwankendes Einkommen kombiniert mit geplanter oder bestehender Auszeit: Begrenzung auf höchstens 'Ausgewogen', um Liquiditätsengpässe abzufedern.";
+      appliedOverride = "Erhöhtes Einkommens- oder Branchenrisiko kombiniert mit geplanter oder bestehender Auszeit: Begrenzung auf höchstens 'Ausgewogen', um Liquiditätsengpässe abzufedern.";
     }
   }
 
   const items = [
     {
       key: "horizont",
-      label: "Zeithorizont",
+      label: "Anlagehorizont",
       valueLabel:
         answers.horizont === "unter3"
-          ? "Unter 3 Jahren"
+          ? "Kurzfristig (< 3 Jahre)"
           : answers.horizont === "3bis10"
-          ? "3 bis 10 Jahre"
+          ? "Mittelfristig (3–10 Jahre)"
           : answers.horizont === "ueber10"
-          ? "Mehr als 10 Jahre"
+          ? "Langfristig (> 10 Jahre)"
           : "Nicht angegeben",
       points: pHorizont,
     },
@@ -262,11 +269,15 @@ export function calculateProfile(answers: Answers): ScoreBreakdown {
       label: "Einkommenssicherheit",
       valueLabel:
         answers.einkommen === "sicher"
-          ? "Sicher"
+          ? "Sicher / krisenfest"
+          : answers.einkommen === "volatil_branche"
+          ? "Volatile Branche (z. B. Tech / Startups)"
           : answers.einkommen === "teilzeit"
           ? "Befristet oder Teilzeit"
           : answers.einkommen === "schwankend"
-          ? "Schwankend"
+          ? "Schwankend / selbstständig"
+          : answers.einkommen === "auszeit_geplant"
+          ? "Auszeit / Sabbatical geplant"
           : "Nicht angegeben",
       points: pEinkommen,
     },
@@ -412,9 +423,9 @@ export function getPotExamples(
     const techHint = answers.techAffinitaet === "digital" 
       ? " (Tagesgeld- & Geldmarktkonten via Neobroker oder Direktbank)" 
       : answers.techAffinitaet === "klassisch" 
-      ? " (Tages- & Festgeldkonto bei deiner Hausbank/Filialbank vor Ort)" 
+      ? " (Tages- & Festgeldkonto bei deiner Hausbank vor Ort)" 
       : "";
-    return `Tagesgeld, Festgeld, Geldmarktfonds, kurzlaufende Staatsanleihen, Instandhaltungsrücklage für Immobilien${techHint}`;
+    return `Sichere Anlagen mit absolutem Kapitalerhalt, garantierter Liquidität und null Kursrisiko: Tagesgeld (Notgroschen für unvorhergesehene Ausgaben), Festgeld, Geldmarktfonds, kurzlaufende Euro-Staatsanleihen${techHint}.`;
   }
 
   if (pot === "wachstum") {
@@ -425,36 +436,29 @@ export function getPotExamples(
     const isHighSustainability = nScale >= 6;
     const isHighTangible = gScale >= 6;
 
-    let aktienText = "breit gestreute Welt-Aktien-ETFs (z. B. MSCI World / FTSE All-World)";
+    let aktienText = "breit gestreute Welt-Aktien-ETFs (tausende weltweite Unternehmen, z. B. MSCI World / FTSE All-World)";
     if (isHighSustainability) {
       aktienText =
         nScale >= 8
-          ? "strenge SRI/ESG Welt-Aktien-ETFs (mit strikten Ausschlusskriterien für Rüstung, Kohle & Tabak, z. B. MSCI World SRI)"
-          : "breit gestreute Welt-Aktien mit Nachhaltigkeitsfilter";
+          ? "strenge nachhaltige SRI/ESG Welt-Aktien-ETFs (ohne Rüstung, Kohle, Tabak)"
+          : "breit gestreute Welt-Aktien-ETFs mit Nachhaltigkeitsfilter";
     }
 
     if (marken === "bekannte_marken") {
-      aktienText += " ergänzt um vertraute Qualitätsmarken und etablierte Großunternehmen";
+      aktienText += " mit Beimischung etablierter Qualitätsmarken";
     } else if (marken === "offen") {
-      aktienText += " mit Core-Satellite-Struktur (breiter Weltindex als Kern, gezielte Marken als Satelliten)";
+      aktienText += " in Core-Satellite-Struktur";
     }
 
-    if (isHighTangible) {
-      const goldDetail =
-        gScale >= 8
-          ? "Physisches Gold zu Hause im Tresor / Bankschließfach, Immobilien-Eigenkapital & Tilgung"
-          : "Gold (physisch hinterlegt z. B. Xetra-Gold/Euwax), Immobilienanteile";
-      return `${goldDetail}, ${aktienText}`;
-    } else {
-      return `${aktienText}, Gold als Beimischung (Xetra-Gold), offene Immobilienfonds`;
-    }
+    const goldText = isHighTangible
+      ? "physisches Gold (Tresor/Schließfach) bzw. Xetra-Gold als Krisenpuffer"
+      : "Gold als wertbeständige Beimischung";
+
+    return `Risikoaffiner und wachstumsstärker – der Motor für langfristigen Vermögensaufbau & Altersvorsorge: ${aktienText}, ergänzt um ${goldText}.`;
   }
 
-  // spaßgeld / spielgeld
-  const stilHint = answers.entscheidungsStil === "emotional" 
-    ? " – pure Freude und Projekte, bei denen dein Bauchgefühl entscheidet" 
-    : "";
-  return `Freie Entscheidungen ohne Rechtfertigung${stilHint}: Krypto (Bitcoin, Ethereum), Trend-Aktien, Kunst, persönliche Herzensprojekte. Davon höchstens die Hälfte in spekulative Krypto-Assets.`;
+  // spaßgeld / spielgeld / träume
+  return `Kann bei Gelingen für Träume genutzt werden – dieses Geld darf man aber unter keinen Umständen im Alltag oder für die Existenz brauchen müssen! Vollständig bis zum Totalverlust verkraftbar: Krypto (Bitcoin, Ethereum – max. 50 % dieses Topfes), chancenreiche Einzelaktien, Trendthemen, freie Experimente.`;
 }
 
 /**

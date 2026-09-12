@@ -26,9 +26,9 @@ import {
   getPotExamples,
   formatEuro,
 } from "../constants/rules";
-import { DEFAULT_LEBENSZIELE, computeGoalProgress } from "../utils/goalsAndPension";
 import { PotCustomizer } from "./PotCustomizer";
-import { GoalProgressChart } from "./GoalProgressChart";
+import { PensionModuleTeaser } from "./PensionModuleTeaser";
+import { UncorrelatedAssetAnalysis } from "./UncorrelatedAssetAnalysis";
 
 interface ResultScreenProps {
   answers: Answers;
@@ -115,15 +115,6 @@ export function ResultScreen({
   };
 
   const hasSales = diffEuro.sicherheit < -100 || diffEuro.wachstum < -100 || diffEuro.spielgeld < -100;
-
-  // 4. Lebensziele & Zielerreichungs-Berechnung
-  const lebensziele = answers.lebensziele || DEFAULT_LEBENSZIELE;
-  const goalProgress = computeGoalProgress(
-    lebensziele,
-    istBestand,
-    activeAllocation,
-    interactiveRate
-  );
 
   return (
     <div id="result-screen" className="flex flex-col flex-1 px-4 pt-3 pb-8 space-y-5">
@@ -236,28 +227,17 @@ export function ResultScreen({
         </p>
       </div>
 
-      {/* LEBENSZIELE & ZIELERREICHUNGS-GRAFIK */}
-      <GoalProgressChart
-        goals={goalProgress.items}
-        overallPensionCoveragePercent={goalProgress.overallPensionCoveragePercent}
-        projectedPensionCapital={goalProgress.projectedPensionCapital}
-        jahreBisRente={lebensziele.rentenluecke.rentenAlter - lebensziele.rentenluecke.aktuellesAlter}
-        monatsrate={interactiveRate}
-        monthlyWachstum={monthlyWachstum}
-        onOpenGlossary={onOpenGlossary}
-      />
-
-      {/* LEBENSZIELE ZUORDNUNGS-GUIDE */}
+      {/* DREI-TÖPFE ZEITHORIZONTE GUIDE */}
       <div className="p-4 rounded-2xl bg-white border border-[#E5DFD7] space-y-3 text-xs shadow-xs">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-xs text-[#3E2340] uppercase tracking-wider flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-[#B8873B]" />
-            <span>Welcher Topf bedient welches Lebensziel?</span>
+            <span>Welcher Topf bedient welchen Zeithorizont?</span>
           </h3>
           {onOpenGlossary && (
             <button
               type="button"
-              onClick={() => onOpenGlossary("Lebensziele")}
+              onClick={() => onOpenGlossary("Zeithorizont")}
               className="text-[11px] font-semibold text-[#B8873B] hover:underline cursor-pointer"
             >
               Zeithorizonte
@@ -268,124 +248,38 @@ export function ResultScreen({
         <div className="space-y-2.5">
           <div className="p-3 rounded-xl bg-[#F7F4F0] border-l-3 border-[#2E7D32] space-y-1">
             <div className="flex items-center justify-between font-bold text-[#3E2340]">
-              <span>1. Kurzfristig (&lt; 3 Jahre): {lebensziele.kurzfristZiel.titel}</span>
+              <span>1. Kurzfristig (&lt; 3 Jahre): Notgroschen & liquide Rücklagen</span>
               <span className="text-[11px] text-[#2E7D32]">Topf 1 (Sicherheit)</span>
             </div>
             <p className="text-[11px] text-[#3E2340]/80 leading-relaxed">
-              Bedarf: {formatEuro(lebensziele.kurzfristZiel.zielbetrag)}. Muss zu 100 % sicher auf dem Tagesgeld liegen. Niemals am Aktienmarkt anlegen, da Kursdellen kurzfristig nicht ausgesessen werden können.
+              Muss zu 100 % sicher auf dem Tagesgeld liegen (mind. 3 Nettogehälter). Niemals am Aktienmarkt anlegen, da kurzfristige Kursdellen nicht ausgesessen werden können.
             </p>
           </div>
 
           <div className="p-3 rounded-xl bg-[#F7F4F0] border-l-3 border-[#B8873B] space-y-1">
             <div className="flex items-center justify-between font-bold text-[#3E2340]">
-              <span>2. Mittelfristig (3–10 Jahre): {lebensziele.mittelfristZiel.titel}</span>
+              <span>2. Mittelfristig (3–10 Jahre): Planbare Ausgaben & Flexibilität</span>
               <span className="text-[11px] text-[#B8873B]">Topf 1 & 2 (Planbar)</span>
             </div>
             <p className="text-[11px] text-[#3E2340]/80 leading-relaxed">
-              Bedarf: {formatEuro(lebensziele.mittelfristZiel.zielbetrag)} in ca. {lebensziele.mittelfristZiel.jahre} Jahren. Wird durch defensive Bausteine (Festgeldleiter) und solide Sparraten gedeckt.
+              Für größere Vorhaben (z. B. Immobilien-Eigenkapital, Sabbatical, Autokauf). Wird durch defensive Bausteine (Festgeldleiter, kurzlaufende Anleihen) und planbare Sparraten abgedeckt.
             </p>
           </div>
 
           <div className="p-3 rounded-xl bg-[#F7F4F0] border-l-3 border-[#3E2340] space-y-1">
             <div className="flex items-center justify-between font-bold text-[#3E2340]">
-              <span>3. Langfristig (&gt; 10 Jahre): Rentenlücke & Altersvorsorge</span>
+              <span>3. Langfristig (&gt; 10 Jahre): Vermögensaufbau & Altersvorsorge</span>
               <span className="text-[11px] text-[#3E2340]">Topf 2 (Wachstum)</span>
             </div>
             <p className="text-[11px] text-[#3E2340]/80 leading-relaxed">
-              Monatliche Lücke: {formatEuro(lebensziele.rentenluecke.rentenlueckeMonatlich)} • Kapitalstock: {formatEuro(lebensziele.rentenluecke.benoetigtesKapital)}. Gehört zwingend in Topf 2 (Welt-ETFs). Über 20–35 Jahre schlägt die Weltwirtschaft jede Inflation und generiert exponentielles Zinseszins-Vermögen.
+              Gehört zwingend in breit gestreute Welt-ETFs. Über Anlagezeiträume von 10 bis 35 Jahren schlägt die weltweite Wirtschaft jede Inflation und entfaltet die volle Kraft des Zinseszinses.
             </p>
           </div>
         </div>
       </div>
 
-      {/* ALTERSVORSORGEREFORM 2026 AUSWERTUNG */}
-      <div className="p-4 rounded-2xl bg-white border border-[#B8873B]/40 space-y-3 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-xl bg-[#B8873B]/15 text-[#B8873B] flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#B8873B] block">
-                Reform 2026 Auswertung
-              </span>
-              <h3 className="font-bold text-sm text-[#3E2340]">
-                Altersvorsorgedepot & Frühstart-Rente
-              </h3>
-            </div>
-          </div>
-          {onOpenGlossary && (
-            <button
-              type="button"
-              onClick={() => onOpenGlossary("Altersvorsorgedepot")}
-              className="text-[11px] font-semibold text-[#B8873B] hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>Reform-Details</span>
-            </button>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          {/* Box 1: Altersvorsorgedepot */}
-          <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#3E2340]">
-                Altersvorsorgedepot (Topf 2)
-              </span>
-              <span className="text-[10px] bg-[#3E2340] text-white px-2 py-0.5 rounded-full font-bold">
-                100 % Aktien-ETFs
-              </span>
-            </div>
-            <p className="text-[11px] text-[#3E2340]/75 leading-relaxed">
-              Die Reform schafft die teuren 100-%-Beitragsgarantien ab. Dadurch schließt du deine monatliche Rentenlücke von {formatEuro(lebensziele.rentenluecke.rentenlueckeMonatlich)} mit der vollen Zinseszins-Kraft der Weltwirtschaft bei gleichzeitigem Steuervorteil.
-            </p>
-          </div>
-
-          {/* Box 2: Frühstart-Rente für Kinder */}
-          <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-[#3E2340]">
-                Frühstart-Rente für Kinder
-              </span>
-              <span className="text-[10px] bg-[#2E7D32] text-white px-2 py-0.5 rounded-full font-bold">
-                10 € / Monat geschenkt
-              </span>
-            </div>
-            {lebensziele.reform2026?.hasKinder ? (
-              <div className="space-y-1 text-[11px] text-[#3E2340]/85">
-                <p>
-                  Für deine <strong>{lebensziele.reform2026.kinderAnzahl} Kinder</strong> zahlt der Bund ab Alter 6 bis 18 insgesamt <strong>{formatEuro(lebensziele.reform2026.kinderAnzahl * 1440)}</strong> Basiskapital.
-                </p>
-                {(() => {
-                  const kAnzahl = lebensziele.reform2026.kinderAnzahl || 1;
-                  const eSpar = lebensziele.reform2026.kinderSparbeitragEltern || 0;
-                  const monat = kAnzahl * 10 + eSpar;
-                  const r = 0.06 / 12;
-                  const fv18 = Math.round(monat * ((Math.pow(1 + r, 144) - 1) / r));
-                  const fv67 = Math.round(fv18 * Math.pow(1.06, 49));
-                  return (
-                    <div className="p-1.5 rounded-lg bg-white border border-[#2E7D32]/30 text-[10px] text-[#1B5E20] space-y-0.5">
-                      <div className="flex justify-between font-bold">
-                        <span>Depotwert mit 18 Jahren (@ 6%):</span>
-                        <span>{formatEuro(fv18)}</span>
-                      </div>
-                      <div className="flex justify-between font-semibold text-[#3E2340]/70">
-                        <span>Zinseszins bis zur Rente des Kindes:</span>
-                        <span>{formatEuro(fv67)}</span>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            ) : (
-              <p className="text-[11px] text-[#3E2340]/75 leading-relaxed">
-                Ab 2026 erhalten alle Kinder ab dem 6. Geburtstag 10 € pro Monat vom Staat in ein zertifiziertes Kinder-Altersvorsorgedepot. Bei 6 % Rendite wächst dieser Sockel bis zum Rentenalter auf über 35.000 € pro Kind heran.
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* MOCKUP-TEASER: MODUL ALTERSVORSORGE & RENTENLÜCKE (AUSGEGRAUT & ZUR DEMO VERKNÜPFT) */}
+      <PensionModuleTeaser onOpenGlossary={onOpenGlossary} />
 
       {/* Visual Bar Chart: Ist vs. Soll */}
       {totalIst > 0 && (
@@ -452,15 +346,15 @@ export function ResultScreen({
           <div className="flex items-center justify-between text-[11px] pt-1 text-[#3E2340]/80">
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#3E2340]" />
-              <span>Sicherheit ({activeAllocation.sicherheit}%)</span>
+              <span>1. Sichere Anlagen ({activeAllocation.sicherheit}%)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#B8873B]" />
-              <span>Wachstum ({activeAllocation.wachstum}%)</span>
+              <span>2. Wachstumsstärker ({activeAllocation.wachstum}%)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#8E5B8F]" />
-              <span>Träume ({activeAllocation.spielgeld}%)</span>
+              <span>3. Träume & Chancen ({activeAllocation.spielgeld}%)</span>
             </div>
           </div>
         </div>
@@ -569,6 +463,13 @@ export function ResultScreen({
         );
       })()}
 
+      {/* WISSENSCHAFTLICHE ANALYSE: UNKORRELIERTE ASSETS (ZWISCHEN & INNERHALB DER TÖPFE) */}
+      <UncorrelatedAssetAnalysis
+        istBestand={istBestand}
+        answers={answers}
+        onOpenGlossary={onOpenGlossary}
+      />
+
       {/* MONATLICHE SPARRATEN-AUFTEILUNG & RECHNER */}
       <div className="p-4 rounded-2xl bg-white border border-[#B8873B]/30 space-y-3 shadow-xs">
         <div className="flex items-center justify-between">
@@ -587,33 +488,33 @@ export function ResultScreen({
 
         <div className="grid grid-cols-3 gap-2 pt-1">
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] text-center">
-            <span className="text-[10px] text-[#3E2340]/60 block font-semibold">
-              Topf 1 (Sicherheit)
+            <span className="text-[10px] text-[#2E7D32] block font-bold">
+              1. Sichere Anlagen
             </span>
             <span className="font-serif font-bold text-base text-[#3E2340] block">
               {formatEuro(monthlySicherheit)}
             </span>
-            <span className="text-[10px] text-[#3E2340]/60">Tagesgeld</span>
+            <span className="text-[10px] text-[#3E2340]/60">Tagesgeld & Puffer</span>
           </div>
 
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] text-center">
-            <span className="text-[10px] text-[#3E2340]/60 block font-semibold">
-              Topf 2 (Wachstum)
+            <span className="text-[10px] text-[#3E2340] block font-bold">
+              2. Wachstumsstärker
             </span>
             <span className="font-serif font-bold text-base text-[#3E2340] block">
               {formatEuro(monthlyWachstum)}
             </span>
-            <span className="text-[10px] text-[#3E2340]/60">Welt-ETF / Tilgung</span>
+            <span className="text-[10px] text-[#3E2340]/60">Welt-ETF / Beet</span>
           </div>
 
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] text-center">
-            <span className="text-[10px] text-[#3E2340]/60 block font-semibold">
-              Topf 3 (Träume)
+            <span className="text-[10px] text-[#8A5E1E] block font-bold">
+              3. Träume & Chancen
             </span>
             <span className="font-serif font-bold text-base text-[#3E2340] block">
               {formatEuro(monthlySpielgeld)}
             </span>
-            <span className="text-[10px] text-[#3E2340]/60">Wünsche & Freiheit</span>
+            <span className="text-[10px] text-[#3E2340]/60">Herzenswünsche</span>
           </div>
         </div>
 
@@ -817,7 +718,7 @@ export function ResultScreen({
             </thead>
             <tbody className="divide-y divide-[#E5DFD7]/60">
               <tr>
-                <td className="py-2.5 font-semibold text-[#3E2340]">1. Sicherheit</td>
+                <td className="py-2.5 font-semibold text-[#3E2340]">1. Sichere Anlagen</td>
                 <td className="py-2.5 text-right">{formatEuro(istBestand.sicherheit)}</td>
                 <td className="py-2.5 text-right font-medium">
                   <div>{formatEuro(sollEuro.sicherheit)}</div>
@@ -830,7 +731,7 @@ export function ResultScreen({
                 </td>
               </tr>
               <tr>
-                <td className="py-2.5 font-semibold text-[#3E2340]">2. Wachstum</td>
+                <td className="py-2.5 font-semibold text-[#3E2340]">2. Wachstumsstärker</td>
                 <td className="py-2.5 text-right">{formatEuro(istBestand.wachstum)}</td>
                 <td className="py-2.5 text-right font-medium">
                   <div>{formatEuro(sollEuro.wachstum)}</div>
@@ -843,7 +744,7 @@ export function ResultScreen({
                 </td>
               </tr>
               <tr>
-                <td className="py-2.5 font-semibold text-[#3E2340]">3. Träume</td>
+                <td className="py-2.5 font-semibold text-[#3E2340]">3. Träume & Chancen</td>
                 <td className="py-2.5 text-right">{formatEuro(istBestand.spielgeld)}</td>
                 <td className="py-2.5 text-right font-medium">
                   <div>{formatEuro(sollEuro.spielgeld)}</div>
@@ -875,7 +776,7 @@ export function ResultScreen({
         <div className="space-y-2">
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] space-y-1">
             <span className="font-semibold text-[#3E2340] block">
-              1. Für das Sicherheits-Glas:
+              1. Sichere Anlagen (Sicherheit / Das Fundament):
             </span>
             <p className="text-[#3E2340]/75 leading-relaxed text-[11px]">
               {getPotExamples("sicherheit", answers)}
@@ -884,7 +785,7 @@ export function ResultScreen({
 
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] space-y-1">
             <span className="font-semibold text-[#3E2340] block">
-              2. Für das Wachstums-Glas:
+              2. Risikoaffiner & Wachstumsstärker (Wachstum / Das Beet):
             </span>
             <p className="text-[#3E2340]/75 leading-relaxed text-[11px]">
               {getPotExamples("wachstum", answers)}
@@ -893,7 +794,7 @@ export function ResultScreen({
 
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] space-y-1">
             <span className="font-semibold text-[#3E2340] block">
-              3. Für das Träume-Glas:
+              3. Träume & Chancen (Kann bei Gelingen für Träume genutzt werden – darf man aber niemals brauchen müssen!):
             </span>
             <p className="text-[#3E2340]/75 leading-relaxed text-[11px]">
               {getPotExamples("spielgeld", answers)}

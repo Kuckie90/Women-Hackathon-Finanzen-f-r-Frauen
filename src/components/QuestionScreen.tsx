@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HelpCircle, Check, ArrowRight, Calendar, Clock, Briefcase } from "lucide-react";
+import { HelpCircle, Check, ArrowRight, Calendar, Clock, Briefcase, Info } from "lucide-react";
 import { QuestionDef } from "../data/questionsData";
 import {
   UnterbrechungDetails,
@@ -15,6 +15,7 @@ interface QuestionScreenProps {
   initialDetails?: UnterbrechungDetails;
   isExplainMode: boolean;
   onOpenGlossary: (termKey: string) => void;
+  contextNote?: string;
 }
 
 export function QuestionScreen({
@@ -24,6 +25,7 @@ export function QuestionScreen({
   initialDetails,
   isExplainMode,
   onOpenGlossary,
+  contextNote,
 }: QuestionScreenProps) {
   const [currentChoice, setCurrentChoice] = useState<string | undefined>(selectedValue);
 
@@ -74,6 +76,12 @@ export function QuestionScreen({
               {question.subtitle}
             </p>
           )}
+          {contextNote && (
+            <div className="p-3 rounded-xl bg-[#B8873B]/10 border border-[#B8873B]/30 text-xs text-[#3E2340] flex items-start gap-2 mt-1">
+              <Info className="w-4 h-4 text-[#B8873B] shrink-0 mt-0.5" />
+              <span className="leading-relaxed">{contextNote}</span>
+            </div>
+          )}
         </div>
 
         {/* Optional glossary pill for quick term explanation */}
@@ -86,6 +94,27 @@ export function QuestionScreen({
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Begriff erklären: {question.glossaryKey}</span>
           </button>
+        )}
+
+        {/* Dedicated Context Callout for Question 5 (Horizont): Welches Geld? Wieviel Geld? */}
+        {question.key === "horizont" && (
+          <div
+            id="horizont-clarification-banner"
+            className="p-3.5 rounded-2xl bg-[#B8873B]/10 border border-[#B8873B]/30 text-xs text-[#3E2340] space-y-2 shadow-xs"
+          >
+            <div className="flex items-center gap-1.5 font-bold text-[#8A5E1E]">
+              <HelpCircle className="w-4 h-4 text-[#B8873B]" />
+              <span>Welches Geld? Wieviel Geld?</span>
+            </div>
+            <div className="space-y-1.5 text-[11px] leading-relaxed text-[#3E2340]/85">
+              <p>
+                <strong>• Welches Geld ist gemeint?</strong> Hier geht es um das Geld, das du für den langfristigen Vermögensaufbau (Topf 2: Welt-ETFs) oder persönliche Träume (Topf 3) anlegen möchtest. Dein <em>Notgroschen</em> (Topf 1) bleibt selbstverständlich unberührt und jederzeit verfügbar auf dem Tagesgeldkonto.
+              </p>
+              <p>
+                <strong>• Wieviel Geld?</strong> Deine genaue Summe (Einmalbetrag & monatliche Sparrate) bestimmst du gleich in Schritt 8. Hier geht es rein um den <strong>Zeithorizont</strong>: Wie viele Jahre darf das Geld unberührt für dich arbeiten?
+              </p>
+            </div>
+          </div>
         )}
 
         {/* Options List - No default pre-selection */}
@@ -155,6 +184,50 @@ export function QuestionScreen({
             );
           })}
         </div>
+
+        {/* Reactive Guidance Note for Question 3 (Einkommen) */}
+        {question.key === "einkommen" && (
+          <div className="space-y-2 mt-2">
+            {currentChoice === "auszeit_geplant" ? (
+              <div
+                id="einkommen-auszeit-preview-note"
+                className="p-3.5 rounded-2xl bg-[#B8873B]/15 border border-[#B8873B]/30 text-xs text-[#3E2340] flex items-start gap-2.5 shadow-xs"
+              >
+                <Calendar className="w-4 h-4 text-[#B8873B] shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <span className="font-bold text-[#8A5E1E] block mb-0.5">
+                    Sabbatical, Elternzeit oder Auszeit geplant?
+                  </span>
+                  <span>
+                    Sehr gut mitgedacht! In der <strong>direkt folgenden Frage 4</strong> erfassen wir die genaue Dauer, den geplanten Beginn und deinen gewünschten Umfang (z. B. 100 % Pause oder Teilzeit) im Detail.
+                  </span>
+                </div>
+              </div>
+            ) : currentChoice === "volatil_branche" ? (
+              <div
+                id="einkommen-tech-note"
+                className="p-3.5 rounded-2xl bg-[#F7F4F0] border border-[#B8873B]/30 text-xs text-[#3E2340] flex items-start gap-2.5 shadow-xs"
+              >
+                <Info className="w-4 h-4 text-[#B8873B] shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <span className="font-bold text-[#3E2340] block mb-0.5">
+                    Tech-, Startup- & volatile Branchen
+                  </span>
+                  <span>
+                    Oft überdurchschnittlich vergütet, aber durch Kündigungswellen oder Marktzyklen geprägt. Unser Algorithmus sorgt für ein etwas stabileres Sicherheits-Glas (Topf 1), damit du bei Branchenkrisen niemals Wertpapiere mit Buchverlusten verkaufen musst.
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="px-1 text-[11px] text-[#3E2340]/65 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 text-[#B8873B] shrink-0" />
+                <span>
+                  Tipp: Planst du ein Sabbatical, Elternzeit oder eine Weiterbildung? Wähle gerne die letzte Option – Frage 4 erfasst alle Details!
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Details zu Auszeit / Stundenreduktion, falls Ja oder Aktuell gewählt */}
         {question.key === "unterbrechung" &&

@@ -107,7 +107,7 @@ export function PotCustomizer({
             <div className="flex items-center justify-between text-xs font-semibold text-[#3E2340]">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#2E7D32]" />
-                Topf 1: Sicherheit
+                Topf 1: Sichere Anlagen (Sicherheit / Fundament)
               </span>
               <span className="font-bold font-serif text-sm">
                 {currentAllocation.sicherheit} %
@@ -135,7 +135,7 @@ export function PotCustomizer({
             <div className="flex items-center justify-between text-xs font-semibold text-[#3E2340]">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#3E2340]" />
-                Topf 2: Wachstum (Welt-ETFs & Rente)
+                Topf 2: Risikoaffiner & Wachstumsstärker (Wachstum)
               </span>
               <span className="font-bold font-serif text-sm">
                 {currentAllocation.wachstum} %
@@ -163,7 +163,7 @@ export function PotCustomizer({
             <div className="flex items-center justify-between text-xs font-semibold text-[#3E2340]">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#B8873B]" />
-                Topf 3: Träume (Wünsche & Freiheit)
+                Topf 3: Träume & Chancen (Darf man nicht brauchen müssen!)
               </span>
               <span className="font-bold font-serif text-sm">
                 {currentAllocation.spielgeld} %
@@ -182,7 +182,7 @@ export function PotCustomizer({
             />
             <div className="flex justify-between text-[10px] text-[#3E2340]/50">
               <span>Keine Träume-Quote (0 %)</span>
-              <span>Viel Freiraum (30 %)</span>
+              <span>Chancen-Budget (30 %)</span>
             </div>
           </div>
 

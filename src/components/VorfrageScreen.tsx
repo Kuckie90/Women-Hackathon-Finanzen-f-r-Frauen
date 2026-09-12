@@ -33,27 +33,28 @@ export function VorfrageScreen({ onSelectMode }: VorfrageScreenProps) {
             Die drei Gläser auf deinem Küchentisch
           </h2>
 
-          {/* Literal Mandated Quote */}
-          <div className="p-5 rounded-2xl bg-white/80 border border-[#B8873B]/30 shadow-xs space-y-3.5">
+          {/* Literal Mandated Quote with updated clear pot definitions */}
+          <div className="p-5 rounded-2xl bg-white/90 border border-[#B8873B]/30 shadow-xs space-y-3.5">
             <p className="text-sm md:text-base leading-relaxed text-[#3E2340]">
               Stell dir drei Gläser auf dem Küchentisch vor. Im{" "}
-              <strong className="text-[#3E2340] font-semibold">
-                Sicherheits-Glas
+              <strong className="text-[#1B5E20] font-semibold">
+                Sicherheits-Glas (Sichere Anlagen)
               </strong>{" "}
               liegt das Geld, das da sein muss, wenn morgen die Waschmaschine
-              kaputtgeht. Das{" "}
+              kaputtgeht – absolut risikofrei und sofort verfügbar. Das{" "}
               <strong className="text-[#3E2340] font-semibold">
-                Wachstums-Glas
+                Wachstums-Glas (Risikoaffiner & Wachstumsstärker)
               </strong>{" "}
               ist dein Beet: Du säst heute, gießt regelmäßig und erntest in zehn
-              oder zwanzig Jahren. Das{" "}
-              <strong className="text-[#3E2340] font-semibold">
-                Träume-Glas
+              oder zwanzig Jahren; Kursschwankungen werden durch die Zeit geglättet. Das{" "}
+              <strong className="text-[#8A5E1E] font-semibold">
+                Träume-Glas (Träume & Chancen)
               </strong>{" "}
-              ist für Dinge, die Spaß machen, deine Herzenswünsche und zum freien Experimentieren — hier
-              bist du völlig frei in der Entscheidung. Ein Verlust darf hier
-              wehtun, aber nichts gefährden. FinWise sagt dir, wie groß jedes
-              Glas bei dir sein sollte.
+              kann bei Gelingen für große Träume und Herzenswünsche genutzt werden — aber die eiserne Regel lautet:{" "}
+              <strong className="text-[#3E2340]">
+                Dieses Geld darf man unter keinen Umständen brauchen müssen!
+              </strong>{" "}
+              Ein Verlust bis zum Totalausfall darf dir wehtun, darf aber niemals deine Existenz gefährden. FinWise sagt dir, wie groß jedes Glas bei dir sein sollte.
             </p>
           </div>
 

@@ -15,9 +15,13 @@ import {
   Search,
   Plus,
   X,
+  Shield,
+  Info,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { BuddhaIcon } from "./BuddhaIcon";
-import { IstBestand, IstBestandDetails, UploadedReport } from "../types";
+import { IstBestand, IstBestandDetails, VorsorgeVertraege, UploadedReport } from "../types";
 import { parseStatementFile } from "../utils/documentParser";
 import { formatEuro } from "../constants/rules";
 import { searchSecurities, POPULAR_SECURITIES, SecurityQuote } from "../data/isinDatabase";
@@ -59,9 +63,30 @@ export function IstBestandScreen({
   const [festgeldBauspar, setFestgeldBauspar] = useState<string>(
     initDet?.festgeldBauspar ? initDet.festgeldBauspar.toString() : ""
   );
-  const [riesterKlassisch, setRiesterKlassisch] = useState<string>(
-    initDet?.riesterKlassisch ? initDet.riesterKlassisch.toString() : ""
+  // Optionale Vorsorge- & Rentenverträge (Riester, Rürup, Private Rentenversicherung, Lebensversicherung)
+  const initVorsorge = initialValues.vorsorge;
+  const [riesterGuthaben, setRiesterGuthaben] = useState<string>(
+    initVorsorge?.riesterGuthaben ? initVorsorge.riesterGuthaben.toString() : initDet?.riesterKlassisch ? initDet.riesterKlassisch.toString() : ""
   );
+  const [ruerupGuthaben, setRuerupGuthaben] = useState<string>(
+    initVorsorge?.ruerupGuthaben ? initVorsorge.ruerupGuthaben.toString() : ""
+  );
+  const [privateRenteGuthaben, setPrivateRenteGuthaben] = useState<string>(
+    initVorsorge?.privateRenteGuthaben ? initVorsorge.privateRenteGuthaben.toString() : ""
+  );
+  const [lebensversicherung, setLebensversicherung] = useState<string>(
+    initVorsorge?.lebensversicherung ? initVorsorge.lebensversicherung.toString() : ""
+  );
+  const [showVorsorgeKasten, setShowVorsorgeKasten] = useState<boolean>(
+    Boolean(
+      initVorsorge?.riesterGuthaben ||
+      initVorsorge?.ruerupGuthaben ||
+      initVorsorge?.privateRenteGuthaben ||
+      initVorsorge?.lebensversicherung ||
+      initDet?.riesterKlassisch
+    )
+  );
+
   const [weltEtf, setWeltEtf] = useState<string>(
     initDet?.weltEtf ? initDet.weltEtf.toString() : initialValues.wachstum > 0 ? initialValues.wachstum.toString() : ""
   );
@@ -104,10 +129,15 @@ export function IstBestandScreen({
   const [securityShares, setSecurityShares] = useState<string>("");
   const [showIsinSearch, setShowIsinSearch] = useState(false);
 
-  // Berechnungen für Bausteine-Mapping (gemäß Abschnitt 6a)
+  // Berechnungen für Bausteine-Mapping
   const numTagesgeld = parseInt(tagesgeldGiro, 10) || 0;
   const numFestgeld = parseInt(festgeldBauspar, 10) || 0;
-  const numRiester = parseInt(riesterKlassisch, 10) || 0;
+  const numRiester = parseInt(riesterGuthaben, 10) || 0;
+  const numRuerup = parseInt(ruerupGuthaben, 10) || 0;
+  const numPrivateRente = parseInt(privateRenteGuthaben, 10) || 0;
+  const numLebensversicherung = parseInt(lebensversicherung, 10) || 0;
+  const totalVorsorge = numRiester + numRuerup + numPrivateRente + numLebensversicherung;
+
   const numWeltEtf = parseInt(weltEtf, 10) || 0;
   const numEinzelaktien = parseInt(einzelaktien, 10) || 0;
   const numGold = parseInt(goldRohstoffe, 10) || 0;
@@ -115,12 +145,16 @@ export function IstBestandScreen({
   const numImmo = parseInt(immobilieEigenkapital, 10) || 0;
 
   // Automatisches Mapping:
-  // - Topf 1 (Sicherheit): Tagesgeld + Festgeld/Bausparer + 70% Riester (Garantieteil)
-  // - Topf 2 (Wachstum): Welt-ETFs + Einzelaktien + Gold/Rohstoffe + 30% Riester (Fondsanteil)
+  // - Topf 1 (Sicherheit): Tagesgeld + Festgeld/Bausparer + 70% Riester/Klassik-Garantie + 80% Lebensversicherung + 40% Rürup/Privatrente
+  // - Topf 2 (Wachstum): Welt-ETFs + Einzelaktien + Gold/Rohstoffe + 30% Riester + 20% Lebensversicherung + 60% Rürup/Privatrente
   // - Topf 3 (Spaßgeld): Krypto & Trend-Investments
   // - Immobilie: Getrennt als Sachwert-Net-Worth ausgewiesen
-  const mappedSicherheit = Math.round(numTagesgeld + numFestgeld + numRiester * 0.7);
-  const mappedWachstum = Math.round(numWeltEtf + numEinzelaktien + numGold + numRiester * 0.3);
+  const mappedSicherheit = Math.round(
+    numTagesgeld + numFestgeld + numRiester * 0.7 + numLebensversicherung * 0.8 + (numRuerup + numPrivateRente) * 0.4
+  );
+  const mappedWachstum = Math.round(
+    numWeltEtf + numEinzelaktien + numGold + numRiester * 0.3 + numLebensversicherung * 0.2 + (numRuerup + numPrivateRente) * 0.6
+  );
   const mappedSpielgeld = Math.round(numKrypto);
   const mappedImmobilien = numImmo;
 
@@ -138,10 +172,18 @@ export function IstBestandScreen({
     e.preventDefault();
 
     if (activeTab === "bausteine") {
+      const vorsorgeObj: VorsorgeVertraege = {
+        riesterGuthaben: numRiester,
+        ruerupGuthaben: numRuerup,
+        privateRenteGuthaben: numPrivateRente,
+        lebensversicherung: numLebensversicherung,
+      };
+
       const details: IstBestandDetails = {
         tagesgeldGiro: numTagesgeld,
         festgeldBauspar: numFestgeld,
         riesterKlassisch: numRiester,
+        vorsorge: totalVorsorge > 0 ? vorsorgeObj : undefined,
         weltEtf: numWeltEtf,
         einzelaktien: numEinzelaktien,
         goldRohstoffe: numGold,
@@ -154,6 +196,7 @@ export function IstBestandScreen({
         wachstum: mappedWachstum,
         spielgeld: mappedSpielgeld,
         immobilien: mappedImmobilien > 0 ? mappedImmobilien : undefined,
+        vorsorge: totalVorsorge > 0 ? vorsorgeObj : undefined,
         details,
       });
       return;
@@ -562,37 +605,154 @@ export function IstBestandScreen({
               </div>
             </div>
 
-            {/* 3. Altersvorsorge-Verträge (Riester & Lebensversicherungen) */}
-            <div className="p-3.5 rounded-2xl bg-white border border-[#E5DFD7] space-y-2.5 shadow-xs">
+            {/* 3. OPTIONALER KASTEN: Bestehende Vorsorge- & Rentenverträge */}
+            <div className="p-3.5 md:p-4 rounded-2xl bg-white border border-[#E5DFD7] space-y-3 shadow-xs">
               <div className="flex items-center justify-between">
-                <label className="font-semibold text-xs text-[#3E2340] flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   <Coins className="w-4 h-4 text-[#B8873B]" />
-                  <span>Riester-Rente & klassische Rentenversicherung</span>
-                </label>
-                {onOpenGlossary && (
-                  <button
-                    type="button"
-                    onClick={() => onOpenGlossary("Altersvorsorgedepot")}
-                    className="text-[11px] text-[#B8873B] underline cursor-pointer"
-                  >
-                    Reform 2026?
-                  </button>
-                )}
+                  <span className="font-semibold text-xs text-[#3E2340]">
+                    Bestehende Vorsorge- & Rentenverträge
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-[#F7F4F0] border border-[#E5DFD7] text-[10px] font-semibold text-[#B8873B]">
+                    Optional
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowVorsorgeKasten(!showVorsorgeKasten)}
+                  className="text-[11px] font-semibold text-[#B8873B] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>{showVorsorgeKasten ? "Ausblenden" : "Einblenden / Bearbeiten"}</span>
+                  {showVorsorgeKasten ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
               </div>
-              <p className="text-[11px] text-[#3E2340]/60 leading-relaxed">
-                Wird automatisch gesplittet: 70 % Garantieanteil fließen in Topf 1 (Sicherheit), 30 % Fondsanteil in Topf 2 (Wachstum).
-              </p>
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={riesterKlassisch}
-                  onChange={(e) => handleCleanNumberInput(e.target.value, setRiesterKlassisch)}
-                  className="w-full min-h-[42px] pl-3 pr-7 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] focus:border-[#B8873B] text-[#3E2340] text-sm font-semibold outline-hidden"
-                />
-                <span className="absolute right-2.5 text-xs text-[#3E2340]/50 pointer-events-none">€</span>
+
+              {/* Erläuterung & Wichtig-Box zum einzutragenden Betrag */}
+              <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#B8873B]/30 space-y-1.5 text-xs">
+                <div className="flex items-start gap-2 text-[#3E2340]">
+                  <Info className="w-4 h-4 text-[#B8873B] shrink-0 mt-0.5" />
+                  <div className="space-y-1 leading-relaxed">
+                    <strong className="block font-bold text-[#3E2340]">
+                      Welcher Betrag soll hier eingetragen werden?
+                    </strong>
+                    <p className="text-[11px] text-[#3E2340]/80">
+                      Trage hier das <strong>aktuelle Vertragskapital bzw. den aktuellen Rückkaufswert</strong> laut deiner letzten jährlichen Standmitteilung ein (das Vermögen, das heute im Vertrag liegt). Bitte <strong>nicht deinen monatlichen Sparbeitrag</strong> eintragen!
+                    </p>
+                    <p className="text-[10px] text-[#3E2340]/60 italic">
+                      Dieser Kasten ist komplett optional: Wenn du nur deine liquiden Depots und Konten analysieren möchtest, lass diese Felder einfach leer (0 €).
+                    </p>
+                  </div>
+                </div>
               </div>
+
+              {/* Eingabefelder (wenn ausgeklappt) */}
+              {showVorsorgeKasten && (
+                <div className="space-y-3 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Riester-Rente */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-semibold text-[#3E2340]/90 block">
+                          Riester-Rente
+                        </label>
+                        {onOpenGlossary && (
+                          <button
+                            type="button"
+                            onClick={() => onOpenGlossary("Altersvorsorgedepot")}
+                            className="text-[10px] text-[#B8873B] hover:underline cursor-pointer"
+                          >
+                            Reform 2026?
+                          </button>
+                        )}
+                      </div>
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={riesterGuthaben}
+                          onChange={(e) => handleCleanNumberInput(e.target.value, setRiesterGuthaben)}
+                          className="w-full min-h-[42px] pl-3 pr-7 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] focus:border-[#B8873B] text-[#3E2340] text-sm font-semibold outline-hidden"
+                        />
+                        <span className="absolute right-2.5 text-xs text-[#3E2340]/50 pointer-events-none">€</span>
+                      </div>
+                      <span className="text-[10px] text-[#3E2340]/60 block leading-tight">
+                        Aktuelles Gesamtkapital laut Standmitteilung
+                      </span>
+                    </div>
+
+                    {/* Rürup-Rente / Basisrente */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-[#3E2340]/90 block">
+                        Rürup-Rente (Basisrente)
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={ruerupGuthaben}
+                          onChange={(e) => handleCleanNumberInput(e.target.value, setRuerupGuthaben)}
+                          className="w-full min-h-[42px] pl-3 pr-7 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] focus:border-[#B8873B] text-[#3E2340] text-sm font-semibold outline-hidden"
+                        />
+                        <span className="absolute right-2.5 text-xs text-[#3E2340]/50 pointer-events-none">€</span>
+                      </div>
+                      <span className="text-[10px] text-[#3E2340]/60 block leading-tight">
+                        Aktuelles Deckungskapital laut Standmitteilung
+                      </span>
+                    </div>
+
+                    {/* Private Rentenversicherung */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-[#3E2340]/90 block">
+                        Private Altersvorsorge / Rentenversicherung
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={privateRenteGuthaben}
+                          onChange={(e) => handleCleanNumberInput(e.target.value, setPrivateRenteGuthaben)}
+                          className="w-full min-h-[42px] pl-3 pr-7 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] focus:border-[#B8873B] text-[#3E2340] text-sm font-semibold outline-hidden"
+                        />
+                        <span className="absolute right-2.5 text-xs text-[#3E2340]/50 pointer-events-none">€</span>
+                      </div>
+                      <span className="text-[10px] text-[#3E2340]/60 block leading-tight">
+                        Aktuelles Guthaben / Rückkaufswert
+                      </span>
+                    </div>
+
+                    {/* Kapitallebensversicherung */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-[#3E2340]/90 block">
+                        Kapitallebensversicherung
+                      </label>
+                      <div className="relative flex items-center">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="0"
+                          value={lebensversicherung}
+                          onChange={(e) => handleCleanNumberInput(e.target.value, setLebensversicherung)}
+                          className="w-full min-h-[42px] pl-3 pr-7 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] focus:border-[#B8873B] text-[#3E2340] text-sm font-semibold outline-hidden"
+                        />
+                        <span className="absolute right-2.5 text-xs text-[#3E2340]/50 pointer-events-none">€</span>
+                      </div>
+                      <span className="text-[10px] text-[#3E2340]/60 block leading-tight">
+                        Aktueller Rückkaufswert
+                      </span>
+                    </div>
+                  </div>
+
+                  {totalVorsorge > 0 && (
+                    <div className="p-2.5 rounded-xl bg-[#E8F5E9] border border-[#2E7D32]/30 flex items-center justify-between text-xs text-[#2E7D32]">
+                      <span className="font-semibold">Erfasstes Vorsorgevermögen gesamt:</span>
+                      <span className="font-bold text-sm">{formatEuro(totalVorsorge)}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* 4. Träume (Topf 3) & Eigenheim (Sachwert) */}
@@ -601,9 +761,11 @@ export function IstBestandScreen({
               <div className="p-3.5 rounded-2xl bg-white border border-[#E5DFD7] space-y-1.5 shadow-xs">
                 <label className="font-semibold text-xs text-[#3E2340] flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-[#B8873B]" />
-                  <span>Topf 3: Träume (Wünsche, Krypto & Herzensprojekte)</span>
+                  <span>Topf 3: Träume & Chancen (Krypto, Trends & Wünsche)</span>
                 </label>
-                <p className="text-[10px] text-[#3E2340]/60">Herzenswünsche, freie Freude, Krypto, Kunst</p>
+                <p className="text-[10px] text-[#3E2340]/70">
+                  Kann bei Gelingen für Träume genutzt werden – <strong>darf man aber nicht brauchen müssen!</strong>
+                </p>
                 <div className="relative flex items-center">
                   <input
                     type="text"
@@ -662,7 +824,7 @@ export function IstBestandScreen({
 
               <div className="grid grid-cols-3 gap-2 text-center text-xs">
                 <div className="p-2.5 rounded-xl bg-white border border-[#E5DFD7]">
-                  <span className="text-[10px] text-[#3E2340]/60 block font-semibold">1. Sicherheit</span>
+                  <span className="text-[10px] text-[#2E7D32] block font-bold">1. Sichere Anlagen</span>
                   <span className="font-serif font-bold text-sm text-[#3E2340] block">
                     {formatEuro(mappedSicherheit)}
                   </span>
@@ -672,7 +834,7 @@ export function IstBestandScreen({
                 </div>
 
                 <div className="p-2.5 rounded-xl bg-white border border-[#E5DFD7]">
-                  <span className="text-[10px] text-[#3E2340]/60 block font-semibold">2. Wachstum</span>
+                  <span className="text-[10px] text-[#3E2340] block font-bold">2. Wachstumsstärker</span>
                   <span className="font-serif font-bold text-sm text-[#3E2340] block">
                     {formatEuro(mappedWachstum)}
                   </span>
@@ -682,7 +844,7 @@ export function IstBestandScreen({
                 </div>
 
                 <div className="p-2.5 rounded-xl bg-white border border-[#E5DFD7]">
-                  <span className="text-[10px] text-[#3E2340]/60 block font-semibold">3. Träume</span>
+                  <span className="text-[10px] text-[#8A5E1E] block font-bold">3. Träume & Chancen</span>
                   <span className="font-serif font-bold text-sm text-[#3E2340] block">
                     {formatEuro(mappedSpielgeld)}
                   </span>
@@ -753,8 +915,8 @@ export function IstBestandScreen({
                   htmlFor="ist-sicherheit"
                   className="font-semibold text-xs text-[#3E2340] flex items-center gap-1.5"
                 >
-                  <BuddhaIcon className="w-4 h-4 text-[#B8873B]" />
-                  <span>Topf 1: Sicherheit (Fundament)</span>
+                  <BuddhaIcon className="w-4 h-4 text-[#2E7D32]" />
+                  <span>Topf 1: Sichere Anlagen (Sicherheit / Fundament)</span>
                 </label>
                 {onOpenGlossary && (
                   <button
@@ -766,8 +928,8 @@ export function IstBestandScreen({
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-[#3E2340]/60">
-                Tagesgeld, Notgroschen, Festgeld, Geldmarkt, Instandhaltungsrücklage
+              <p className="text-[11px] text-[#3E2340]/70">
+                Tagesgeld, Notgroschen, Festgeld, Geldmarkt, Instandhaltungsrücklage. Kapitalerhalt & kein Kursrisiko.
               </p>
               <div className="relative flex items-center">
                 <input
@@ -793,7 +955,7 @@ export function IstBestandScreen({
                   className="font-semibold text-xs text-[#3E2340] flex items-center gap-1.5"
                 >
                   <TrendingUp className="w-4 h-4 text-[#3E2340]" />
-                  <span>Topf 2: Wachstum (Langfristig)</span>
+                  <span>Topf 2: Risikoaffiner & Wachstumsstärker (Wachstum)</span>
                 </label>
                 {onOpenGlossary && (
                   <button
@@ -805,8 +967,8 @@ export function IstBestandScreen({
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-[#3E2340]/60">
-                Welt-Aktien, ETFs, Fonds, Goldanteile, offene Immobilienfonds
+              <p className="text-[11px] text-[#3E2340]/70">
+                Breit gestreute Welt-Aktien & Gold. Risikoaffiner, aber substanziell wachstumsstärker für den Ruhestand.
               </p>
               <div className="relative flex items-center">
                 <input
@@ -871,7 +1033,7 @@ export function IstBestandScreen({
                   className="font-semibold text-xs text-[#3E2340] flex items-center gap-1.5"
                 >
                   <Sparkles className="w-4 h-4 text-[#B8873B]" />
-                  <span>Topf 3: Träume (Wünsche & freie Wahl)</span>
+                  <span>Topf 3: Träume & Chancen (Herzenswünsche & Krypto)</span>
                 </label>
                 {onOpenGlossary && (
                   <button
@@ -883,8 +1045,8 @@ export function IstBestandScreen({
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-[#3E2340]/60">
-                Frei für deine Herzenswünsche: Reisen, Krypto, Einzelaktien, Experimente
+              <p className="text-[11px] text-[#3E2340]/70">
+                Kann bei Gelingen für Träume genutzt werden – <strong>das Geld darf man aber unter keinen Umständen brauchen müssen!</strong>
               </p>
               <div className="relative flex items-center">
                 <input

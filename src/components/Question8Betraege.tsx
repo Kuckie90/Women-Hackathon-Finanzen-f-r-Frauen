@@ -24,19 +24,19 @@ export function Question8Betraege({
   );
 
   const [nettoInput, setNettoInput] = useState<string>(
-    initialNettoeinkommen ? initialNettoeinkommen.toString() : "2500"
+    initialNettoeinkommen ? initialNettoeinkommen.toString() : ""
   );
   const [einmal, setEinmal] = useState<string>(
     initialEinmalbetrag > 0 ? initialEinmalbetrag.toString() : ""
   );
 
-  // Initial monthly rate: prioritize initialMonatsrate, or monatlicheSparrateFuerRente if available
+  // Initial monthly rate: no prepopulated default, user inputs own values
   const [monat, setMonat] = useState<string>(() => {
     if (initialMonatsrate > 0) return initialMonatsrate.toString();
     if (monatlicheSparrateFuerRente && monatlicheSparrateFuerRente > 0) {
       return monatlicheSparrateFuerRente.toString();
     }
-    return "250";
+    return "";
   });
 
   // Track which basis is selected in rechner mode
@@ -181,11 +181,11 @@ export function Question8Betraege({
                           15 % Faustformel
                         </span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#B8873B]/20 text-[#8F6526] font-semibold">
-                          Alltag & Vermögen
+                          Empfohlen
                         </span>
                       </div>
                       <span className="text-[11px] text-[#3E2340]/70 block pt-0.5">
-                        Gesunder Vermögensaufbau ohne Verzicht
+                        Gesunder Vermögensaufbau ohne Verzicht im Alltag
                       </span>
                     </div>
                     <span className="text-lg font-serif font-bold text-[#3E2340]">
@@ -193,38 +193,45 @@ export function Question8Betraege({
                     </span>
                   </button>
 
-                  {/* Option 2: Rentenlücke decken (wenn vorhanden) */}
-                  {rentenRate > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setRechnerTarget("rente");
-                        setMonat(rentenRate.toString());
-                      }}
-                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
-                        rechnerTarget === "rente"
-                          ? "bg-[#2E7D32]/10 border-[#2E7D32] ring-1 ring-[#2E7D32]"
-                          : "bg-[#F7F4F0] border-[#E5DFD7] hover:border-[#2E7D32]/60"
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-[#1B5E20]">
-                            Volle Rentenlücke decken
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#2E7D32]/20 text-[#1B5E20] font-semibold">
-                            Empfohlen
-                          </span>
-                        </div>
-                        <span className="text-[11px] text-[#3E2340]/70 block pt-0.5">
-                          Schließt deine ermittelte Altersvorsorgelücke vollständig
+                  {/* Option 2: 10% Basis-Sparrate */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRechnerTarget("rente");
+                      const rate10 = Math.max(25, Math.round((calcNetto * 0.10) / 10) * 10);
+                      setMonat(rate10.toString());
+                    }}
+                    className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                      rechnerTarget === "rente"
+                        ? "bg-[#3E2340]/10 border-[#3E2340] ring-1 ring-[#3E2340]"
+                        : "bg-[#F7F4F0] border-[#E5DFD7] hover:border-[#3E2340]/60"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold text-[#3E2340]">
+                          10 % Basis-Quote
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#3E2340]/10 text-[#3E2340] font-semibold">
+                          Schonend
                         </span>
                       </div>
-                      <span className="text-lg font-serif font-bold text-[#1B5E20]">
-                        {formatEuro(rentenRate)} / Mon.
+                      <span className="text-[11px] text-[#3E2340]/70 block pt-0.5">
+                        Geringere Belastung bei höheren Fixkosten
                       </span>
-                    </button>
-                  )}
+                    </div>
+                    <span className="text-lg font-serif font-bold text-[#3E2340]">
+                      {formatEuro(Math.max(25, Math.round((calcNetto * 0.10) / 10) * 10))} / Mon.
+                    </span>
+                  </button>
+
+                  {/* Hinweis auf das verknüpfte Altersvorsorge-Modul */}
+                  <div className="p-2.5 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-[11px] text-[#3E2340]/75 flex items-start gap-2 mt-1">
+                    <Sparkles className="w-3.5 h-3.5 text-[#B8873B] shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Modul-Verbindung:</strong> Deine exakte Rentenlücke und geförderte Altersvorsorge werden im separaten Modul <em>Altersvorsorge & Rentenlücke</em> berechnet (siehe Teaser in der Auswertung).
+                    </span>
+                  </div>
                 </div>
               </div>
 

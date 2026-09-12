@@ -6,28 +6,28 @@ export interface GlossaryItem {
 
 export const GLOSSAR: Record<string, GlossaryItem> = {
   "Sicherheit": {
-    term: "Topf 1: Sicherheit (Das Fundament)",
-    shortExplain: "Kapitalerhalt & sofortige Liquidität. Kein Kursschwankungsrisiko.",
+    term: "Topf 1: Sichere Anlagen (Sicherheit / Das Fundament)",
+    shortExplain: "Kapitalerhalt, garantierte Liquidität und null Kursrisiko. Dein unverzichtbares Sicherheitsnetz.",
     detail:
-      "Was gehört hinein?\n• Notgroschen auf dem Tagesgeldkonto (3–6 Monatsausgaben)\n• Festgelder mit kalkulierbarem Fälligkeitsdatum\n• Geldmarktfonds & kurzlaufende Staatsanleihen (AAA-Rating)\n• Instandhaltungsrücklage für das Eigenheim (für Heizung, Dach, Reparaturen)\n\nZweck: Schützt dich davor, bei ungeplanten Ausgaben teure Schulden zu machen oder deine Wachstumsanlagen mit Verlust verkaufen zu müssen.",
+      "Was gehört hinein?\n• Notgroschen auf dem Tagesgeldkonto (3–6 Monatsausgaben für Notfälle)\n• Festgelder mit sicherem Rückzahldatum\n• Geldmarktfonds & kurzlaufende Euro-Staatsanleihen (AAA-Rating)\n• Instandhaltungsrücklage für die eigene Immobilie\n\nZweck: Schützt dich absolut verlässlich vor finanziellen Notlagen (Waschmaschine kaputt, Jobverlust) und verhindert Notverkäufe an der Börse.",
   },
   "Wachstum": {
-    term: "Topf 2: Wachstum (Das langfristige Beet)",
-    shortExplain: "Vermögensaufbau & Kaufkrafterhalt über 10–20+ Jahre. Schlägt die Inflation.",
+    term: "Topf 2: Risikoaffiner & Wachstumsstärker (Wachstum / Das Beet)",
+    shortExplain: "Risikoaffiner und substanziell wachstumsstärker. Der Motor für langfristigen Vermögensaufbau & Rente.",
     detail:
-      "Was gehört hinein?\n• Breit gestreute Welt-Aktien & Welt-ETFs (tausende Firmen weltweit)\n• Immobilien: Die laufende Tilgung und das Eigenkapital deiner Immobilie gehören hierher (langfristiger Sachwert)\n• Vermietete Rendite-Immobilien & offene Immobilienfonds\n• Gold als Beimischung (5–10 %, physisch im Tresor oder Wertpapierform)\n\nZweck: Erwirtschaftet Rendite für die Altersvorsorge und gleicht Erwerbslücken aus.",
+      "Was gehört hinein?\n• Breit gestreute Welt-Aktien-ETFs (tausende Firmen weltweit über MSCI World / FTSE All-World)\n• Gold als wertbeständige, krisenfeste Sachwert-Beimischung (5–10 %)\n• Immobilie: Die getilgten Eigenkapital-Anteile und laufende Tilgung (langfristiger Sachwert)\n\nZweck: Das „Beet“ – heute säen, monatlich gießen und über 10–20+ Jahre ernten. Schlägt nachweislich die Inflation und sichert den Lebensstandard im Ruhestand ab.",
   },
   "Träume": {
-    term: "Topf 3: Träume (Wünsche & Freiheit ohne Reue)",
-    shortExplain: "Geld für Herzenswünsche, Leidenschaften und freie Experimente. Gibt dir emotionale Freiheit.",
+    term: "Topf 3: Träume & Chancen (Kann bei Gelingen genutzt werden – darf man aber nicht brauchen müssen!)",
+    shortExplain: "Kann bei Gelingen für Träume genutzt werden – die eiserne Regel: Dieses Geld darf man unter keinen Umständen brauchen müssen!",
     detail:
-      "Was gehört hinein?\n• Große und kleine Herzenswünsche (Reisen, Auszeiten, besondere Anschaffungen)\n• Krypto (Bitcoin, Ethereum etc. – max. 50 % dieses Topfes)\n• Einzelaktien & Trendwetten (z.B. KI, Tech, Biotech)\n• Sammlerstücke, Kunst, Uhren oder persönliche Projekte\n• Experimente, die im schlimmsten Fall auf null fallen dürfen\n\nZweck: Gibt dir psychologischen Freiraum. Du musst dich für keine Ausgabe rechtfertigen und gefährdest niemals deine Existenz.",
+      "Was gehört hinein?\n• Freie Chancen für große Träume, Weltreisen, Auszeiten oder Herzenswünsche\n• Krypto-Assets (Bitcoin, Ethereum etc. – max. 50 % dieses Topfes)\n• Trendaktien, Zukunftsthemen, KI-Wetten oder freie Experimente\n\nDie eiserne Regel: Dieses Geld darfst du im Alltag, für deine Miete oder für deine Rente unter keinen Umständen brauchen müssen! Ein Verlust bis hin zum Totalverlust muss schmerzfrei verkraftbar sein. Wenn eine Chance gelingt, kannst du dir Träume früher oder größer erfüllen.",
   },
   "Spaßgeld": {
-    term: "Topf 3: Träume (Wünsche & Freiheit ohne Reue)",
-    shortExplain: "Geld für Herzenswünsche, Leidenschaften und freie Experimente. Gibt dir emotionale Freiheit.",
+    term: "Topf 3: Träume & Chancen (Kann bei Gelingen genutzt werden – darf man aber nicht brauchen müssen!)",
+    shortExplain: "Kann bei Gelingen für Träume genutzt werden – die eiserne Regel: Dieses Geld darf man unter keinen Umständen brauchen müssen!",
     detail:
-      "Was gehört hinein?\n• Große und kleine Herzenswünsche (Reisen, Auszeiten, besondere Anschaffungen)\n• Krypto (Bitcoin, Ethereum etc. – max. 50 % dieses Topfes)\n• Einzelaktien & Trendwetten (z.B. KI, Tech, Biotech)\n• Sammlerstücke, Kunst, Uhren oder persönliche Projekte\n• Experimente, die im schlimmsten Fall auf null fallen dürfen\n\nZweck: Gibt dir psychologischen Freiraum. Du musst dich für keine Ausgabe rechtfertigen und gefährdest niemals deine Existenz.",
+      "Was gehört hinein?\n• Freie Chancen für große Träume, Weltreisen, Auszeiten oder Herzenswünsche\n• Krypto-Assets (Bitcoin, Ethereum etc. – max. 50 % dieses Topfes)\n• Trendaktien, Zukunftsthemen, KI-Wetten oder freie Experimente\n\nDie eiserne Regel: Dieses Geld darfst du im Alltag, für deine Miete oder für deine Rente unter keinen Umständen brauchen müssen! Ein Verlust bis hin zum Totalverlust muss schmerzfrei verkraftbar sein. Wenn eine Chance gelingt, kannst du dir Träume früher oder größer erfüllen.",
   },
   "Immobilien": {
     term: "Immobilien im Drei-Töpfe-Modell",
@@ -204,25 +204,45 @@ export const QUESTIONS: QuestionDef[] = [
     id: 3,
     key: "einkommen",
     title: "Wie sicher ist dein Einkommen in den nächsten drei Jahren?",
-    subtitle: "Regelmäßigkeit und Verlässlichkeit deines monatlichen Zuflusses",
-    explanationTitle: "Einkommen als Puffer:",
+    subtitle: "Branche, Stabilität und Vorhersehbarkeit deines monatlichen Zuflusses",
+    explanationTitle: "Warum dein Berufsfeld entscheidend ist:",
     explanationText:
-      "Wer ein sicheres Festgehalt hat, kann im Depot mehr ins Wachstum gehen. Bei schwankenden Einnahmen braucht das Sicherheits-Glas mehr Gewicht.",
+      "Wer ein krisensicheres Festgehalt hat, kann im Portfolio mehr ins Wachstum gehen. Bei schwankenden Einnahmen, volatilen Branchen (wie Tech & Startups) oder bevorstehenden Auszeiten braucht dein Sicherheits-Glas (Topf 1) mehr Gewicht, damit du niemals zu Notverkäufen gezwungen wirst.\n\n💡 Hinweis zu Auszeiten: Falls du ein Sabbatical, Elternzeit oder eine Stundenreduktion planst: In der direkt folgenden Frage kannst du den genauen Zeitraum, die Dauer und den Umfang im Detail festlegen!",
     options: [
       {
         value: "sicher",
-        label: "Sicher",
-        description: "Unbefristete Festanstellung, Beamtenstatus o.ä.",
+        label: "Sehr sicher & krisenfest",
+        description: "Unbefristete Festanstellung, Beamtenstatus, öffentlicher Dienst oder krisenfeste Branche",
+        badge: "Hohe Stabilität",
+        badgeColor: "green",
+      },
+      {
+        value: "volatil_branche",
+        label: "Festanstellung in volatiler Branche",
+        description: "Z. B. Tech, Startups, Krypto, Agenturen oder Restrukturierung (gutes Gehalt, aber Kündigungs- oder Marktrisiko)",
+        badge: "Tech / Volatil",
+        badgeColor: "gold",
       },
       {
         value: "teilzeit",
-        label: "Befristet oder Teilzeit",
-        description: "Überschaubarer Zeithorizont oder reduzierte Stundenzahl",
+        label: "Befristet, Teilzeit oder Übergang",
+        description: "Befristeter Arbeitsvertrag, reduzierte Stundenzahl oder geplanter Jobwechsel",
+        badge: "Befristet / Teilzeit",
+        badgeColor: "neutral",
       },
       {
         value: "schwankend",
-        label: "Schwankend",
-        description: "Selbstständigkeit, Freiberufler:in, Provisionen oder Projektbasis",
+        label: "Stark schwankend oder selbstständig",
+        description: "Freiberufler:in, Selbstständigkeit, Unternehmertum oder stark provisions- & erfolgsabhängig",
+        badge: "Schwankend",
+        badgeColor: "neutral",
+      },
+      {
+        value: "auszeit_geplant",
+        label: "Geplante Auszeit, Sabbatical oder Elternzeit",
+        description: "In den nächsten 1–3 Jahren steht eine berufliche Pause, Sabbatical oder Familiengründung an (wird in Frage 4 detailliert)",
+        badge: "Auszeit / Sabbatical",
+        badgeColor: "gold",
       },
     ],
   },
@@ -256,26 +276,26 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: 5,
     key: "horizont",
-    title: "Wann brauchst du dieses Geld wieder?",
-    subtitle: "Der wichtigste Hebel für deine Anlageaufteilung",
-    explanationTitle: "Der Zeithorizont ist der Schlüssel:",
+    title: "Wann brauchst du das angelegte Geld wieder?",
+    subtitle: "Dein geplanter Anlagezeitraum für das anzulegende Kapital",
+    explanationTitle: "Warum der Anlagehorizont entscheidend ist:",
     explanationText:
-      "Aktienmärkte schwanken kurzfristig. Erst ab mindestens 10 bis 15 Jahren glätten sich die Zyklen und Verluste werden historisch extrem unwahrscheinlich. Geld für unter 3 Jahre gehört nie an die Börse.",
+      "Je länger dein Anlagehorizont ist, desto gelassener kannst du zwischenzeitliche Marktschwankungen aussitzen und vom Zinseszins profitieren. Geld, das du in den nächsten 3 Jahren benötigst, sollte keinem Börsenrisiko ausgesetzt werden. Erst ab 5 bis 10+ Jahren entfalten chancenreiche Wertpapiere ihr volles Potenzial.",
     options: [
       {
         value: "unter3",
-        label: "In weniger als 3 Jahren",
-        description: "Geplante Ausgaben stehen zeitnah an",
+        label: "In weniger als 3 Jahren (Kurzfristig)",
+        description: "Ich brauche das Geld zeitnah wieder (z. B. für Autokauf, Umzug oder kurzfristige Anschaffungen).",
       },
       {
         value: "3bis10",
-        label: "In 3 bis 10 Jahren",
-        description: "Mittelfristiger Vermögensaufbau",
+        label: "In 3 bis 10 Jahren (Mittelfristig)",
+        description: "Das Geld soll 3 bis 10 Jahre arbeiten (z. B. für größere Pläne oder mittelfristige Flexibilität).",
       },
       {
         value: "ueber10",
-        label: "In mehr als 10 Jahren",
-        description: "Langfristiger Horizont, z. B. Altersvorsorge",
+        label: "In mehr als 10 Jahren (Langfristig)",
+        description: "Das Geld kann 10 bis 20+ Jahre ungestört wachsen (z. B. für dauerhaften Vermögensaufbau oder den Ruhestand).",
       },
     ],
   },
@@ -311,9 +331,9 @@ export const QUESTIONS: QuestionDef[] = [
     key: "renditeFokus",
     title: "Was steht bei deiner Geldanlage an erster Stelle?",
     subtitle: "Dein persönlicher Schwerpunkt zwischen Sicherheit und Rendite",
-    explanationTitle: "Der Risiko-Rendite-Zusammenhang:",
+    explanationTitle: "Risikofreude vs. Kapitalschutz:",
     explanationText:
-      "Ohne ein gewisses Kursschwankungsrisiko gibt es keinen langfristigen Inflationsausgleich. Wer jedoch bei jedem Kursminus nachts wach liegt, wählt lieber ein stabileres Sicherheits-Polster.",
+      "Hier geht es rein um deine Risikobereitschaft: Möchtest du dein Kapital vor Schwankungen schützen oder suchst du maximale Renditechancen? Der Zeithorizont wird nicht hier vorgegeben, sondern separat erfasst und erst im Gesamtergebnis mit deiner Risikobereitschaft kombiniert.",
     glossaryKey: "Risiko-Rendite",
     options: [
       {
@@ -332,7 +352,7 @@ export const QUESTIONS: QuestionDef[] = [
       },
       {
         value: "rendite",
-        label: "Maximale langfristige Rendite",
+        label: "Maximale Rendite",
         description: "Möglichst hoher Vermögenszuwachs – deutliche zwischenzeitliche Schwankungen nehme ich in Kauf",
         badge: "Renditechance",
         badgeColor: "neutral",

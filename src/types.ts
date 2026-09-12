@@ -10,7 +10,12 @@ export type SchuldenChoice =
   | "konsum_ueber5"
   | "unter5"
   | "ueber5";
-export type EinkommenChoice = "sicher" | "teilzeit" | "schwankend";
+export type EinkommenChoice =
+  | "sicher"
+  | "volatil_branche"
+  | "teilzeit"
+  | "schwankend"
+  | "auszeit_geplant";
 export type UnterbrechungChoice = "nein" | "ja" | "aktuell";
 export type UnterbrechungWann = "sofort" | "in_6_monaten" | "in_1_jahr" | "in_2_bis_5_jahren";
 export type UnterbrechungDauer = "3_bis_6_monate" | "6_bis_12_monate" | "1_bis_2_jahre" | "dauerhaft";
@@ -64,10 +69,10 @@ export interface Answers {
   markenPraeferenz?: MarkenPraeferenzChoice; // Anonyme Indexfonds vs. bekannte Markenunternehmen
   techAffinitaet?: TechAffinitaetChoice; // Reine App- & Online-Broker vs. klassischer Bankkontakt
   // Feineinstellungen: Skalen von 1 bis 10
-  nachhaltigkeitScale: number; // 1-10
-  greifbarScale: number; // 1-10 (physisches Gold im Tresor, Immobilien zum Betreten)
-  nachhaltigkeit: NachhaltigkeitChoice;
-  greifbar: GreifbarChoice;
+  nachhaltigkeitScale?: number; // 1-10
+  greifbarScale?: number; // 1-10 (physisches Gold im Tresor, Immobilien zum Betreten)
+  nachhaltigkeit?: NachhaltigkeitChoice;
+  greifbar?: GreifbarChoice;
   einmalbetrag: number;
   monatsrate: number;
   // Monatliches Nettoeinkommen für die automatische Sparraten-Empfehlung (optional)
@@ -123,13 +128,23 @@ export interface LebenszieleConfig {
   };
 }
 
+export interface VorsorgeVertraege {
+  riesterGuthaben: number;       // Riester-Rente (aktuelles Vertragskapital / Deckungskapital)
+  ruerupGuthaben: number;        // Rürup-Rente / Basisrente (aktuelles Vertragskapital)
+  privateRenteGuthaben: number;  // Private Rentenversicherung (Rückkaufswert / Fondsguthaben)
+  lebensversicherung: number;    // Kapitallebensversicherung (aktueller Rückkaufswert)
+}
+
 export interface IstBestandDetails {
   // Topf 1 (Sicherheit)
   tagesgeldGiro: number; // Tagesgeld, Girokonto, Sparbuch
   festgeldBauspar: number; // Festgeld, Bausparvertrag
 
   // Altersvorsorge
-  riesterKlassisch: number; // Riester / klassische Lebens-/Rentenversicherung (Garantieguthaben)
+  riesterKlassisch: number; // Für Rückwärtskompatibilität
+
+  // Optionale Vorsorge- & Rentenverträge (Riester, Rürup, private Rentenversicherung, Lebensversicherung)
+  vorsorge?: VorsorgeVertraege;
 
   // Topf 2 (Wachstum & Sachwerte)
   weltEtf: number; // Welt-Aktien-ETFs (MSCI World, All-World, ACWI)
@@ -148,6 +163,7 @@ export interface IstBestand {
   wachstum: number;
   spielgeld: number; // Spaßgeld / Spielgeld
   immobilien?: number; // Gehört zum Wachstum (Eigenkapital/Tilgung) oder Sicherheit (Instandhaltungsrücklage)
+  vorsorge?: VorsorgeVertraege;
   details?: IstBestandDetails;
 }
 
@@ -215,6 +231,7 @@ export type AppStep =
   | "q_lebensziele"
   | "q8_betraege"
   | "q_optional"
+  | "soll_stand"
   | "ist_bestand"
   | "gate"
   | "auswertung"

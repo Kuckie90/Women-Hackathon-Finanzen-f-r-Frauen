@@ -42,19 +42,19 @@ export function OptionalQuestionsScreen({
   onSubmit,
 }: OptionalQuestionsScreenProps) {
   const [nachhaltigkeitScale, setNachhaltigkeitScale] = useState<number>(
-    initialNachhaltigkeitScale || 5
+    initialNachhaltigkeitScale ?? 5
   );
   const [greifbarScale, setGreifbarScale] = useState<number>(
-    initialGreifbarScale || 5
+    initialGreifbarScale ?? 5
   );
-  const [entscheidungsStil, setEntscheidungsStil] = useState<EntscheidungsStilChoice>(
-    initialEntscheidungsStil || "ausgewogen"
+  const [entscheidungsStil, setEntscheidungsStil] = useState<EntscheidungsStilChoice | undefined>(
+    initialEntscheidungsStil
   );
-  const [markenPraeferenz, setMarkenPraeferenz] = useState<MarkenPraeferenzChoice>(
-    initialMarkenPraeferenz || "welt_index"
+  const [markenPraeferenz, setMarkenPraeferenz] = useState<MarkenPraeferenzChoice | undefined>(
+    initialMarkenPraeferenz
   );
-  const [techAffinitaet, setTechAffinitaet] = useState<TechAffinitaetChoice>(
-    initialTechAffinitaet || "digital"
+  const [techAffinitaet, setTechAffinitaet] = useState<TechAffinitaetChoice | undefined>(
+    initialTechAffinitaet
   );
 
   const handleContinue = () => {
@@ -68,9 +68,9 @@ export function OptionalQuestionsScreen({
       greifbarScale,
       nachChoice,
       greifChoice,
-      entscheidungsStil,
-      markenPraeferenz,
-      techAffinitaet
+      entscheidungsStil || "ausgewogen",
+      markenPraeferenz || "welt_index",
+      techAffinitaet || "digital"
     );
   };
 

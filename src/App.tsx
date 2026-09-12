@@ -35,12 +35,14 @@ import { OptionalQuestionsScreen } from "./components/OptionalQuestionsScreen";
 import { IstBestandScreen } from "./components/IstBestandScreen";
 import { LebenszieleScreen } from "./components/LebenszieleScreen";
 import { GateScreen } from "./components/GateScreen";
+import { SollStandScreen } from "./components/SollStandScreen";
 import { ResultScreen } from "./components/ResultScreen";
 import { GlossaryModal } from "./components/GlossaryModal";
+import { ArchitectureModal } from "./components/ArchitectureModal";
 import { QUESTIONS } from "./data/questionsData";
 import { DEFAULT_LEBENSZIELE } from "./utils/goalsAndPension";
 
-// Initial state with NO pre-selected choices for questions
+// Initial state with NO pre-selected choices for questions or prepopulated profile
 const INITIAL_ANSWERS: Answers = {
   erfahren: false,
   puffer: undefined,
@@ -54,12 +56,12 @@ const INITIAL_ANSWERS: Answers = {
   verlustToleranz: undefined,
   erfahrungLevel: undefined,
   ziel: undefined,
-  nachhaltigkeitScale: 5,
-  greifbarScale: 5,
-  nachhaltigkeit: "egal",
-  greifbar: "egal",
+  nachhaltigkeitScale: undefined,
+  greifbarScale: undefined,
+  nachhaltigkeit: undefined,
+  greifbar: undefined,
   einmalbetrag: 0,
-  monatsrate: 150, // Healthy default suggested rate
+  monatsrate: 0,
   nettoeinkommen: undefined,
   lebensziele: DEFAULT_LEBENSZIELE,
 };
@@ -77,6 +79,7 @@ export default function App() {
   const [istBestand, setIstBestand] = useState<IstBestand>(INITIAL_IST_BESTAND);
   const [hasGateBypassed, setHasGateBypassed] = useState<boolean>(false);
   const [activeGlossaryKey, setActiveGlossaryKey] = useState<string | null>(null);
+  const [showArchitectureModal, setShowArchitectureModal] = useState<boolean>(false);
 
   // Reset to initial state
   const handleReset = () => {
@@ -104,7 +107,12 @@ export default function App() {
   };
 
   const handleSelectQ3 = (val: string) => {
-    setAnswers((prev) => ({ ...prev, einkommen: val as EinkommenChoice }));
+    setAnswers((prev) => ({
+      ...prev,
+      einkommen: val as EinkommenChoice,
+      // If user selected planned sabbatical/break in Q3, pre-fill Q4 as "ja" if not already set
+      ...(val === "auszeit_geplant" && !prev.unterbrechung ? { unterbrechung: "ja" } : {}),
+    }));
     setStep("q4_unterbrechung");
   };
 
@@ -144,10 +152,10 @@ export default function App() {
 
   const handleSelectQ10 = (val: string) => {
     setAnswers((prev) => ({ ...prev, ziel: val as ZielChoice }));
-    setStep("q_lebensziele");
+    setStep("q8_betraege");
   };
 
-  // Lebensziele & Rentenlücke handler
+  // Lebensziele & Rentenlücke handler (falls als Demo-Modul aufgerufen)
   const handleSubmitLebensziele = (lebensziele: LebenszieleConfig) => {
     setAnswers((prev) => ({ ...prev, lebensziele }));
     setStep("q8_betraege");
@@ -188,7 +196,7 @@ export default function App() {
       markenPraeferenz,
       techAffinitaet,
     }));
-    setStep("ist_bestand");
+    setStep("soll_stand");
   };
 
   // Check gate condition
@@ -261,13 +269,16 @@ export default function App() {
         setStep("q10_ziel");
         break;
       case "q8_betraege":
-        setStep("q_lebensziele");
+        setStep("q10_ziel");
         break;
       case "q_optional":
         setStep("q8_betraege");
         break;
-      case "ist_bestand":
+      case "soll_stand":
         setStep("q_optional");
+        break;
+      case "ist_bestand":
+        setStep("soll_stand");
         break;
       case "gate":
         setStep("ist_bestand");
@@ -282,7 +293,7 @@ export default function App() {
 
   // Calculate question step numbers for progress bar
   let stepNumber: number | undefined;
-  const totalSteps = 12;
+  const totalSteps = 11;
   switch (step) {
     case "q1_puffer":
       stepNumber = 1;
@@ -314,11 +325,8 @@ export default function App() {
     case "q10_ziel":
       stepNumber = 10;
       break;
-    case "q_lebensziele":
-      stepNumber = 11;
-      break;
     case "q8_betraege":
-      stepNumber = 12;
+      stepNumber = 11;
       break;
     default:
       stepNumber = undefined;
@@ -338,13 +346,17 @@ export default function App() {
             onBack={handleBack}
             onReset={handleReset}
             isExplainMode={isExplainMode}
+            onOpenArchitecture={() => setShowArchitectureModal(true)}
           />
         )}
 
         {/* Main Step Content */}
         <main className="flex-1 flex flex-col">
           {step === "start" && (
-            <StartScreen onStart={() => setStep("vorfrage")} />
+            <StartScreen
+              onStart={() => setStep("vorfrage")}
+              onOpenArchitecture={() => setShowArchitectureModal(true)}
+            />
           )}
 
           {step === "vorfrage" && (
@@ -389,6 +401,11 @@ export default function App() {
               onSelect={handleSelectQ4}
               isExplainMode={isExplainMode}
               onOpenGlossary={setActiveGlossaryKey}
+              contextNote={
+                answers.einkommen === "auszeit_geplant"
+                  ? "Da du im vorherigen Schritt eine geplante Auszeit / ein Sabbatical gewählt hast: Hier kannst du Zeitpunkt, Dauer und den Umfang genau definieren."
+                  : undefined
+              }
             />
           )}
 
@@ -483,6 +500,15 @@ export default function App() {
             />
           )}
 
+          {step === "soll_stand" && (
+            <SollStandScreen
+              answers={answers}
+              onContinueToIst={() => setStep("ist_bestand")}
+              onSkipToAuswertung={() => checkGateAndProceed(istBestand)}
+              onOpenGlossary={setActiveGlossaryKey}
+            />
+          )}
+
           {step === "ist_bestand" && (
             <IstBestandScreen
               initialValues={istBestand}
@@ -525,6 +551,12 @@ export default function App() {
         <GlossaryModal
           glossaryKey={activeGlossaryKey}
           onClose={() => setActiveGlossaryKey(null)}
+        />
+
+        {/* Modal for MVP vs. Overall FinWise Platform Architecture */}
+        <ArchitectureModal
+          isOpen={showArchitectureModal}
+          onClose={() => setShowArchitectureModal(false)}
         />
       </div>
     </div>
