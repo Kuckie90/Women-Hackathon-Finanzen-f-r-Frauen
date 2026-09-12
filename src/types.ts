@@ -12,11 +12,39 @@ export type SchuldenChoice =
   | "ueber5";
 export type EinkommenChoice = "sicher" | "teilzeit" | "schwankend";
 export type UnterbrechungChoice = "nein" | "ja" | "aktuell";
+export type UnterbrechungWann = "sofort" | "in_6_monaten" | "in_1_jahr" | "in_2_bis_5_jahren";
+export type UnterbrechungDauer = "3_bis_6_monate" | "6_bis_12_monate" | "1_bis_2_jahre" | "dauerhaft";
+export type UnterbrechungUmfang = "voll" | "teilzeit_50" | "teilzeit_75" | "flexibel";
+
+export interface UnterbrechungDetails {
+  wann?: UnterbrechungWann;
+  dauer?: UnterbrechungDauer;
+  umfang?: UnterbrechungUmfang;
+}
+
 export type HorizontChoice = "unter3" | "3bis10" | "ueber10";
 export type ReaktionChoice = "verkaufen" | "aussitzen" | "nachkaufen";
+export type RenditeFokusChoice = "sicherheit" | "ausgewogen" | "rendite";
+export type VerlustToleranzChoice = "unruhig" | "rational" | "gelassen";
+export type ErfahrungChoice = "keine" | "basis" | "fundiert" | "fortgeschritten";
 export type ZielChoice = "altersvorsorge" | "anschaffung" | "vermoegensaufbau";
 export type NachhaltigkeitChoice = "wichtig" | "egal";
 export type GreifbarChoice = "greifbar" | "egal";
+export type EntscheidungsStilChoice = "rational" | "ausgewogen" | "emotional";
+export type MarkenPraeferenzChoice = "welt_index" | "offen" | "bekannte_marken";
+export type TechAffinitaetChoice = "digital" | "gemischt" | "klassisch";
+
+export interface AllocationRange {
+  min: number;
+  max: number;
+  target: number;
+}
+
+export interface PotAllocationRanges {
+  sicherheit: AllocationRange;
+  wachstum: AllocationRange;
+  spielgeld: AllocationRange;
+}
 
 export interface Answers {
   erfahren: boolean;
@@ -24,10 +52,18 @@ export interface Answers {
   schulden?: SchuldenChoice;
   einkommen?: EinkommenChoice;
   unterbrechung?: UnterbrechungChoice;
+  unterbrechungDetails?: UnterbrechungDetails;
   horizont?: HorizontChoice;
   reaktion?: ReaktionChoice;
+  renditeFokus?: RenditeFokusChoice;
+  verlustToleranz?: VerlustToleranzChoice;
+  erfahrungLevel?: ErfahrungChoice;
   ziel?: ZielChoice;
-  // Zwei Zusatzfragen: Skalen von 1 bis 10
+  // Psychografische & methodische Präferenzen (gemäß Briefing)
+  entscheidungsStil?: EntscheidungsStilChoice; // Rationale Kennzahlen vs. emotionales Bauchgefühl
+  markenPraeferenz?: MarkenPraeferenzChoice; // Anonyme Indexfonds vs. bekannte Markenunternehmen
+  techAffinitaet?: TechAffinitaetChoice; // Reine App- & Online-Broker vs. klassischer Bankkontakt
+  // Feineinstellungen: Skalen von 1 bis 10
   nachhaltigkeitScale: number; // 1-10
   greifbarScale: number; // 1-10 (physisches Gold im Tresor, Immobilien zum Betreten)
   nachhaltigkeit: NachhaltigkeitChoice;
@@ -63,9 +99,18 @@ export interface LebenszielItem {
   beschreibung: string;
 }
 
+export interface Reform2026Config {
+  hasRiester: boolean;
+  interessiertAltersvorsorgedepot: boolean;
+  hasKinder: boolean;
+  kinderAnzahl: number;
+  kinderSparbeitragEltern: number;
+}
+
 export interface LebenszieleConfig {
   rentenCheckAktiv: boolean;
   rentenluecke: RentenlueckeData;
+  reform2026?: Reform2026Config;
   kurzfristZiel: {
     titel: string;
     zielbetrag: number;
@@ -78,11 +123,32 @@ export interface LebenszieleConfig {
   };
 }
 
+export interface IstBestandDetails {
+  // Topf 1 (Sicherheit)
+  tagesgeldGiro: number; // Tagesgeld, Girokonto, Sparbuch
+  festgeldBauspar: number; // Festgeld, Bausparvertrag
+
+  // Altersvorsorge
+  riesterKlassisch: number; // Riester / klassische Lebens-/Rentenversicherung (Garantieguthaben)
+
+  // Topf 2 (Wachstum & Sachwerte)
+  weltEtf: number; // Welt-Aktien-ETFs (MSCI World, All-World, ACWI)
+  einzelaktien: number; // Einzelaktien (für Klumpenrisiko-Check)
+  goldRohstoffe: number; // Physisches Gold, ETCs, Rohstoffe (Krisendiversifikation nach Dalio)
+
+  // Topf 3 (Spaßgeld / Spielgeld)
+  kryptoTrends: number; // Krypto, Trend-Wetten, spekulatives Spielgeld
+
+  // Illiquider Sachwert (separat erfasst nach Robbins / Christine Benz)
+  immobilieEigenkapital: number; // Selbstbewohnte Immobilie / getilgtes Eigenkapital
+}
+
 export interface IstBestand {
   sicherheit: number;
   wachstum: number;
   spielgeld: number; // Spaßgeld / Spielgeld
   immobilien?: number; // Gehört zum Wachstum (Eigenkapital/Tilgung) oder Sicherheit (Instandhaltungsrücklage)
+  details?: IstBestandDetails;
 }
 
 export type ProfileType =
@@ -142,7 +208,10 @@ export type AppStep =
   | "q4_unterbrechung"
   | "q5_horizont"
   | "q6_reaktion"
-  | "q7_ziel"
+  | "q7_renditefokus"
+  | "q8_verlusttoleranz"
+  | "q9_erfahrung"
+  | "q10_ziel"
   | "q_lebensziele"
   | "q8_betraege"
   | "q_optional"

@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Sliders, RotateCcw, Sparkles, ShieldCheck, TrendingUp, Check } from "lucide-react";
-import { PotAllocation, ProfileType } from "../types";
+import { Sliders, RotateCcw, Sparkles, TrendingUp, Check } from "lucide-react";
+import { PotAllocation, PotAllocationRanges, ProfileType } from "../types";
 import { balanceAllocation } from "../utils/goalsAndPension";
 
 interface PotCustomizerProps {
   recommendedAllocation: PotAllocation;
+  recommendedRanges?: PotAllocationRanges;
   currentAllocation: PotAllocation;
   profileName: ProfileType;
   onChangeAllocation: (allocation: PotAllocation | null) => void;
@@ -12,6 +13,7 @@ interface PotCustomizerProps {
 
 export function PotCustomizer({
   recommendedAllocation,
+  recommendedRanges,
   currentAllocation,
   profileName,
   onChangeAllocation,
@@ -81,15 +83,22 @@ export function PotCustomizer({
         </button>
       </div>
 
-      <p className="text-xs text-[#3E2340]/75 leading-relaxed">
-        Deine berechnete Empfehlung (Profil: <strong>{profileName}</strong>) lautet{" "}
-        <strong>
-          {recommendedAllocation.sicherheit} % Sicherheit /{" "}
-          {recommendedAllocation.wachstum} % Wachstum /{" "}
-          {recommendedAllocation.spielgeld} % Spaßgeld
-        </strong>
-        . Du kannst die Verteilung jederzeit nach deinem persönlichen Bauchgefühl justieren.
-      </p>
+      <div className="text-xs text-[#3E2340]/75 space-y-1 leading-relaxed">
+        <p>
+          Deine berechnete Empfehlung (Profil: <strong>{profileName}</strong>) lautet{" "}
+          <strong>
+            {recommendedAllocation.sicherheit} % Sicherheit /{" "}
+            {recommendedAllocation.wachstum} % Wachstum /{" "}
+            {recommendedAllocation.spielgeld} % Träume
+          </strong>
+          . Du kannst die Verteilung jederzeit nach deinem persönlichen Bauchgefühl justieren.
+        </p>
+        {recommendedRanges && (
+          <p className="text-[11px] text-[#3E2340]/60">
+            Empfohlene BaFin-konforme Korridore: Sicherheit {recommendedRanges.sicherheit.min}–{recommendedRanges.sicherheit.max} %, Wachstum {recommendedRanges.wachstum.min}–{recommendedRanges.wachstum.max} %, Träume {recommendedRanges.spielgeld.min}–{recommendedRanges.spielgeld.max} %.
+          </p>
+        )}
+      </div>
 
       {isOpen && (
         <div className="pt-2 space-y-4 border-t border-[#E5DFD7]/70">
@@ -149,12 +158,12 @@ export function PotCustomizer({
             </div>
           </div>
 
-          {/* Slider 3: Spaßgeld */}
+          {/* Slider 3: Träume */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs font-semibold text-[#3E2340]">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#B8873B]" />
-                Topf 3: Spaßgeld (Lebensfreude)
+                Topf 3: Träume (Wünsche & Freiheit)
               </span>
               <span className="font-bold font-serif text-sm">
                 {currentAllocation.spielgeld} %
@@ -172,7 +181,7 @@ export function PotCustomizer({
               className="w-full accent-[#B8873B] cursor-pointer h-2 bg-[#E5DFD7] rounded-lg"
             />
             <div className="flex justify-between text-[10px] text-[#3E2340]/50">
-              <span>Kein Spaßgeld (0 %)</span>
+              <span>Keine Träume-Quote (0 %)</span>
               <span>Viel Freiraum (30 %)</span>
             </div>
           </div>

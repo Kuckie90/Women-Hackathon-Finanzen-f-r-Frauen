@@ -1,5 +1,5 @@
 /**
- * Topfgeld – Drei-Töpfe-Anlageaufteilung für Frauen
+ * FinWise – Drei-Töpfe-Anlageaufteilung für Frauen
  */
 
 import { useState } from "react";
@@ -11,11 +11,18 @@ import {
   SchuldenChoice,
   EinkommenChoice,
   UnterbrechungChoice,
+  UnterbrechungDetails,
   HorizontChoice,
   ReaktionChoice,
+  RenditeFokusChoice,
+  VerlustToleranzChoice,
+  ErfahrungChoice,
   ZielChoice,
   NachhaltigkeitChoice,
   GreifbarChoice,
+  EntscheidungsStilChoice,
+  MarkenPraeferenzChoice,
+  TechAffinitaetChoice,
   LebenszieleConfig,
 } from "./types";
 import { Header } from "./components/Header";
@@ -40,8 +47,12 @@ const INITIAL_ANSWERS: Answers = {
   schulden: undefined,
   einkommen: undefined,
   unterbrechung: undefined,
+  unterbrechungDetails: undefined,
   horizont: undefined,
   reaktion: undefined,
+  renditeFokus: undefined,
+  verlustToleranz: undefined,
+  erfahrungLevel: undefined,
   ziel: undefined,
   nachhaltigkeitScale: 5,
   greifbarScale: 5,
@@ -97,8 +108,12 @@ export default function App() {
     setStep("q4_unterbrechung");
   };
 
-  const handleSelectQ4 = (val: string) => {
-    setAnswers((prev) => ({ ...prev, unterbrechung: val as UnterbrechungChoice }));
+  const handleSelectQ4 = (val: string, extraDetails?: UnterbrechungDetails) => {
+    setAnswers((prev) => ({
+      ...prev,
+      unterbrechung: val as UnterbrechungChoice,
+      unterbrechungDetails: extraDetails,
+    }));
     setStep("q5_horizont");
   };
 
@@ -109,10 +124,25 @@ export default function App() {
 
   const handleSelectQ6 = (val: string) => {
     setAnswers((prev) => ({ ...prev, reaktion: val as ReaktionChoice }));
-    setStep("q7_ziel");
+    setStep("q7_renditefokus");
   };
 
   const handleSelectQ7 = (val: string) => {
+    setAnswers((prev) => ({ ...prev, renditeFokus: val as RenditeFokusChoice }));
+    setStep("q8_verlusttoleranz");
+  };
+
+  const handleSelectQ8 = (val: string) => {
+    setAnswers((prev) => ({ ...prev, verlustToleranz: val as VerlustToleranzChoice }));
+    setStep("q9_erfahrung");
+  };
+
+  const handleSelectQ9 = (val: string) => {
+    setAnswers((prev) => ({ ...prev, erfahrungLevel: val as ErfahrungChoice }));
+    setStep("q10_ziel");
+  };
+
+  const handleSelectQ10 = (val: string) => {
     setAnswers((prev) => ({ ...prev, ziel: val as ZielChoice }));
     setStep("q_lebensziele");
   };
@@ -138,12 +168,15 @@ export default function App() {
     setStep("q_optional");
   };
 
-  // Optional questions handler (1-10 scales)
+  // Optional questions handler (Briefing dimensions: scales & preferences)
   const handleSubmitOptional = (
     nachhaltigkeitScale: number,
     greifbarScale: number,
     nachhaltigkeit: NachhaltigkeitChoice,
-    greifbar: GreifbarChoice
+    greifbar: GreifbarChoice,
+    entscheidungsStil: EntscheidungsStilChoice,
+    markenPraeferenz: MarkenPraeferenzChoice,
+    techAffinitaet: TechAffinitaetChoice
   ) => {
     setAnswers((prev) => ({
       ...prev,
@@ -151,6 +184,9 @@ export default function App() {
       greifbarScale,
       nachhaltigkeit,
       greifbar,
+      entscheidungsStil,
+      markenPraeferenz,
+      techAffinitaet,
     }));
     setStep("ist_bestand");
   };
@@ -209,11 +245,20 @@ export default function App() {
       case "q6_reaktion":
         setStep("q5_horizont");
         break;
-      case "q7_ziel":
+      case "q7_renditefokus":
         setStep("q6_reaktion");
         break;
+      case "q8_verlusttoleranz":
+        setStep("q7_renditefokus");
+        break;
+      case "q9_erfahrung":
+        setStep("q8_verlusttoleranz");
+        break;
+      case "q10_ziel":
+        setStep("q9_erfahrung");
+        break;
       case "q_lebensziele":
-        setStep("q7_ziel");
+        setStep("q10_ziel");
         break;
       case "q8_betraege":
         setStep("q_lebensziele");
@@ -237,7 +282,7 @@ export default function App() {
 
   // Calculate question step numbers for progress bar
   let stepNumber: number | undefined;
-  const totalSteps = 9;
+  const totalSteps = 12;
   switch (step) {
     case "q1_puffer":
       stepNumber = 1;
@@ -257,14 +302,23 @@ export default function App() {
     case "q6_reaktion":
       stepNumber = 6;
       break;
-    case "q7_ziel":
+    case "q7_renditefokus":
       stepNumber = 7;
       break;
-    case "q_lebensziele":
+    case "q8_verlusttoleranz":
       stepNumber = 8;
       break;
-    case "q8_betraege":
+    case "q9_erfahrung":
       stepNumber = 9;
+      break;
+    case "q10_ziel":
+      stepNumber = 10;
+      break;
+    case "q_lebensziele":
+      stepNumber = 11;
+      break;
+    case "q8_betraege":
+      stepNumber = 12;
       break;
     default:
       stepNumber = undefined;
@@ -331,6 +385,7 @@ export default function App() {
             <QuestionScreen
               question={QUESTIONS[3]}
               selectedValue={answers.unterbrechung}
+              initialDetails={answers.unterbrechungDetails}
               onSelect={handleSelectQ4}
               isExplainMode={isExplainMode}
               onOpenGlossary={setActiveGlossaryKey}
@@ -357,11 +412,41 @@ export default function App() {
             />
           )}
 
-          {step === "q7_ziel" && (
+          {step === "q7_renditefokus" && (
             <QuestionScreen
               question={QUESTIONS[6]}
-              selectedValue={answers.ziel}
+              selectedValue={answers.renditeFokus}
               onSelect={handleSelectQ7}
+              isExplainMode={isExplainMode}
+              onOpenGlossary={setActiveGlossaryKey}
+            />
+          )}
+
+          {step === "q8_verlusttoleranz" && (
+            <QuestionScreen
+              question={QUESTIONS[7]}
+              selectedValue={answers.verlustToleranz}
+              onSelect={handleSelectQ8}
+              isExplainMode={isExplainMode}
+              onOpenGlossary={setActiveGlossaryKey}
+            />
+          )}
+
+          {step === "q9_erfahrung" && (
+            <QuestionScreen
+              question={QUESTIONS[8]}
+              selectedValue={answers.erfahrungLevel}
+              onSelect={handleSelectQ9}
+              isExplainMode={isExplainMode}
+              onOpenGlossary={setActiveGlossaryKey}
+            />
+          )}
+
+          {step === "q10_ziel" && (
+            <QuestionScreen
+              question={QUESTIONS[9]}
+              selectedValue={answers.ziel}
+              onSelect={handleSelectQ10}
               isExplainMode={isExplainMode}
               onOpenGlossary={setActiveGlossaryKey}
             />
@@ -391,6 +476,9 @@ export default function App() {
             <OptionalQuestionsScreen
               initialNachhaltigkeitScale={answers.nachhaltigkeitScale}
               initialGreifbarScale={answers.greifbarScale}
+              initialEntscheidungsStil={answers.entscheidungsStil}
+              initialMarkenPraeferenz={answers.markenPraeferenz}
+              initialTechAffinitaet={answers.techAffinitaet}
               onSubmit={handleSubmitOptional}
             />
           )}

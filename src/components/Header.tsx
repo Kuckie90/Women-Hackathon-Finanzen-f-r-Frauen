@@ -38,7 +38,7 @@ export function Header({
 
         <div className="flex flex-col items-center">
           <span className="font-serif text-xl font-bold tracking-tight text-[#3E2340]">
-            Topfgeld
+            FinWise
           </span>
           {isExplainMode !== undefined && (
             <span className="text-[10px] uppercase tracking-wider text-[#B8873B] font-semibold">

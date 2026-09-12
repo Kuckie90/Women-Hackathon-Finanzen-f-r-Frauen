@@ -13,7 +13,6 @@ import {
   Clock,
   Sparkles,
   TrendingUp,
-  ShieldCheck,
   Target,
   ArrowUpRight,
 } from "lucide-react";

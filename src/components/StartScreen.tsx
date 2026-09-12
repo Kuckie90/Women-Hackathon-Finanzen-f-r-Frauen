@@ -1,4 +1,5 @@
-import { ShieldCheck, TrendingUp, Sparkles, ArrowRight, Lock } from "lucide-react";
+import { TrendingUp, Sparkles, ArrowRight, Lock } from "lucide-react";
+import { BuddhaIcon } from "./BuddhaIcon";
 
 interface StartScreenProps {
   onStart: () => void;
@@ -15,7 +16,7 @@ export function StartScreen({ onStart }: StartScreenProps) {
             <span>100% lokal & privat</span>
           </div>
           <h1 className="font-serif text-4xl font-bold tracking-tight text-[#3E2340]">
-            Topfgeld
+            FinWise
           </h1>
           <p className="text-lg leading-snug text-[#3E2340]/80 font-normal max-w-xs mx-auto">
             Drei Töpfe. Acht Fragen. Dann weißt du, wie du dein Geld aufteilst.
@@ -26,12 +27,12 @@ export function StartScreen({ onStart }: StartScreenProps) {
         <div className="space-y-2.5">
           <div className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/70 border border-[#E5DFD7] shadow-xs">
             <div className="w-11 h-11 rounded-xl bg-[#3E2340]/10 text-[#3E2340] flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
+              <BuddhaIcon className="w-5 h-5" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-sm text-[#3E2340]">1. Sicherheit</h2>
-                <span className="text-[11px] text-[#3E2340]/60">Notgroschen</span>
+                <span className="text-[11px] text-[#3E2340]/60">Innere Ruhe & Notgroschen</span>
               </div>
               <p className="text-xs text-[#3E2340]/70 truncate mt-0.5">
                 Tagesgeld, Festgeld, Geldmarkt
@@ -60,11 +61,11 @@ export function StartScreen({ onStart }: StartScreenProps) {
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-sm text-[#3E2340]">3. Spielgeld</h2>
-                <span className="text-[11px] text-[#3E2340]/60">Experimente</span>
+                <h2 className="font-semibold text-sm text-[#3E2340]">3. Träume</h2>
+                <span className="text-[11px] text-[#3E2340]/60">Wünsche & Freiheit</span>
               </div>
               <p className="text-xs text-[#3E2340]/70 truncate mt-0.5">
-                Krypto, Einzelwerte & Themen
+                Herzenswünsche, Krypto & freie Projekte
               </p>
             </div>
           </div>

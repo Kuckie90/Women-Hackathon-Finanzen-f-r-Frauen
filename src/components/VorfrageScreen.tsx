@@ -48,11 +48,11 @@ export function VorfrageScreen({ onSelectMode }: VorfrageScreenProps) {
               ist dein Beet: Du säst heute, gießt regelmäßig und erntest in zehn
               oder zwanzig Jahren. Das{" "}
               <strong className="text-[#3E2340] font-semibold">
-                Spaßgeld-Glas (oder Spielgeld)
+                Träume-Glas
               </strong>{" "}
-              ist für Dinge, die Spaß machen und zum freien Experimentieren — hier
+              ist für Dinge, die Spaß machen, deine Herzenswünsche und zum freien Experimentieren — hier
               bist du völlig frei in der Entscheidung. Ein Verlust darf hier
-              wehtun, aber nichts gefährden. Topfgeld sagt dir, wie groß jedes
+              wehtun, aber nichts gefährden. FinWise sagt dir, wie groß jedes
               Glas bei dir sein sollte.
             </p>
           </div>

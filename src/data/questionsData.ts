@@ -17,11 +17,17 @@ export const GLOSSAR: Record<string, GlossaryItem> = {
     detail:
       "Was gehört hinein?\n• Breit gestreute Welt-Aktien & Welt-ETFs (tausende Firmen weltweit)\n• Immobilien: Die laufende Tilgung und das Eigenkapital deiner Immobilie gehören hierher (langfristiger Sachwert)\n• Vermietete Rendite-Immobilien & offene Immobilienfonds\n• Gold als Beimischung (5–10 %, physisch im Tresor oder Wertpapierform)\n\nZweck: Erwirtschaftet Rendite für die Altersvorsorge und gleicht Erwerbslücken aus.",
   },
-  "Spaßgeld": {
-    term: "Topf 3: Spaßgeld / Spielgeld (Freiheit ohne Reue)",
-    shortExplain: "Geld für Dinge, die dir Freude machen. Weder heute noch morgen existenziell nötig.",
+  "Träume": {
+    term: "Topf 3: Träume (Wünsche & Freiheit ohne Reue)",
+    shortExplain: "Geld für Herzenswünsche, Leidenschaften und freie Experimente. Gibt dir emotionale Freiheit.",
     detail:
-      "Was gehört hinein?\n• Krypto (Bitcoin, Ethereum etc. – max. 50 % dieses Topfes)\n• Einzelaktien & Trendwetten (z.B. KI, Tech, Biotech)\n• Sammlerstücke, Uhren, Kunst oder Herzenswünsche\n• Experimente, die im schlimmsten Fall auf null fallen dürfen\n\nZweck: Gibt dir psychologischen Freiraum. Du musst dich für keine Ausgabe rechtfertigen und gefährdest niemals deine Existenz.",
+      "Was gehört hinein?\n• Große und kleine Herzenswünsche (Reisen, Auszeiten, besondere Anschaffungen)\n• Krypto (Bitcoin, Ethereum etc. – max. 50 % dieses Topfes)\n• Einzelaktien & Trendwetten (z.B. KI, Tech, Biotech)\n• Sammlerstücke, Kunst, Uhren oder persönliche Projekte\n• Experimente, die im schlimmsten Fall auf null fallen dürfen\n\nZweck: Gibt dir psychologischen Freiraum. Du musst dich für keine Ausgabe rechtfertigen und gefährdest niemals deine Existenz.",
+  },
+  "Spaßgeld": {
+    term: "Topf 3: Träume (Wünsche & Freiheit ohne Reue)",
+    shortExplain: "Geld für Herzenswünsche, Leidenschaften und freie Experimente. Gibt dir emotionale Freiheit.",
+    detail:
+      "Was gehört hinein?\n• Große und kleine Herzenswünsche (Reisen, Auszeiten, besondere Anschaffungen)\n• Krypto (Bitcoin, Ethereum etc. – max. 50 % dieses Topfes)\n• Einzelaktien & Trendwetten (z.B. KI, Tech, Biotech)\n• Sammlerstücke, Kunst, Uhren oder persönliche Projekte\n• Experimente, die im schlimmsten Fall auf null fallen dürfen\n\nZweck: Gibt dir psychologischen Freiraum. Du musst dich für keine Ausgabe rechtfertigen und gefährdest niemals deine Existenz.",
   },
   "Immobilien": {
     term: "Immobilien im Drei-Töpfe-Modell",
@@ -82,6 +88,30 @@ export const GLOSSAR: Record<string, GlossaryItem> = {
     shortExplain: "Die Rentenlücke zwischen Frauen und Männern im Alter.",
     detail:
       "In Deutschland erhalten Frauen im Alter im Durchschnitt 26 % bis 37 % weniger Alterseinkünfte als Männer. Häufige Ursachen sind Teilzeitphasen, Familien- und Pflegeauszeiten und das Ehegattensplitting. Ein eigenes Depot auf den eigenen Namen ist die wichtigste Absicherung.",
+  },
+  "Risiko-Rendite": {
+    term: "Risiko-Rendite-Zusammenhang",
+    shortExplain: "Rendite ist die Entschädigung für das Aushalten von Schwankungen.",
+    detail:
+      "Geldanlagen ohne Schwankung (wie Giro- oder Tagesgeld) verlieren durch die Inflation schleichend an Kaufkraft. Um langfristig Kaufkraft zu sichern und echtes Vermögen aufzubauen, führt an Sachwerten (wie Welt-Aktien) kein Weg vorbei. Durch die Drei Töpfe stellst du sicher, dass dein Sicherheits-Glas voll ist, bevor du Schwankungen eingehst.",
+  },
+  "Anlagetyp": {
+    term: "Dein Anlagetyp & Risikoprofil",
+    shortExplain: "Die optimale Balance aus deinen Zielen, deiner Verlusttoleranz und deinem Zeithorizont.",
+    detail:
+      "Ein Anlagetyp ist kein starrer Stempel, sondern beschreibt dein persönliches Wohlfühl-Verhältnis von Sicherheit (Topf 1) zu Wachstum (Topf 2). Ein gutes Portfolio lässt dich nachts ruhig schlafen, während dein Geld tagsüber für dich arbeitet.",
+  },
+  "Altersvorsorgedepot": {
+    term: "Das neue Altersvorsorgedepot (Reform 2026)",
+    shortExplain: "Das kapitalmarktbasierte Standardprodukt zur staatlich geförderten privaten Altersvorsorge.",
+    detail:
+      "Mit der Altersvorsorgereform zum 01.01.2026 hat Deutschland die private Vorsorge modernisiert:\n• Garantiefrei & ETF-basiert: Bisherige Riester-Produkte litten unter einer 100-%-Beitragsgarantie, die fast alle Rendite in Niedrigzinsanleihen band. Das neue Altersvorsorgedepot erlaubt die Anlage in kostengünstige, breit gestreute Welt-Aktien-ETFs.\n• Volle staatliche Förderung & Steuervorteile: Sparbeiträge können steuerlich als Sonderausgaben abgesetzt werden.\n• Wechseloption: Bestehende Riester-Verträge können oft unbürokratisch übertragen werden, um von den besseren Renditechancen zu profitieren.",
+  },
+  "FruehstartRente": {
+    term: "Frühstart-Rente für Kinder (ab 2026)",
+    shortExplain: "10 € monatliche staatliche Förderung für Kinder ab 6 Jahren in ein Altersvorsorgedepot.",
+    detail:
+      "Laut Kabinettsbeschluss 2026 (rückwirkend für Jahrgänge ab 2020):\n• Der Staat zahlt 10 € pro Monat (120 € pro Jahr) direkt in ein zertifiziertes Altersvorsorgedepot des Kindes vom 6. bis zum 18. Lebensjahr ein.\n• 12 Jahre à 120 € ergeben 1.440 € reine staatliche Einzahlung.\n• Durch den immensen Zinseszins über 60 Jahre (bis zur Rente des Kindes bei ca. 6 % Rendite) werden aus dieser kleinen staatlichen Anschubfinanzierung voraussichtlich über 40.000 € Rentenvermögen!\n• Eltern können freiwillig einen eigenen Sparbetrag aufstocken, um den Effekt zu vervielfachen.",
   },
 };
 
@@ -278,6 +308,98 @@ export const QUESTIONS: QuestionDef[] = [
   },
   {
     id: 7,
+    key: "renditeFokus",
+    title: "Was steht bei deiner Geldanlage an erster Stelle?",
+    subtitle: "Dein persönlicher Schwerpunkt zwischen Sicherheit und Rendite",
+    explanationTitle: "Der Risiko-Rendite-Zusammenhang:",
+    explanationText:
+      "Ohne ein gewisses Kursschwankungsrisiko gibt es keinen langfristigen Inflationsausgleich. Wer jedoch bei jedem Kursminus nachts wach liegt, wählt lieber ein stabileres Sicherheits-Polster.",
+    glossaryKey: "Risiko-Rendite",
+    options: [
+      {
+        value: "sicherheit",
+        label: "Absoluter Kapitalschutz",
+        description: "Keine Verluste erleiden – auch wenn das Geld durch Inflation real an Wert verliert",
+        badge: "Sicherheit zuerst",
+        badgeColor: "green",
+      },
+      {
+        value: "ausgewogen",
+        label: "Gesunder Mittelweg",
+        description: "Solider Inflationsschutz mit moderatem Wachstum bei vertretbaren Schwankungen",
+        badge: "Balance",
+        badgeColor: "gold",
+      },
+      {
+        value: "rendite",
+        label: "Maximale langfristige Rendite",
+        description: "Möglichst hoher Vermögenszuwachs – deutliche zwischenzeitliche Schwankungen nehme ich in Kauf",
+        badge: "Renditechance",
+        badgeColor: "neutral",
+      },
+    ],
+  },
+  {
+    id: 8,
+    key: "verlustToleranz",
+    title: "Wie lange könntest du eine schwache Börsenphase aussitzen?",
+    subtitle: "Nervenstärke und Zeithorizont bei längeren Durststrecken",
+    explanationTitle: "Zyklen verstehen:",
+    explanationText:
+      "Märkte bewegen sich in Wellen. Nach jedem Bärenmarkt (Abwärtsphase) folgte in der Historie ein neuer Höchststand. Entscheidend ist, wie gelassen du diese Phasen durchhalten kannst.",
+    glossaryKey: "Volatilität",
+    options: [
+      {
+        value: "unruhig",
+        label: "Kaum – schon wenige Monate machen mich nervös",
+        description: "Ich mache mir schnell Sorgen und verfolge beunruhigende Finanznachrichten",
+      },
+      {
+        value: "rational",
+        label: "1 bis 2 Jahre sind für mich okay",
+        description: "Ich weiß rational, dass Krisen vorübergehen, auch wenn es sich mulmig anfühlt",
+      },
+      {
+        value: "gelassen",
+        label: "Mehrere Jahre problemlos",
+        description: "Ich ignoriere Tagesnachrichten und vertraue voll auf die langfristige Wirtschaftskraft",
+      },
+    ],
+  },
+  {
+    id: 9,
+    key: "erfahrungLevel",
+    title: "Welche Erfahrung hast du bisher mit Geldanlagen?",
+    subtitle: "Dein Vorwissen mit Wertpapieren, Fonds oder ETFs",
+    explanationTitle: "Erfahrung stärkt das Vertrauen:",
+    explanationText:
+      "Wer schon einmal einen echten Marktcrash live miterlebt hat, reagiert oft deutlich besonnener als Neueinsteigerinnen. Wir passen die Allokation an deinen Wohlfühlbereich an.",
+    glossaryKey: "Depot",
+    options: [
+      {
+        value: "keine",
+        label: "Bisher gar keine",
+        description: "Mein Geld lag bisher nur auf dem Girokonto, Sparbuch oder Tagesgeld",
+      },
+      {
+        value: "basis",
+        label: "Erste Schritte / Basiswissen",
+        description: "Festgeld, Bausparer oder vielleicht schon ein erster kleiner ETF-Sparplan",
+      },
+      {
+        value: "fundiert",
+        label: "Fundierte Erfahrung",
+        description: "Ich bespare seit mehreren Jahren selbstständig weltweite ETFs oder Fonds",
+      },
+      {
+        value: "fortgeschritten",
+        label: "Fortgeschritten & vielseitig",
+        description: "Erfahrung mit ETFs, Einzelaktien, Krypto oder verschiedenen Anlageklassen",
+      },
+    ],
+  },
+  {
+    id: 10,
     key: "ziel",
     title: "Wofür legst du an?",
     subtitle: "Dein Hauptziel bestimmt die Risikobereitschaft",

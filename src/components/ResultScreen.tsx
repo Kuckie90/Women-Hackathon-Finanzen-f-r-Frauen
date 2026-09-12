@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  ShieldCheck,
   TrendingUp,
   Sparkles,
   AlertTriangle,
@@ -15,10 +14,13 @@ import {
   Target,
   Clock,
   PiggyBank,
+  HelpCircle,
 } from "lucide-react";
-import { Answers, IstBestand, ProfileType, PotAllocation } from "../types";
+import { BuddhaIcon } from "./BuddhaIcon";
+import { Answers, IstBestand, ProfileType, PotAllocation, PotAllocationRanges } from "../types";
 import {
   ZIELALLOKATION,
+  ZIELALLOKATION_SPANNEN,
   calculateProfile,
   calculateSparraten,
   getPotExamples,
@@ -50,6 +52,7 @@ export function ResultScreen({
   const breakdown = calculateProfile(answers);
   const profile: ProfileType = breakdown.finalProfile;
   const sollAllocation: PotAllocation = ZIELALLOKATION[profile];
+  const sollSpannen: PotAllocationRanges = ZIELALLOKATION_SPANNEN[profile];
 
   const [customAllocation, setCustomAllocation] = useState<PotAllocation | null>(
     answers.customAllocation || null
@@ -61,12 +64,22 @@ export function ResultScreen({
   const sparratenInfo = calculateSparraten(
     answers.monatsrate,
     answers.unterbrechung,
-    answers.nettoeinkommen
+    answers.nettoeinkommen,
+    answers.unterbrechungDetails
   );
+
+  // Rentenlücke-Bedarf & flexible maximale Sparrate für Simulation
+  const rentenSparrateBedarf =
+    answers.lebensziele?.rentenluecke.monatlicheSparrateFuerRente || 0;
 
   // Interactive slider for testing rates
   const [interactiveRate, setInteractiveRate] = useState<number>(
     sparratenInfo.effektiveRate > 0 ? sparratenInfo.effektiveRate : 150
+  );
+
+  const maxSimRate = Math.max(
+    3000,
+    Math.ceil((Math.max(interactiveRate, rentenSparrateBedarf, 1500) * 1.4) / 250) * 250
   );
 
   const monthlySicherheit = Math.round((interactiveRate * activeAllocation.sicherheit) / 100);
@@ -143,12 +156,12 @@ export function ResultScreen({
         </p>
       </div>
 
-      {/* Die 3 Töpfe: Übersichtskarten */}
+      {/* Die 3 Töpfe: Übersichtskarten mit Zielkorridoren (Spannen) */}
       <div className="grid grid-cols-3 gap-2">
         {/* Topf 1: Sicherheit */}
         <div className="p-3 rounded-2xl bg-white border border-[#E5DFD7] text-center space-y-1 shadow-xs">
           <div className="w-7 h-7 mx-auto rounded-full bg-[#B8873B]/10 text-[#B8873B] flex items-center justify-center">
-            <ShieldCheck className="w-4 h-4" />
+            <BuddhaIcon className="w-4 h-4" />
           </div>
           <span className="text-[10px] font-bold text-[#3E2340]/60 uppercase tracking-wider block">
             Sicherheit
@@ -156,7 +169,10 @@ export function ResultScreen({
           <span className="font-serif text-2xl font-bold text-[#3E2340] block">
             {activeAllocation.sicherheit} %
           </span>
-          <span className="text-[10px] text-[#3E2340]/60 block leading-tight">
+          <div className="inline-block px-1.5 py-0.5 rounded-full bg-[#F7F4F0] border border-[#E5DFD7] text-[10px] font-semibold text-[#B8873B]">
+            Korridor: {sollSpannen.sicherheit.min}–{sollSpannen.sicherheit.max} %
+          </div>
+          <span className="text-[10px] text-[#3E2340]/60 block leading-tight pt-0.5">
             Notgroschen & Festgeld
           </span>
         </div>
@@ -172,24 +188,30 @@ export function ResultScreen({
           <span className="font-serif text-2xl font-bold text-[#3E2340] block">
             {activeAllocation.wachstum} %
           </span>
-          <span className="text-[10px] text-[#3E2340]/60 block leading-tight">
+          <div className="inline-block px-1.5 py-0.5 rounded-full bg-[#F7F4F0] border border-[#E5DFD7] text-[10px] font-semibold text-[#3E2340]">
+            Korridor: {sollSpannen.wachstum.min}–{sollSpannen.wachstum.max} %
+          </div>
+          <span className="text-[10px] text-[#3E2340]/60 block leading-tight pt-0.5">
             Welt-Aktien & Rente
           </span>
         </div>
 
-        {/* Topf 3: Spaßgeld */}
+        {/* Topf 3: Träume */}
         <div className="p-3 rounded-2xl bg-[#B8873B]/10 border border-[#B8873B]/30 text-center space-y-1 shadow-xs">
           <div className="w-7 h-7 mx-auto rounded-full bg-[#B8873B] text-white flex items-center justify-center">
             <Sparkles className="w-4 h-4" />
           </div>
           <span className="text-[10px] font-bold text-[#B8873B] uppercase tracking-wider block">
-            Spaßgeld
+            Träume
           </span>
           <span className="font-serif text-2xl font-bold text-[#3E2340] block">
             {activeAllocation.spielgeld} %
           </span>
-          <span className="text-[10px] text-[#3E2340]/70 block leading-tight">
-            Freie Freude & Krypto
+          <div className="inline-block px-1.5 py-0.5 rounded-full bg-white border border-[#B8873B]/30 text-[10px] font-semibold text-[#8A5E1E]">
+            Korridor: {sollSpannen.spielgeld.min}–{sollSpannen.spielgeld.max} %
+          </div>
+          <span className="text-[10px] text-[#3E2340]/70 block leading-tight pt-0.5">
+            Wünsche, Krypto & Freiheit
           </span>
         </div>
       </div>
@@ -197,19 +219,20 @@ export function ResultScreen({
       {/* Händische Anpassung der Töpfe */}
       <PotCustomizer
         recommendedAllocation={sollAllocation}
+        recommendedRanges={sollSpannen}
         currentAllocation={activeAllocation}
         profileName={profile}
         onChangeAllocation={setCustomAllocation}
       />
 
-      {/* Ausführliche Definition & Psychologische Freiheit von Spaßgeld */}
+      {/* Ausführliche Definition & Psychologische Freiheit von Träume */}
       <div className="p-4 rounded-2xl bg-white border border-[#E5DFD7] space-y-2 text-xs shadow-xs">
         <div className="flex items-center gap-2 font-bold text-[#3E2340]">
           <Sparkles className="w-4 h-4 text-[#B8873B]" />
-          <span>Topf 3: Das Spaßgeld-Prinzip (Freiheit ohne Reue)</span>
+          <span>Topf 3: Das Träume-Prinzip (Wünsche & Freiheit ohne Reue)</span>
         </div>
         <p className="text-[#3E2340]/80 leading-relaxed">
-          Das <strong>Spaßgeld-Bucket</strong> ist für Dinge, die dir pure Freude bereiten. Hier bist du völlig frei in deiner Entscheidung. Dieses Geld wird weder jetzt noch in Zukunft zwingend gebraucht — ein Verlust darf dir leidtun, gefährdet aber niemals deine Existenz.
+          Das <strong>Träume-Bucket</strong> ist für deine persönlichen Herzenswünsche, Reisen, besondere Leidenschaften und freie Experimente. Hier bist du völlig frei in deiner Entscheidung. Dieses Geld wird weder jetzt noch in Zukunft zwingend für die Existenz gebraucht — ein Verlust darf dir leidtun, gefährdet aber niemals deine Sicherheit.
         </p>
       </div>
 
@@ -275,6 +298,95 @@ export function ResultScreen({
         </div>
       </div>
 
+      {/* ALTERSVORSORGEREFORM 2026 AUSWERTUNG */}
+      <div className="p-4 rounded-2xl bg-white border border-[#B8873B]/40 space-y-3 shadow-xs">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-xl bg-[#B8873B]/15 text-[#B8873B] flex items-center justify-center shrink-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#B8873B] block">
+                Reform 2026 Auswertung
+              </span>
+              <h3 className="font-bold text-sm text-[#3E2340]">
+                Altersvorsorgedepot & Frühstart-Rente
+              </h3>
+            </div>
+          </div>
+          {onOpenGlossary && (
+            <button
+              type="button"
+              onClick={() => onOpenGlossary("Altersvorsorgedepot")}
+              className="text-[11px] font-semibold text-[#B8873B] hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>Reform-Details</span>
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          {/* Box 1: Altersvorsorgedepot */}
+          <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[#3E2340]">
+                Altersvorsorgedepot (Topf 2)
+              </span>
+              <span className="text-[10px] bg-[#3E2340] text-white px-2 py-0.5 rounded-full font-bold">
+                100 % Aktien-ETFs
+              </span>
+            </div>
+            <p className="text-[11px] text-[#3E2340]/75 leading-relaxed">
+              Die Reform schafft die teuren 100-%-Beitragsgarantien ab. Dadurch schließt du deine monatliche Rentenlücke von {formatEuro(lebensziele.rentenluecke.rentenlueckeMonatlich)} mit der vollen Zinseszins-Kraft der Weltwirtschaft bei gleichzeitigem Steuervorteil.
+            </p>
+          </div>
+
+          {/* Box 2: Frühstart-Rente für Kinder */}
+          <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[#3E2340]">
+                Frühstart-Rente für Kinder
+              </span>
+              <span className="text-[10px] bg-[#2E7D32] text-white px-2 py-0.5 rounded-full font-bold">
+                10 € / Monat geschenkt
+              </span>
+            </div>
+            {lebensziele.reform2026?.hasKinder ? (
+              <div className="space-y-1 text-[11px] text-[#3E2340]/85">
+                <p>
+                  Für deine <strong>{lebensziele.reform2026.kinderAnzahl} Kinder</strong> zahlt der Bund ab Alter 6 bis 18 insgesamt <strong>{formatEuro(lebensziele.reform2026.kinderAnzahl * 1440)}</strong> Basiskapital.
+                </p>
+                {(() => {
+                  const kAnzahl = lebensziele.reform2026.kinderAnzahl || 1;
+                  const eSpar = lebensziele.reform2026.kinderSparbeitragEltern || 0;
+                  const monat = kAnzahl * 10 + eSpar;
+                  const r = 0.06 / 12;
+                  const fv18 = Math.round(monat * ((Math.pow(1 + r, 144) - 1) / r));
+                  const fv67 = Math.round(fv18 * Math.pow(1.06, 49));
+                  return (
+                    <div className="p-1.5 rounded-lg bg-white border border-[#2E7D32]/30 text-[10px] text-[#1B5E20] space-y-0.5">
+                      <div className="flex justify-between font-bold">
+                        <span>Depotwert mit 18 Jahren (@ 6%):</span>
+                        <span>{formatEuro(fv18)}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-[#3E2340]/70">
+                        <span>Zinseszins bis zur Rente des Kindes:</span>
+                        <span>{formatEuro(fv67)}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+              <p className="text-[11px] text-[#3E2340]/75 leading-relaxed">
+                Ab 2026 erhalten alle Kinder ab dem 6. Geburtstag 10 € pro Monat vom Staat in ein zertifiziertes Kinder-Altersvorsorgedepot. Bei 6 % Rendite wächst dieser Sockel bis zum Rentenalter auf über 35.000 € pro Kind heran.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Visual Bar Chart: Ist vs. Soll */}
       {totalIst > 0 && (
         <div className="p-4 rounded-2xl bg-white border border-[#E5DFD7] space-y-3 shadow-xs">
@@ -302,7 +414,7 @@ export function ResultScreen({
               <div
                 style={{ width: `${istProzent.spielgeld}%` }}
                 className="bg-[#8E5B8F] h-full transition-all"
-                title={`Spaßgeld: ${istProzent.spielgeld}%`}
+                title={`Träume: ${istProzent.spielgeld}%`}
               />
             </div>
           </div>
@@ -331,7 +443,7 @@ export function ResultScreen({
               <div
                 style={{ width: `${activeAllocation.spielgeld}%` }}
                 className="bg-[#8E5B8F] h-full transition-all"
-                title={`Spaßgeld: ${activeAllocation.spielgeld}%`}
+                title={`Träume: ${activeAllocation.spielgeld}%`}
               />
             </div>
           </div>
@@ -348,11 +460,114 @@ export function ResultScreen({
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[#8E5B8F]" />
-              <span>Spaßgeld ({activeAllocation.spielgeld}%)</span>
+              <span>Träume ({activeAllocation.spielgeld}%)</span>
             </div>
           </div>
         </div>
       )}
+
+      {/* RAY DALIO ALLWETTER & KLUMPENRISIKO-CHECK */}
+      {istBestand.details && (() => {
+        const d = istBestand.details;
+        const welt = d.weltEtf || 0;
+        const einzel = d.einzelaktien || 0;
+        const gold = d.goldRohstoffe || 0;
+        const riesterFonds = d.riesterKlassisch ? Math.round(d.riesterKlassisch * 0.3) : 0;
+        const totalW = welt + einzel + gold + riesterFonds;
+
+        if (totalW === 0 && (!d.riesterKlassisch || d.riesterKlassisch === 0)) return null;
+
+        const einzelPct = totalW > 0 ? Math.round((einzel / totalW) * 100) : 0;
+        const weltPct = totalW > 0 ? Math.round((welt / totalW) * 100) : 0;
+        const goldPct = totalW > 0 ? Math.round((gold / totalW) * 100) : 0;
+
+        return (
+          <div className="p-4 rounded-2xl bg-white border border-[#E5DFD7] space-y-3 shadow-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-[#3E2340]/10 text-[#3E2340] flex items-center justify-center shrink-0">
+                  <Layers className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#3E2340]/60 block">
+                    Sub-Allokation im Wachstums-Topf
+                  </span>
+                  <h3 className="font-bold text-sm text-[#3E2340]">
+                    Ray-Dalio Allwetter & Klumpenrisiko-Check
+                  </h3>
+                </div>
+              </div>
+              {onOpenGlossary && (
+                <button
+                  type="button"
+                  onClick={() => onOpenGlossary("Topf2Wachstum")}
+                  className="text-[11px] font-semibold text-[#B8873B] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  <span>Prinzip</span>
+                </button>
+              )}
+            </div>
+
+            {/* Breakdown Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+              <div className="p-2.5 rounded-xl bg-[#F7F4F0]">
+                <span className="text-[10px] text-[#3E2340]/60 block font-semibold">Welt-Aktien-ETFs</span>
+                <span className="font-serif font-bold text-sm text-[#3E2340] block">{formatEuro(welt)}</span>
+                <span className="text-[10px] text-[#3E2340]/60">{weltPct} % des Wachstumstopfs</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#F7F4F0]">
+                <span className="text-[10px] text-[#3E2340]/60 block font-semibold">Einzelaktien</span>
+                <span className="font-serif font-bold text-sm text-[#3E2340] block">{formatEuro(einzel)}</span>
+                <span className="text-[10px] text-[#3E2340]/60">{einzelPct} % des Wachstumstopfs</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#F7F4F0]">
+                <span className="text-[10px] text-[#3E2340]/60 block font-semibold">Gold & Sachwerte</span>
+                <span className="font-serif font-bold text-sm text-[#3E2340] block">{formatEuro(gold)}</span>
+                <span className="text-[10px] text-[#3E2340]/60">{goldPct} % (Dalio-Puffer)</span>
+              </div>
+            </div>
+
+            {/* Klumpenrisiko Alert */}
+            {einzel > 0 && einzelPct > 20 && (
+              <div className="p-3 rounded-xl bg-[#C44D34]/10 border border-[#C44D34]/25 text-xs text-[#C44D34] space-y-1">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>Hinweis auf Klumpenrisiko im Wachstumstopf ({einzelPct} % Einzelaktien)</span>
+                </div>
+                <p className="text-[11px] leading-relaxed">
+                  Einzelaktien bergen ein unternehmensspezifisches Ausfallrisiko. Für eine robuste Altersvorsorge empfiehlt die Finanzwissenschaft, das Fundament zu mindestens 80–90 % in einem marktbreiten Welt-ETF (z. B. MSCI World oder FTSE All-World) anzulegen und Einzelaktien als Satelliten (&lt; 10–20 %) zu führen.
+                </p>
+              </div>
+            )}
+
+            {/* Dalio Diversifikation */}
+            {gold > 0 && (
+              <div className="p-3 rounded-xl bg-[#2E7D32]/10 border border-[#2E7D32]/25 text-xs text-[#1B5E20] space-y-1">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>Allwetter-Element nach Ray Dalio aktiv ({formatEuro(gold)})</span>
+                </div>
+                <p className="text-[11px] leading-relaxed">
+                  Edelmetalle und Rohstoffe weisen eine geringe Korrelation zu Aktien auf. Bei Inflation oder Stagflation stabilisieren sie den Wert deines Wachstums-Portfolios spürbar.
+                </p>
+              </div>
+            )}
+
+            {/* Riester-Vertrag Hinweis */}
+            {d.riesterKlassisch && d.riesterKlassisch > 0 && (
+              <div className="p-3 rounded-xl bg-[#B8873B]/10 border border-[#B8873B]/25 text-xs text-[#3E2340] space-y-1">
+                <span className="font-bold text-[#B8873B] block">
+                  Altersvorsorgereform 2026 für Riester ({formatEuro(d.riesterKlassisch)})
+                </span>
+                <p className="text-[11px] leading-relaxed text-[#3E2340]/80">
+                  Bestehende Riester-Verträge sind oft in renditeschwache Garantien gebunden. Ab 2026 kannst du dein Riester-Guthaben voraussichtlich steuer- und förderunschädlich in das neue, garantiefreie <strong>Altersvorsorgedepot</strong> übertragen und rentabler anlegen.
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* MONATLICHE SPARRATEN-AUFTEILUNG & RECHNER */}
       <div className="p-4 rounded-2xl bg-white border border-[#B8873B]/30 space-y-3 shadow-xs">
@@ -393,12 +608,12 @@ export function ResultScreen({
 
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] text-center">
             <span className="text-[10px] text-[#3E2340]/60 block font-semibold">
-              Topf 3 (Spaßgeld)
+              Topf 3 (Träume)
             </span>
             <span className="font-serif font-bold text-base text-[#3E2340] block">
               {formatEuro(monthlySpielgeld)}
             </span>
-            <span className="text-[10px] text-[#3E2340]/60">Freie Freude</span>
+            <span className="text-[10px] text-[#3E2340]/60">Wünsche & Freiheit</span>
           </div>
         </div>
 
@@ -409,25 +624,72 @@ export function ResultScreen({
             Die Überlauf-Regel für deinen Puffer
           </p>
           <p className="text-[11px] leading-relaxed">
-            Sobald dein Sicherheits-Glas die empfohlenen {sparratenInfo.pufferMonate} Monatsausgaben Notgroschen erreicht hat, ist dieser Topf voll. Ab diesem Moment fließen 100 % deiner Monatsrate in Topf 2 (Wachstum) und Topf 3 (Spaßgeld)!
+            Sobald dein Sicherheits-Glas die empfohlenen {sparratenInfo.pufferMonate} Monatsausgaben Notgroschen erreicht hat, ist dieser Topf voll. Ab diesem Moment fließen 100 % deiner Monatsrate in Topf 2 (Wachstum) und Topf 3 (Träume)!
           </p>
         </div>
 
         {/* Sparrate mit Schieberegler simulieren */}
-        <div className="space-y-1 pt-1">
-          <div className="flex justify-between text-[11px] text-[#3E2340]/65">
-            <span>Andere Sparrate simulieren:</span>
-            <span className="font-semibold text-[#3E2340]">{interactiveRate} €</span>
+        <div className="space-y-2 pt-2 border-t border-[#E5DFD7]/60">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[#3E2340]/80">
+              Andere Sparrate simulieren:
+            </span>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number"
+                min="0"
+                step="25"
+                value={interactiveRate}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  setInteractiveRate(isNaN(val) ? 0 : Math.max(0, val));
+                }}
+                className="w-24 px-2 py-1 text-right text-xs font-bold text-[#3E2340] bg-[#F7F4F0] border border-[#E5DFD7] rounded-lg outline-hidden focus:border-[#B8873B]"
+              />
+              <span className="text-xs font-semibold text-[#3E2340]/60">€ / Mon.</span>
+            </div>
           </div>
+
           <input
             type="range"
             min="25"
-            max="1000"
+            max={maxSimRate}
             step="25"
             value={interactiveRate}
             onChange={(e) => setInteractiveRate(parseInt(e.target.value, 10))}
             className="w-full accent-[#B8873B] cursor-pointer"
           />
+
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            {[50, 150, 300, 500, 750, 1000, 1500].map((rate) => (
+              <button
+                key={rate}
+                type="button"
+                onClick={() => setInteractiveRate(rate)}
+                className={`px-2 py-0.5 text-[11px] rounded-md border transition-all cursor-pointer ${
+                  interactiveRate === rate
+                    ? "bg-[#3E2340] text-white border-[#3E2340]"
+                    : "bg-[#F7F4F0] text-[#3E2340]/80 border-[#E5DFD7] hover:border-[#B8873B]"
+                }`}
+              >
+                {rate} €
+              </button>
+            ))}
+
+            {rentenSparrateBedarf > 0 && (
+              <button
+                type="button"
+                onClick={() => setInteractiveRate(Math.round(rentenSparrateBedarf))}
+                className={`px-2 py-0.5 text-[11px] rounded-md border font-semibold transition-all cursor-pointer ${
+                  interactiveRate === Math.round(rentenSparrateBedarf)
+                    ? "bg-[#2E7D32] text-white border-[#2E7D32]"
+                    : "bg-[#2E7D32]/10 text-[#1B5E20] border-[#2E7D32]/30 hover:bg-[#2E7D32]/20"
+                }`}
+              >
+                🎯 Rentenlücke ({Math.round(rentenSparrateBedarf)} €)
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -549,7 +811,7 @@ export function ResultScreen({
               <tr className="border-b border-[#E5DFD7] text-[#3E2340]/60">
                 <th className="pb-2 font-medium">Topf</th>
                 <th className="pb-2 font-medium text-right">Ist</th>
-                <th className="pb-2 font-medium text-right">Soll</th>
+                <th className="pb-2 font-medium text-right">Soll (Korridor)</th>
                 <th className="pb-2 font-medium text-right">Differenz</th>
               </tr>
             </thead>
@@ -557,7 +819,12 @@ export function ResultScreen({
               <tr>
                 <td className="py-2.5 font-semibold text-[#3E2340]">1. Sicherheit</td>
                 <td className="py-2.5 text-right">{formatEuro(istBestand.sicherheit)}</td>
-                <td className="py-2.5 text-right font-medium">{formatEuro(sollEuro.sicherheit)}</td>
+                <td className="py-2.5 text-right font-medium">
+                  <div>{formatEuro(sollEuro.sicherheit)}</div>
+                  <div className="text-[10px] text-[#3E2340]/50 font-normal">
+                    {sollSpannen.sicherheit.min}–{sollSpannen.sicherheit.max} %
+                  </div>
+                </td>
                 <td className="py-2.5 text-right font-bold text-[#3E2340]">
                   {getMeasure(diffEuro.sicherheit)}
                 </td>
@@ -565,15 +832,25 @@ export function ResultScreen({
               <tr>
                 <td className="py-2.5 font-semibold text-[#3E2340]">2. Wachstum</td>
                 <td className="py-2.5 text-right">{formatEuro(istBestand.wachstum)}</td>
-                <td className="py-2.5 text-right font-medium">{formatEuro(sollEuro.wachstum)}</td>
+                <td className="py-2.5 text-right font-medium">
+                  <div>{formatEuro(sollEuro.wachstum)}</div>
+                  <div className="text-[10px] text-[#3E2340]/50 font-normal">
+                    {sollSpannen.wachstum.min}–{sollSpannen.wachstum.max} %
+                  </div>
+                </td>
                 <td className="py-2.5 text-right font-bold text-[#3E2340]">
                   {getMeasure(diffEuro.wachstum)}
                 </td>
               </tr>
               <tr>
-                <td className="py-2.5 font-semibold text-[#3E2340]">3. Spaßgeld</td>
+                <td className="py-2.5 font-semibold text-[#3E2340]">3. Träume</td>
                 <td className="py-2.5 text-right">{formatEuro(istBestand.spielgeld)}</td>
-                <td className="py-2.5 text-right font-medium">{formatEuro(sollEuro.spielgeld)}</td>
+                <td className="py-2.5 text-right font-medium">
+                  <div>{formatEuro(sollEuro.spielgeld)}</div>
+                  <div className="text-[10px] text-[#3E2340]/50 font-normal">
+                    {sollSpannen.spielgeld.min}–{sollSpannen.spielgeld.max} %
+                  </div>
+                </td>
                 <td className="py-2.5 text-right font-bold text-[#3E2340]">
                   {getMeasure(diffEuro.spielgeld)}
                 </td>
@@ -616,7 +893,7 @@ export function ResultScreen({
 
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] space-y-1">
             <span className="font-semibold text-[#3E2340] block">
-              3. Für das Spaßgeld-Glas:
+              3. Für das Träume-Glas:
             </span>
             <p className="text-[#3E2340]/75 leading-relaxed text-[11px]">
               {getPotExamples("spielgeld", answers)}
@@ -693,6 +970,17 @@ export function ResultScreen({
           ein gemeinsames Konto. Der Gender Pension Gap in Deutschland liegt je
           nach Berechnung zwischen 26 und 37 Prozent. Eigenes Vermögen ist
           deine persönliche Unabhängigkeit.
+        </p>
+      </div>
+
+      {/* BaFin-Konformität: Transparenter Bildungs- & Rechts-Disclaimer */}
+      <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-[10px] text-[#3E2340]/60 space-y-1">
+        <div className="flex items-center gap-1.5 font-bold text-[#3E2340]/80">
+          <Info className="w-3.5 h-3.5 text-[#B8873B]" />
+          <span>Rechtlicher Hinweis & BaFin-Konformität gem. § 2 Abs. 2 Nr. 4 WpHG</span>
+        </div>
+        <p className="leading-relaxed">
+          Diese Web-App dient ausschließlich der allgemeinen finanziellen Bildung, Orientierung und Veranschaulichung methodischer Vermögensaufteilungen (Drei-Töpfe-Modell nach Robbins / Benz / Dalio sowie Altersvorsorgereform 2026). Sämtliche Berechnungen, Renditeannahmen und Portfoliostrukturen stellen weder eine Anlageberatung noch eine Aufforderung oder Empfehlung zum Kauf oder Verkauf konkreter Finanzinstrumente dar. Historische Wertentwicklungen sind keine Garantie für die Zukunft.
         </p>
       </div>
 

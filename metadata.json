@@ -1,6 +1,6 @@
 {
-  "name": "Topfgeld",
-  "description": "Drei-Töpfe-Anlagemodell für Frauen: Ermittle deine Zielallokation aus Sicherheit, Wachstum und Spaßgeld, schließe deine Rentenlücke und verfolge deine Lebensziele.",
+  "name": "FinWise",
+  "description": "FinWise – Wissenschaftlich fundierte Drei-Töpfe-Anlageaufteilung für Frauen: Ermittle deine persönliche Zielallokation aus Sicherheit, Wachstum und Träumen, nutze das Altersvorsorgedepot 2026, prüfe Klumpenrisiken und verfolge deine Lebensziele.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,11 +1,18 @@
 import { useState } from "react";
-import { HelpCircle, Check, ArrowRight } from "lucide-react";
+import { HelpCircle, Check, ArrowRight, Calendar, Clock, Briefcase } from "lucide-react";
 import { QuestionDef } from "../data/questionsData";
+import {
+  UnterbrechungDetails,
+  UnterbrechungWann,
+  UnterbrechungDauer,
+  UnterbrechungUmfang,
+} from "../types";
 
 interface QuestionScreenProps {
   question: QuestionDef;
   selectedValue?: string;
-  onSelect: (val: string) => void;
+  onSelect: (val: string, extraDetails?: UnterbrechungDetails) => void;
+  initialDetails?: UnterbrechungDetails;
   isExplainMode: boolean;
   onOpenGlossary: (termKey: string) => void;
 }
@@ -14,18 +21,40 @@ export function QuestionScreen({
   question,
   selectedValue,
   onSelect,
+  initialDetails,
   isExplainMode,
   onOpenGlossary,
 }: QuestionScreenProps) {
   const [currentChoice, setCurrentChoice] = useState<string | undefined>(selectedValue);
 
+  // Details for Auszeit / Stundenreduktion
+  const [wann, setWann] = useState<UnterbrechungWann>(
+    initialDetails?.wann || (selectedValue === "aktuell" ? "sofort" : "in_6_monaten")
+  );
+  const [dauer, setDauer] = useState<UnterbrechungDauer>(
+    initialDetails?.dauer || "6_bis_12_monate"
+  );
+  const [umfang, setUmfang] = useState<UnterbrechungUmfang>(
+    initialDetails?.umfang || "teilzeit_50"
+  );
+
   const handleChoose = (val: string) => {
     setCurrentChoice(val);
+    if (val === "aktuell" && wann !== "sofort") {
+      setWann("sofort");
+    }
   };
 
   const handleConfirm = () => {
     if (currentChoice) {
-      onSelect(currentChoice);
+      if (
+        question.key === "unterbrechung" &&
+        (currentChoice === "ja" || currentChoice === "aktuell")
+      ) {
+        onSelect(currentChoice, { wann, dauer, umfang });
+      } else {
+        onSelect(currentChoice);
+      }
     }
   };
 
@@ -126,6 +155,116 @@ export function QuestionScreen({
             );
           })}
         </div>
+
+        {/* Details zu Auszeit / Stundenreduktion, falls Ja oder Aktuell gewählt */}
+        {question.key === "unterbrechung" &&
+          (currentChoice === "ja" || currentChoice === "aktuell") && (
+            <div
+              id="unterbrechung-details-box"
+              className="mt-4 p-4 rounded-2xl bg-[#F7F4F0] border border-[#B8873B]/40 space-y-4 shadow-xs"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-xl bg-[#B8873B]/15 text-[#B8873B] flex items-center justify-center shrink-0">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-[#3E2340] uppercase tracking-wider">
+                    Details zu deiner Auszeit / Reduktion
+                  </h4>
+                  <p className="text-[11px] text-[#3E2340]/70">
+                    Wichtig für Notgroschen-Größe und flexible Sparraten
+                  </p>
+                </div>
+              </div>
+
+              {/* 1. Wann */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3E2340]">
+                  <Clock className="w-3.5 h-3.5 text-[#B8873B]" />
+                  <span>Wann steht die Veränderung an?</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: "sofort", label: "Bereits jetzt / sofort" },
+                    { value: "in_6_monaten", label: "In nächsten 6 Monaten" },
+                    { value: "in_1_jahr", label: "In ca. 1 Jahr" },
+                    { value: "in_2_bis_5_jahren", label: "In 2–5 Jahren" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setWann(item.value as UnterbrechungWann)}
+                      className={`px-3 py-2 text-xs rounded-xl border text-center transition-all cursor-pointer ${
+                        wann === item.value
+                          ? "bg-[#3E2340] text-[#F7F4F0] border-[#3E2340] font-semibold shadow-xs"
+                          : "bg-white text-[#3E2340] border-[#E5DFD7] hover:border-[#B8873B]"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2. Dauer */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3E2340]">
+                  <Calendar className="w-3.5 h-3.5 text-[#B8873B]" />
+                  <span>Wie lange dauert die Phase voraussichtlich?</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: "3_bis_6_monate", label: "3–6 Monate" },
+                    { value: "6_bis_12_monate", label: "6–12 Monate (z. B. Elternzeit)" },
+                    { value: "1_bis_2_jahre", label: "1–2 Jahre" },
+                    { value: "dauerhaft", label: "Dauerhafte Teilzeit / länger" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setDauer(item.value as UnterbrechungDauer)}
+                      className={`px-3 py-2 text-xs rounded-xl border text-center transition-all cursor-pointer ${
+                        dauer === item.value
+                          ? "bg-[#3E2340] text-[#F7F4F0] border-[#3E2340] font-semibold shadow-xs"
+                          : "bg-white text-[#3E2340] border-[#E5DFD7] hover:border-[#B8873B]"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. Umfang / Art der Reduktion */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#3E2340]">
+                  <Briefcase className="w-3.5 h-3.5 text-[#B8873B]" />
+                  <span>Welche Reduktion steht an?</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: "voll", label: "Vollständige Pause (100 %)" },
+                    { value: "teilzeit_50", label: "Teilzeit (ca. 50 %)" },
+                    { value: "teilzeit_75", label: "Teilzeit (ca. 75–80 %)" },
+                    { value: "flexibel", label: "Noch offen / flexibel" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() => setUmfang(item.value as UnterbrechungUmfang)}
+                      className={`px-3 py-2 text-xs rounded-xl border text-center transition-all cursor-pointer ${
+                        umfang === item.value
+                          ? "bg-[#3E2340] text-[#F7F4F0] border-[#3E2340] font-semibold shadow-xs"
+                          : "bg-white text-[#3E2340] border-[#E5DFD7] hover:border-[#B8873B]"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
         {/* Erklär-Modus info card under the question */}
         {isExplainMode && question.explanationText && (

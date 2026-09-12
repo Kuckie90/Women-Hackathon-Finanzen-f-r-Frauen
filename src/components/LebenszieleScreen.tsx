@@ -3,12 +3,12 @@ import {
   ArrowRight,
   TrendingUp,
   Clock,
-  ShieldCheck,
   Sparkles,
   HelpCircle,
   PiggyBank,
   CheckCircle2,
 } from "lucide-react";
+import { BuddhaIcon } from "./BuddhaIcon";
 import { LebenszieleConfig } from "../types";
 import { calculateRentenluecke } from "../utils/goalsAndPension";
 import { formatEuro } from "../constants/rules";
@@ -27,11 +27,11 @@ export function LebenszieleScreen({
   onOpenGlossary,
 }: LebenszieleScreenProps) {
   // Alter & Rente
-  const [alter, setAlter] = useState<number>(
-    initialConfig?.rentenluecke.aktuellesAlter || 32
+  const [alterStr, setAlterStr] = useState<string>(
+    (initialConfig?.rentenluecke.aktuellesAlter || 32).toString()
   );
-  const [rentenAlter, setRentenAlter] = useState<number>(
-    initialConfig?.rentenluecke.rentenAlter || 67
+  const [rentenAlterStr, setRentenAlterStr] = useState<string>(
+    (initialConfig?.rentenluecke.rentenAlter || 67).toString()
   );
 
   // Default estimations based on Nettoeinkommen (if available)
@@ -42,15 +42,15 @@ export function LebenszieleScreen({
     ? Math.round((nettoeinkommen * 0.52) / 50) * 50
     : initialConfig?.rentenluecke.erwarteteRenteNetto || 1300;
 
-  const [wunschNetto, setWunschNetto] = useState<number>(defaultWunsch);
-  const [erwarteteRente, setErwarteteRente] = useState<number>(defaultErwartet);
+  const [wunschNettoStr, setWunschNettoStr] = useState<string>(defaultWunsch.toString());
+  const [erwarteteRenteStr, setErwarteteRenteStr] = useState<string>(defaultErwartet.toString());
 
   // Mittelfristiges Ziel
   const [mfTitel, setMfTitel] = useState<string>(
     initialConfig?.mittelfristZiel.titel || "Immobilien-Eigenkapital / Sabbatical"
   );
-  const [mfBetrag, setMfBetrag] = useState<number>(
-    initialConfig?.mittelfristZiel.zielbetrag || 20000
+  const [mfBetragStr, setMfBetragStr] = useState<string>(
+    (initialConfig?.mittelfristZiel.zielbetrag || 20000).toString()
   );
   const [mfJahre, setMfJahre] = useState<number>(
     initialConfig?.mittelfristZiel.jahre || 5
@@ -60,9 +60,46 @@ export function LebenszieleScreen({
   const [kfTitel, setKfTitel] = useState<string>(
     initialConfig?.kurzfristZiel.titel || "Notgroschen & liquide Rücklagen"
   );
-  const [kfBetrag, setKfBetrag] = useState<number>(
-    initialConfig?.kurzfristZiel.zielbetrag || 6000
+  const [kfBetragStr, setKfBetragStr] = useState<string>(
+    (initialConfig?.kurzfristZiel.zielbetrag || 6000).toString()
   );
+
+  // Reform 2026: Altersvorsorgedepot & Frühstart-Rente für Kinder
+  const [hasRiester, setHasRiester] = useState<boolean>(
+    initialConfig?.reform2026?.hasRiester ?? false
+  );
+  const [interessiertAltersvorsorgedepot, setInteressiertAltersvorsorgedepot] = useState<boolean>(
+    initialConfig?.reform2026?.interessiertAltersvorsorgedepot ?? true
+  );
+  const [hasKinder, setHasKinder] = useState<boolean>(
+    initialConfig?.reform2026?.hasKinder ?? false
+  );
+  const [kinderAnzahl, setKinderAnzahl] = useState<number>(
+    initialConfig?.reform2026?.kinderAnzahl || 1
+  );
+  const [kinderSparbeitragElternStr, setKinderSparbeitragElternStr] = useState<string>(
+    (initialConfig?.reform2026?.kinderSparbeitragEltern ?? 25).toString()
+  );
+
+  // Helper to remove leading zeros and prevent raw "02000" input bugs
+  const handleCleanNumberInput = (raw: string, setter: (val: string) => void) => {
+    if (raw === "") {
+      setter("");
+      return;
+    }
+    const digits = raw.replace(/\D/g, "");
+    const cleaned = digits.replace(/^0+(?=\d)/, "");
+    setter(cleaned);
+  };
+
+  // Parsed numerical values
+  const alter = parseInt(alterStr, 10) || 30;
+  const rentenAlter = parseInt(rentenAlterStr, 10) || 67;
+  const wunschNetto = parseInt(wunschNettoStr, 10) || 0;
+  const erwarteteRente = parseInt(erwarteteRenteStr, 10) || 0;
+  const mfBetrag = parseInt(mfBetragStr, 10) || 0;
+  const kfBetrag = parseInt(kfBetragStr, 10) || 0;
+  const kinderSparbeitragEltern = parseInt(kinderSparbeitragElternStr, 10) || 0;
 
   // Live calculation of Pension Gap
   const rentenData = calculateRentenluecke(
@@ -79,6 +116,13 @@ export function LebenszieleScreen({
     const config: LebenszieleConfig = {
       rentenCheckAktiv: true,
       rentenluecke: rentenData,
+      reform2026: {
+        hasRiester,
+        interessiertAltersvorsorgedepot,
+        hasKinder,
+        kinderAnzahl: hasKinder ? Math.max(1, kinderAnzahl) : 0,
+        kinderSparbeitragEltern: hasKinder ? Math.max(0, kinderSparbeitragEltern) : 0,
+      },
       kurzfristZiel: {
         titel: kfTitel,
         zielbetrag: Math.max(0, kfBetrag),
@@ -164,11 +208,14 @@ export function LebenszieleScreen({
               <div className="relative flex items-center">
                 <input
                   id="alter-input"
-                  type="number"
-                  min="18"
-                  max="65"
-                  value={alter}
-                  onChange={(e) => setAlter(parseInt(e.target.value) || 30)}
+                  type="text"
+                  inputMode="numeric"
+                  value={alterStr}
+                  placeholder="32"
+                  onChange={(e) => handleCleanNumberInput(e.target.value, setAlterStr)}
+                  onBlur={() => {
+                    if (!alterStr || parseInt(alterStr, 10) < 18) setAlterStr("32");
+                  }}
                   className="w-full min-h-[42px] px-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-[#3E2340] text-sm font-semibold outline-hidden focus:border-[#B8873B]"
                 />
                 <span className="absolute right-3 text-xs text-[#3E2340]/50 pointer-events-none">
@@ -184,11 +231,14 @@ export function LebenszieleScreen({
               <div className="relative flex items-center">
                 <input
                   id="rentenalter-input"
-                  type="number"
-                  min="60"
-                  max="72"
-                  value={rentenAlter}
-                  onChange={(e) => setRentenAlter(parseInt(e.target.value) || 67)}
+                  type="text"
+                  inputMode="numeric"
+                  value={rentenAlterStr}
+                  placeholder="67"
+                  onChange={(e) => handleCleanNumberInput(e.target.value, setRentenAlterStr)}
+                  onBlur={() => {
+                    if (!rentenAlterStr || parseInt(rentenAlterStr, 10) < 55) setRentenAlterStr("67");
+                  }}
                   className="w-full min-h-[42px] px-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-[#3E2340] text-sm font-semibold outline-hidden focus:border-[#B8873B]"
                 />
                 <span className="absolute right-3 text-xs text-[#3E2340]/50 pointer-events-none">
@@ -207,11 +257,16 @@ export function LebenszieleScreen({
               <div className="relative flex items-center">
                 <input
                   id="wunsch-rente-input"
-                  type="number"
-                  step="50"
-                  min="500"
-                  value={wunschNetto}
-                  onChange={(e) => setWunschNetto(parseInt(e.target.value) || 0)}
+                  type="text"
+                  inputMode="numeric"
+                  value={wunschNettoStr}
+                  placeholder="2000"
+                  onChange={(e) => handleCleanNumberInput(e.target.value, setWunschNettoStr)}
+                  onBlur={() => {
+                    if (!wunschNettoStr || parseInt(wunschNettoStr, 10) === 0) {
+                      setWunschNettoStr(defaultWunsch.toString());
+                    }
+                  }}
                   className="w-full min-h-[42px] px-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-[#3E2340] text-sm font-semibold outline-hidden focus:border-[#B8873B]"
                 />
                 <span className="absolute right-3 text-xs text-[#3E2340]/50 pointer-events-none">
@@ -227,11 +282,16 @@ export function LebenszieleScreen({
               <div className="relative flex items-center">
                 <input
                   id="erwartet-rente-input"
-                  type="number"
-                  step="50"
-                  min="0"
-                  value={erwarteteRente}
-                  onChange={(e) => setErwarteteRente(parseInt(e.target.value) || 0)}
+                  type="text"
+                  inputMode="numeric"
+                  value={erwarteteRenteStr}
+                  placeholder="1300"
+                  onChange={(e) => handleCleanNumberInput(e.target.value, setErwarteteRenteStr)}
+                  onBlur={() => {
+                    if (erwarteteRenteStr === "") {
+                      setErwarteteRenteStr(defaultErwartet.toString());
+                    }
+                  }}
                   className="w-full min-h-[42px] px-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-[#3E2340] text-sm font-semibold outline-hidden focus:border-[#B8873B]"
                 />
                 <span className="absolute right-3 text-xs text-[#3E2340]/50 pointer-events-none">
@@ -277,6 +337,183 @@ export function LebenszieleScreen({
           </div>
         </div>
 
+        {/* REFORM 2026: ALTERSVORSORGEDEPOT & FRÜHSTART-RENTE */}
+        <div className="p-4 rounded-2xl bg-white border border-[#B8873B]/40 shadow-xs space-y-3.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-[#B8873B]/15 text-[#B8873B] flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#B8873B] block">
+                  Reform 2026 • Staatliche Förderung
+                </span>
+                <h3 className="font-bold text-sm text-[#3E2340]">
+                  Altersvorsorgedepot & Frühstart-Rente
+                </h3>
+              </div>
+            </div>
+            {onOpenGlossary && (
+              <button
+                type="button"
+                onClick={() => onOpenGlossary("Altersvorsorgedepot")}
+                className="text-[11px] font-semibold text-[#B8873B] hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+                <span>Details</span>
+              </button>
+            )}
+          </div>
+
+          {/* 1. Altersvorsorgedepot / Riester Check */}
+          <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] space-y-2.5">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span className="text-xs font-bold text-[#3E2340] block">
+                  Riester-Vertrag vorhanden?
+                </span>
+                <p className="text-[11px] text-[#3E2340]/70 leading-relaxed">
+                  Alte Riester-Verträge litten unter teuren 100-%-Garantien. Ab 2026 erlaubt das neue <strong>Altersvorsorgedepot</strong> die garantiefreie Anlage in kostengünstige Welt-ETFs bei voller Steuerförderung.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setHasRiester(!hasRiester)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition-all cursor-pointer ${
+                  hasRiester
+                    ? "bg-[#3E2340] text-white"
+                    : "bg-white border border-[#E5DFD7] text-[#3E2340]/70 hover:border-[#B8873B]"
+                }`}
+              >
+                {hasRiester ? "Ja, vorhanden" : "Nein"}
+              </button>
+            </div>
+
+            {hasRiester && (
+              <div className="p-2.5 rounded-lg bg-white border border-[#B8873B]/30 text-[11px] text-[#3E2340]/85 space-y-1">
+                <span className="font-bold text-[#B8873B] block">
+                  💡 Wechsel-Chance ab 2026:
+                </span>
+                <p>
+                  Bestehendes Riester-Guthaben kann voraussichtlich gebührenfrei in ein neues Altersvorsorgedepot übertragen werden. Damit schließt du deine Rentenlücke mit breit gestreuten Welt-ETFs deutlich renditestärker!
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* 2. Frühstart-Rente für Kinder */}
+          <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] space-y-2.5">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <span className="text-xs font-bold text-[#3E2340] flex items-center gap-1.5">
+                  <span>Frühstart-Rente für Kinder</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#B8873B]/20 text-[#B8873B] font-bold">
+                    Neu 2026
+                  </span>
+                </span>
+                <p className="text-[11px] text-[#3E2340]/70 leading-relaxed">
+                  Staatliche Förderung: 10 € / Monat pro Kind ab dem 6. Lebensjahr (ab Jahrgang 2020) direkt in ein zertifiziertes Altersvorsorgedepot.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setHasKinder(!hasKinder)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition-all cursor-pointer ${
+                  hasKinder
+                    ? "bg-[#2E7D32] text-white"
+                    : "bg-white border border-[#E5DFD7] text-[#3E2340]/70 hover:border-[#B8873B]"
+                }`}
+              >
+                {hasKinder ? "Ja, Kinder" : "Nein"}
+              </button>
+            </div>
+
+            {hasKinder && (
+              <div className="p-3 rounded-xl bg-white border border-[#2E7D32]/30 space-y-3">
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="text-[11px] font-semibold text-[#3E2340]/80 block mb-1">
+                      Anzahl Kinder
+                    </label>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setKinderAnzahl(num)}
+                          className={`flex-1 py-1 text-xs rounded-md border font-bold transition-all cursor-pointer ${
+                            kinderAnzahl === num
+                              ? "bg-[#2E7D32] text-white border-[#2E7D32]"
+                              : "bg-[#F7F4F0] text-[#3E2340]/80 border-[#E5DFD7]"
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-[#3E2340]/80 block mb-1">
+                      Eigener monatl. Sparbeitrag
+                    </label>
+                    <div className="relative flex items-center">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={kinderSparbeitragElternStr}
+                        onChange={(e) => handleCleanNumberInput(e.target.value, setKinderSparbeitragElternStr)}
+                        placeholder="25"
+                        className="w-full px-2.5 py-1 text-xs font-bold text-[#3E2340] bg-[#F7F4F0] border border-[#E5DFD7] rounded-lg outline-hidden focus:border-[#2E7D32]"
+                      />
+                      <span className="absolute right-2 text-xs text-[#3E2340]/50 pointer-events-none">
+                        €/M
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Zinseszins-Rechnung für Kinder */}
+                {(() => {
+                  const monatGesamt = kinderAnzahl * 10 + kinderSparbeitragEltern;
+                  const r = 0.06 / 12;
+                  const n = 144; // 12 Jahre (vom 6. bis 18. Lebensjahr)
+                  const fv18 = Math.round(monatGesamt * ((Math.pow(1 + r, n) - 1) / r));
+                  const fv67 = Math.round(fv18 * Math.pow(1.06, 49));
+                  const staatlichGesamt = kinderAnzahl * 1440;
+
+                  return (
+                    <div className="p-2.5 rounded-lg bg-[#2E7D32]/10 border border-[#2E7D32]/20 text-xs text-[#1B5E20] space-y-1">
+                      <div className="flex justify-between font-bold">
+                        <span>Geschenktes Basiskapital vom Staat:</span>
+                        <span>{formatEuro(staatlichGesamt)}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span>Mit 18 Jahren (bei 6 % Rendite):</span>
+                        <span className="font-semibold">{formatEuro(fv18)}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] font-bold border-t border-[#2E7D32]/20 pt-1">
+                        <span>Zinseszins-Hebel bis zur Rente des Kindes:</span>
+                        <span className="text-[#1B5E20]">{formatEuro(fv67)}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {onOpenGlossary && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenGlossary("FruehstartRente")}
+                    className="text-[11px] text-[#2E7D32] underline cursor-pointer block"
+                  >
+                    Wie funktioniert die Frühstart-Rente im Detail?
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* 2. MITTELFRISTIG: 3-10 JAHRE (TOPF 1 & 2) */}
         <div className="p-4 rounded-2xl bg-white border border-[#E5DFD7] shadow-xs space-y-2.5">
           <div className="flex items-center gap-2">
@@ -310,7 +547,7 @@ export function LebenszieleScreen({
                   type="button"
                   onClick={() => {
                     setMfTitel(preset.title);
-                    setMfBetrag(preset.betrag);
+                    setMfBetragStr(preset.betrag.toString());
                     setMfJahre(preset.jahre);
                   }}
                   className={`px-2 py-1 text-[11px] rounded-lg border transition-all cursor-pointer ${
@@ -331,11 +568,14 @@ export function LebenszieleScreen({
                 </span>
                 <div className="relative flex items-center">
                   <input
-                    type="number"
-                    step="1000"
-                    min="0"
-                    value={mfBetrag}
-                    onChange={(e) => setMfBetrag(parseInt(e.target.value) || 0)}
+                    type="text"
+                    inputMode="numeric"
+                    value={mfBetragStr}
+                    placeholder="20000"
+                    onChange={(e) => handleCleanNumberInput(e.target.value, setMfBetragStr)}
+                    onBlur={() => {
+                      if (!mfBetragStr) setMfBetragStr("20000");
+                    }}
                     className="w-full min-h-[40px] px-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-xs font-semibold text-[#3E2340] outline-hidden focus:border-[#B8873B]"
                   />
                   <span className="absolute right-3 text-xs text-[#3E2340]/50 pointer-events-none">
@@ -370,7 +610,7 @@ export function LebenszieleScreen({
         <div className="p-4 rounded-2xl bg-white border border-[#E5DFD7] shadow-xs space-y-2.5">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-xl bg-[#2E7D32]/10 text-[#2E7D32] flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-4 h-4" />
+              <BuddhaIcon className="w-4 h-4" />
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#2E7D32] block">
@@ -400,11 +640,14 @@ export function LebenszieleScreen({
               </span>
               <div className="relative flex items-center">
                 <input
-                  type="number"
-                  step="500"
-                  min="0"
-                  value={kfBetrag}
-                  onChange={(e) => setKfBetrag(parseInt(e.target.value) || 0)}
+                  type="text"
+                  inputMode="numeric"
+                  value={kfBetragStr}
+                  placeholder="6000"
+                  onChange={(e) => handleCleanNumberInput(e.target.value, setKfBetragStr)}
+                  onBlur={() => {
+                    if (!kfBetragStr) setKfBetragStr("6000");
+                  }}
                   className="w-full min-h-[40px] px-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-xs font-semibold text-[#3E2340] outline-hidden focus:border-[#B8873B]"
                 />
                 <span className="absolute right-3 text-xs text-[#3E2340]/50 pointer-events-none">
