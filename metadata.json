@@ -1,0 +1,6 @@
+{
+  "name": "Topfgeld",
+  "description": "Drei-Töpfe-Anlagemodell für Frauen: Ermittle deine Zielallokation aus Sicherheit, Wachstum und Spaßgeld, schließe deine Rentenlücke und verfolge deine Lebensziele.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
