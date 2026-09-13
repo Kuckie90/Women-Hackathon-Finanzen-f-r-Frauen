@@ -1,6 +1,7 @@
 import { ChevronLeft, RotateCcw } from "lucide-react";
 
 interface HeaderProps {
+  moduleTitle?: string;
   stepTitle?: string;
   stepNumber?: number;
   totalSteps?: number;
@@ -12,6 +13,7 @@ interface HeaderProps {
 }
 
 export function Header({
+  moduleTitle = "Assetanalyse",
   stepTitle,
   stepNumber,
   totalSteps,
@@ -39,10 +41,13 @@ export function Header({
           )}
         </div>
 
-        {/* Auf Frageslides ist hier ALLES gelöscht (kein Logo, kein Angelegt, kein MVP, kein Erklär-Modus) */}
-        <div className="flex-1 flex justify-center items-center">
-          {!isQuestion && stepTitle && (
-            <span className="font-serif text-base font-bold text-[#3E2340] tracking-tight">
+        {/* Modul-Titel (z.B. Assetanalyse) immer oben zentriert für klare Orientierung, ohne Logo */}
+        <div className="flex-1 flex flex-col justify-center items-center text-center px-1">
+          <span className="font-serif text-base font-bold text-[#3E2340] tracking-tight leading-tight">
+            {moduleTitle}
+          </span>
+          {stepTitle && !isQuestion && (
+            <span className="text-[11px] text-[#3E2340]/70 font-medium leading-tight mt-0.5">
               {stepTitle}
             </span>
           )}

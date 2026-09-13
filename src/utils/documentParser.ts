@@ -1,5 +1,5 @@
 import { ParsedPosition, UploadedReport } from "../types";
-import { extractTextFromPdf } from "./pdfExtractor";
+import { extractTextFromPdf, renderPdfFirstPageThumbnail } from "./pdfExtractor";
 
 /**
  * Robustes Parsen von Währungsbeträgen.
@@ -8,7 +8,6 @@ import { extractTextFromPdf } from "./pdfExtractor";
  */
 export function parseFinancialNumber(rawStr: string): number | null {
   if (!rawStr) return null;
-  // Entferne Währungssymbole, Leerzeichen
   const cleaned = rawStr.trim().replace(/[^\d.,]/g, "");
   if (!cleaned) return null;
 
@@ -20,14 +19,12 @@ export function parseFinancialNumber(rawStr: string): number | null {
     const lastCommaIndex = cleaned.lastIndexOf(",");
 
     if (lastCommaIndex > lastDotIndex) {
-      // Deutsches Format: 1.250,50 oder 1.250.000,50
-      // Punkt ist Tausendertrennzeichen, Komma ist Dezimaltrenner
+      // Deutsches Format: 1.250,50
       const normalized = cleaned.replace(/\./g, "").replace(",", ".");
       const num = parseFloat(normalized);
       return isNaN(num) ? null : num;
     } else {
-      // Internationales Format: 1,250.50 oder 1,250,000.50
-      // Komma ist Tausendertrennzeichen, Punkt ist Dezimaltrenner
+      // Internationales Format: 1,250.50
       const normalized = cleaned.replace(/,/g, "");
       const num = parseFloat(normalized);
       return isNaN(num) ? null : num;
@@ -35,94 +32,238 @@ export function parseFinancialNumber(rawStr: string): number | null {
   }
 
   if (hasComma && !hasDot) {
-    // Nur Kommas vorhanden:
     const commaParts = cleaned.split(",");
     if (commaParts.length === 2) {
-      // Dezimalkomma: z. B. "1250,50" oder "45,00"
       const num = parseFloat(cleaned.replace(",", "."));
       return isNaN(num) ? null : num;
     }
-    // Mehrere Kommas (z. B. "1,250,000"): Tausendertrennzeichen
     const num = parseFloat(cleaned.replace(/,/g, ""));
     return isNaN(num) ? null : num;
   }
 
   if (hasDot && !hasComma) {
-    // Nur Punkte vorhanden:
     const dotParts = cleaned.split(".");
     if (dotParts.length === 2) {
       const decimals = dotParts[1];
-      // 2 Nachkommastellen: z. B. "1250.50" -> internationales Dezimalformat
       if (decimals.length === 2) {
         const num = parseFloat(cleaned);
         return isNaN(num) ? null : num;
       }
-      // Genau 3 Ziffern nach Punkt: z. B. "1.250" -> deutsches Tausendertrennzeichen
       if (decimals.length === 3 && dotParts[0].length >= 1 && dotParts[0].length <= 3) {
         const num = parseFloat(cleaned.replace(/\./g, ""));
         return isNaN(num) ? null : num;
       }
-      // Andere Längen: normaler Float
       const num = parseFloat(cleaned);
       return isNaN(num) ? null : num;
     } else if (dotParts.length > 2) {
-      // Mehrere Punkte: z. B. "1.250.000" -> Tausendertrennzeichen
       const num = parseFloat(cleaned.replace(/\./g, ""));
       return isNaN(num) ? null : num;
     }
   }
 
-  // Reine Ganzzahl
   const num = parseFloat(cleaned);
   return isNaN(num) ? null : num;
 }
 
 /**
- * 100 % lokales Parsing von Finanzdaten (CSV, TXT, JSON).
- * Keine Serverübertragung, keine Speicherung, absolut privat im Browser.
+ * Konvertiert eine Datei in einen base64 Data-URL String
+ */
+export function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Screenshot direkt über die Browser DisplayMedia-API aufnehmen
+ */
+export async function captureDisplayMediaScreenshot(): Promise<File | null> {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+    throw new Error("Screen-Capture wird von deinem Browser nicht unterstützt.");
+  }
+
+  const stream = await navigator.mediaDevices.getDisplayMedia({
+    video: true,
+    audio: false,
+  });
+
+  const track = stream.getVideoTracks()[0];
+  if (!track) {
+    stream.getTracks().forEach((t) => t.stop());
+    return null;
+  }
+
+  const video = document.createElement("video");
+  video.srcObject = stream;
+  video.playsInline = true;
+  await video.play();
+
+  // Kurz warten, bis der Frame gezeichnet werden kann
+  await new Promise((r) => setTimeout(r, 400));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  }
+
+  // Stream stoppen
+  stream.getTracks().forEach((t) => t.stop());
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], `depot-screenshot-${Date.now()}.png`, {
+          type: "image/png",
+        });
+        resolve(file);
+      } else {
+        resolve(null);
+      }
+    }, "image/png");
+  });
+}
+
+/**
+ * Screenshot oder Bild direkt aus der Zwischenablage lesen
+ */
+export async function getImageFromClipboard(): Promise<File | null> {
+  if (!navigator.clipboard || !navigator.clipboard.read) {
+    return null;
+  }
+  try {
+    const items = await navigator.clipboard.read();
+    for (const item of items) {
+      for (const type of item.types) {
+        if (type.startsWith("image/")) {
+          const blob = await item.getType(type);
+          return new File([blob], `zwischenablage-screenshot-${Date.now()}.png`, { type });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Zwischenablage konnte nicht gelesen werden:", err);
+  }
+  return null;
+}
+
+/**
+ * Hauptfunktion zum Auslesen von Dokumenten:
+ * Unterstützt:
+ * 1. Screenshots & Bilder (.png, .jpg, .jpeg, .webp)
+ * 2. PDF-Dateien (.pdf) – sowohl digitale als auch gescannte
+ * 3. CSV, TXT und JSON
+ *
+ * Versucht zuerst die KI-gestützte Vision-Erkennung (präzise Erkennung aller Broker-Layouts)
+ * und fällt bei Bedarf nahtlos auf die lokale Texterkennung zurück.
  */
 export async function parseStatementFile(file: File): Promise<UploadedReport> {
   const fileNameLower = file.name.toLowerCase();
-  let text = "";
+  const isImage = file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif|bmp)$/i.test(fileNameLower);
+  const isPdf = fileNameLower.endsWith(".pdf") || file.type === "application/pdf";
 
-  // 1. PDF clientseitig lokal mit PDF.js auslesen
-  if (fileNameLower.endsWith(".pdf") || file.type === "application/pdf") {
+  let previewImageUrl: string | undefined = undefined;
+
+  // 1. Vorschau-Thumbnail generieren
+  if (isImage) {
     try {
-      text = await extractTextFromPdf(file);
-      if (!text || text.trim().length === 0) {
+      previewImageUrl = await fileToBase64(file);
+    } catch {
+      // Ignorieren falls Lesefehler
+    }
+  } else if (isPdf) {
+    try {
+      const thumb = await renderPdfFirstPageThumbnail(file);
+      if (thumb) previewImageUrl = thumb;
+    } catch {
+      // Ignorieren
+    }
+  }
+
+  // 2. Erster Versuch: Server-seitige KI-Vision-Erkennung (Gemini 3.8 Flash)
+  try {
+    const base64Data = await fileToBase64(file);
+    const resp = await fetch("/api/extract-statement", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fileBase64: base64Data,
+        mimeType: file.type || (isPdf ? "application/pdf" : isImage ? "image/png" : "text/plain"),
+        fileName: file.name,
+      }),
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.success && data.report && Array.isArray(data.report.positions) && data.report.positions.length > 0) {
         return {
-          fileName: file.name,
-          fileSize: file.size,
-          parsedAt: new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }),
-          positions: [],
-          totals: { sicherheit: 0, wachstum: 0, spielgeld: 0, gesamt: 0 },
-          error: "Aus dem PDF konnte kein maschinenlesbarer Text extrahiert werden (z. B. bei reinen Bild-Scans). Du kannst die Beträge direkt in der Prüfstation oder manuell eintragen.",
+          ...data.report,
+          previewImageUrl: previewImageUrl || data.report.previewImageUrl,
+          extractionMethod: "ai",
         };
       }
+    }
+  } catch (apiErr) {
+    console.warn("AI extraction call not reachable, using local fallback:", apiErr);
+  }
+
+  // 3. Fallback: Lokale Textextraktion (PDF.js oder Textleser)
+  let text = "";
+
+  if (isPdf) {
+    try {
+      text = await extractTextFromPdf(file);
     } catch (pdfErr) {
       console.error("PDF Parsing Fehler:", pdfErr);
       return {
         fileName: file.name,
         fileSize: file.size,
         parsedAt: new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }),
+        previewImageUrl,
         positions: [],
         totals: { sicherheit: 0, wachstum: 0, spielgeld: 0, gesamt: 0 },
-        error: "Die PDF-Datei konnte im Browser nicht entschlüsselt werden. Bitte nutze einen CSV-Export oder trage die Beträge manuell ein.",
+        error:
+          "Die PDF-Datei konnte nicht entschlüsselt werden. Du kannst deine Werte manuell eintragen oder einen Screenshot der Übersicht hochladen.",
       };
     }
-  } else {
-    text = await file.text();
+  } else if (!isImage) {
+    try {
+      text = await file.text();
+    } catch {
+      text = "";
+    }
   }
 
-  // 2. Leere Datei prüfen
+  // Falls es ein Screenshot war und die KI-Erkennung nicht greifen konnte
+  if (isImage && (!text || text.trim().length === 0)) {
+    return {
+      fileName: file.name,
+      fileSize: file.size,
+      parsedAt: new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }),
+      previewImageUrl,
+      positions: [],
+      totals: { sicherheit: 0, wachstum: 0, spielgeld: 0, gesamt: 0 },
+      error:
+        "Der Screenshot wurde geladen, aber es konnten keine Beträge automatisch erkannt werden. Bitte stelle sicher, dass die Beträge und Bezeichnungen gut lesbar sind, oder trage deine Werte direkt in den Feldern ein.",
+    };
+  }
+
+  // Leere Datei prüfen
   if (!text || text.trim().length === 0) {
     return {
       fileName: file.name,
       fileSize: file.size,
       parsedAt: new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }),
+      previewImageUrl,
       positions: [],
       totals: { sicherheit: 0, wachstum: 0, spielgeld: 0, gesamt: 0 },
-      error: "Die Datei ist leer oder enthält keinen Text. Bitte wähle eine Datei mit Finanzdaten oder trage deine Werte manuell ein.",
+      error:
+        "Aus dieser Datei konnte kein Text ausgelesen werden. Bitte wähle eine lesbare PDF-, CSV- oder Bild-Datei oder trage deine Werte manuell ein.",
     };
   }
 
@@ -143,7 +284,7 @@ export async function parseStatementFile(file: File): Promise<UploadedReport> {
     detectedBroker = "Sparkasse / Deka";
   }
 
-  // 3. JSON-Format versuchen
+  // JSON-Format versuchen
   if (fileNameLower.endsWith(".json")) {
     try {
       const data = JSON.parse(text);
@@ -165,56 +306,39 @@ export async function parseStatementFile(file: File): Promise<UploadedReport> {
         });
       }
     } catch {
-      // Bei ungültigem JSON mit Text-Parsing fortfahren
+      // Weiter mit Text-Parsing
     }
   }
 
-  // 4. CSV- oder TXT-Format zeilenweise analysieren
+  // Zeilenweises Text-Parsing
   if (positions.length === 0) {
     const lines = text.split(/\r?\n/);
 
     lines.forEach((originalLine, idx) => {
       const trimmed = originalLine.trim();
-      // Leere Zeilen, Kommentare oder reine Trennlinien überspringen
       if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("---") || trimmed.startsWith("===")) {
         return;
       }
 
-      // Zeile vorfiltern: Daten, Stückzahlen, Transaktions-IDs neutralisieren, damit sie nicht als Euro-Betrag fehlinterpretiert werden
       let sanitizedLine = originalLine;
-
-      // a) Datumswerte entfernen (z. B. 15.03.2024, 2024-03-15, 01.01.26)
       sanitizedLine = sanitizedLine.replace(/\b\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\b/g, " ");
       sanitizedLine = sanitizedLine.replace(/\b\d{4}-\d{2}-\d{2}\b/g, " ");
-
-      // b) Uhrzeiten entfernen (z. B. 14:30, 09:15:00)
       sanitizedLine = sanitizedLine.replace(/\b\d{1,2}:\d{2}(?::\d{2})?\b/g, " ");
-
-      // c) Stückzahlen / Anteile entfernen (z. B. "12 Stk", "5,50 Stück", "100 Anteile", "15 shares")
       sanitizedLine = sanitizedLine.replace(/\b\d+(?:[.,]\d+)?\s*(?:stk|stück|stueck|anteile|shares|qty|st\.)\b/gi, " ");
-
-      // d) Wertpapierkennnummern (ISINs z. B. DE0001234567 oder WKNs) neutralisieren
       sanitizedLine = sanitizedLine.replace(/\b[A-Z]{2}[A-Z0-9]{10}\b/g, " ");
       sanitizedLine = sanitizedLine.replace(/\bWKN\s*:\s*[A-Z0-9]{6}\b/gi, " ");
-
-      // e) Standalone 4-stellige Jahreszahlen (1900–2099) OHNE Währungssymbol und OHNE Dezimaltrenner entfernen
       sanitizedLine = sanitizedLine.replace(/\b(19\d\d|20\d\d)\b(?!\s*(?:€|eur|euro))/gi, " ");
 
-      // Jetzt nach eindeutigen Währungsbeträgen suchen:
-      // - Zahlen mit 2 Dezimalstellen (deutsch 1.250,50 oder internat. 1250.50 / 1,250.50)
-      // - Oder Zahlen mit explizitem Währungszeichen (€ / EUR)
-      const euroRegex = /(?:€|EUR)?\s*([+-]?(?:\d{1,3}(?:\.\d{3})+,\d{2}|\d+,\d{2}|\d{1,3}(?:,\d{3})+\.\d{2}|\d+\.\d{2}))\s*(?:€|EUR)?|([+-]?\d+(?:[.,]\d+)?)\s*(?:€|EUR)/gi;
+      const euroRegex =
+        /(?:€|EUR)?\s*([+-]?(?:\d{1,3}(?:\.\d{3})+,\d{2}|\d+,\d{2}|\d{1,3}(?:,\d{3})+\.\d{2}|\d+\.\d{2}))\s*(?:€|EUR)?|([+-]?\d+(?:[.,]\d+)?)\s*(?:€|EUR)/gi;
       const matches = Array.from(sanitizedLine.matchAll(euroRegex));
 
       if (matches.length > 0) {
-        // Nimm den wahrscheinlichsten Saldo-/Wertbetrag (meist der letzte oder der mit expliziter Währung)
         const match = matches[matches.length - 1];
         const rawValue = match[1] || match[2];
         const amount = parseFinancialNumber(rawValue);
 
-        // Konservative Plausibilitätsprüfung: Betrag zwischen 1 € und 10 Mio. €
         if (amount !== null && !isNaN(amount) && amount >= 1 && amount < 10000000) {
-          // Extrahiere die Zeilenbezeichnung ohne den Betrag
           let name = sanitizedLine
             .replace(match[0], "")
             .replace(/[;"',|]/g, " ")
@@ -224,7 +348,6 @@ export async function parseStatementFile(file: File): Promise<UploadedReport> {
             name = `Position ${idx + 1}`;
           }
 
-          // Kürzen und aufräumen
           name = name.slice(0, 50).trim();
           const category = classifyAsset(name, sanitizedLine);
 
@@ -239,21 +362,20 @@ export async function parseStatementFile(file: File): Promise<UploadedReport> {
     });
   }
 
-  // 5. WICHTIG: Keine erfundenen Fallback-Positionen mehr!
-  // Wenn keine Positionen erkannt werden, leere Liste und Fehlermeldung zurückgeben.
   if (positions.length === 0) {
     return {
       fileName: file.name,
       fileSize: file.size,
       parsedAt: new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }),
       detectedBroker,
+      previewImageUrl,
       positions: [],
       totals: { sicherheit: 0, wachstum: 0, spielgeld: 0, gesamt: 0 },
-      error: "Aus dieser Datei konnten keine eindeutigen Beträge oder Depotwerte erkannt werden. Bitte trage deine Werte einfach im Tab 'Anlageformen' manuell ein.",
+      error:
+        "Aus dieser Datei konnten keine eindeutigen Euro-Beträge erkannt werden. Bitte trage deine Werte einfach in den Feldern unter 'Anlagen eintragen' ein.",
     };
   }
 
-  // Summen berechnen
   let sicherheit = 0;
   let wachstum = 0;
   let spielgeld = 0;
@@ -269,6 +391,8 @@ export async function parseStatementFile(file: File): Promise<UploadedReport> {
     fileSize: file.size,
     parsedAt: new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }),
     detectedBroker,
+    previewImageUrl,
+    extractionMethod: "local",
     positions,
     totals: {
       sicherheit,
@@ -281,12 +405,11 @@ export async function parseStatementFile(file: File): Promise<UploadedReport> {
 
 /**
  * Heuristische Zuordnung einer Wertpapier- oder Kontoposition zu einem der Töpfe
- * basierend auf dem 2026-Bucket-Assignment-Regelwerk.
  */
 function classifyAsset(name: string, context: string): "sicherheit" | "wachstum" | "spielgeld" {
   const text = (name + " " + context).toLowerCase();
 
-  // 1. Spaßgeld / Träume Keywords (Krypto, Hebelprodukte, P2P, Crowdinvesting)
+  // 1. Spaßgeld / Träume
   if (
     text.includes("crypto") ||
     text.includes("krypto") ||
@@ -313,7 +436,7 @@ function classifyAsset(name: string, context: string): "sicherheit" | "wachstum"
     return "spielgeld";
   }
 
-  // 2. Sicherheit Keywords (Einlagen, Geldmarkt, kurzlaufende Staatsanleihen IG <= 5 Jahre, Renten/Versicherungen)
+  // 2. Sicherheit
   if (
     text.includes("tagesgeld") ||
     text.includes("festgeld") ||
@@ -339,13 +462,12 @@ function classifyAsset(name: string, context: string): "sicherheit" | "wachstum"
     text.includes("ruerup") ||
     text.includes("rürup")
   ) {
-    // High-Yield Anleihen oder Schwellenländeranleihen gehören trotz "Anleihe" ins Wachstum
     if (text.includes("high yield") || text.includes("emerging") || text.includes("schwellenland")) {
       return "wachstum";
     }
     return "sicherheit";
   }
 
-  // 3. Wachstum Keywords (Aktien, Welt-ETFs, Themen-ETFs, Gold, offene Immobilienfonds, Zertifikate)
+  // 3. Wachstum
   return "wachstum";
 }

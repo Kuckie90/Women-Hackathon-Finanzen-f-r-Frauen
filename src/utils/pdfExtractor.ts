@@ -1,11 +1,14 @@
 import * as pdfjsLib from "pdfjs-dist";
 
-// Set worker source for pdfjs in Vite environment
+// Set worker source for pdfjs reliably in browser environment
 if (typeof window !== "undefined") {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    "pdfjs-dist/build/pdf.worker.mjs",
-    import.meta.url
-  ).toString();
+  try {
+    const version = (pdfjsLib as any).version || "4.10.38";
+    // Reliable cdnjs / unpkg fallback for pdf.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
+  } catch (err) {
+    console.warn("PDF.js worker initialization notice:", err);
+  }
 }
 
 /**
@@ -33,7 +36,6 @@ export async function extractTextFromPdf(file: File): Promise<string> {
     for (const item of textContent.items) {
       if ("str" in item) {
         const textItem = item as { str: string; transform: number[] };
-        // Wenn sich die vertikale Position (Y) signifikant ändert, neue Zeile anfangen
         const currentY = textItem.transform ? textItem.transform[5] : null;
         if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 5) {
           if (lineStr.trim()) {
@@ -52,4 +54,44 @@ export async function extractTextFromPdf(file: File): Promise<string> {
   }
 
   return fullTextLines.join("\n");
+}
+
+/**
+ * Renders the first page of a PDF file to a base64 image data URL (thumbnail).
+ */
+export async function renderPdfFirstPageThumbnail(file: File): Promise<string | null> {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({
+      data: new Uint8Array(arrayBuffer),
+      useSystemFonts: true,
+    });
+    const pdfDoc = await loadingTask.promise;
+    if (pdfDoc.numPages === 0) return null;
+
+    const page = await pdfDoc.getPage(1);
+    const viewport = page.getViewport({ scale: 1.0 });
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+
+    // Scale to a neat thumbnail width (approx 600px max)
+    const scale = Math.min(1.5, 600 / viewport.width);
+    const scaledViewport = page.getViewport({ scale });
+
+    canvas.width = scaledViewport.width;
+    canvas.height = scaledViewport.height;
+
+    await (page.render as any)({
+      canvasContext: context,
+      viewport: scaledViewport,
+      canvas: canvas,
+    }).promise;
+
+    return canvas.toDataURL("image/jpeg", 0.85);
+  } catch (err) {
+    console.warn("Could not generate PDF thumbnail:", err);
+    return null;
+  }
 }

@@ -80,6 +80,7 @@ const INITIAL_IST_BESTAND: IstBestand = {
 
 export default function App() {
   const [step, setStep] = useState<AppStep>("start");
+  const [currentModule, setCurrentModule] = useState<StartModule>("assetanalyse");
   const [answers, setAnswers] = useState<Answers>(INITIAL_ANSWERS);
   const [istBestand, setIstBestand] = useState<IstBestand>(INITIAL_IST_BESTAND);
   const [hasGateBypassed, setHasGateBypassed] = useState<boolean>(false);
@@ -90,6 +91,7 @@ export default function App() {
   // Reset to initial state
   const handleReset = () => {
     setStep("start");
+    setCurrentModule("assetanalyse");
     setAnswers(INITIAL_ANSWERS);
     setIstBestand(INITIAL_IST_BESTAND);
     setHasGateBypassed(false);
@@ -98,6 +100,7 @@ export default function App() {
 
   // Handler for Start Screen 4 Modules
   const handleSelectStartModule = (module: StartModule) => {
+    setCurrentModule(module);
     if (module === "assetanalyse") {
       setStep("vorfrage");
     } else if (module === "rentenluecke") {
@@ -252,6 +255,7 @@ export default function App() {
       monatsrate,
       nettoeinkommen,
     }));
+    setCurrentModule("assetanalyse");
     setStep("vorfrage");
   };
 
@@ -260,6 +264,7 @@ export default function App() {
       ...prev,
       monatsrate,
     }));
+    setCurrentModule("sparplaner");
     setStep("sparplaner");
   };
 
@@ -269,6 +274,7 @@ export default function App() {
       monatsrate,
       einmalbetrag,
     }));
+    setCurrentModule("assetanalyse");
     setStep("vorfrage");
   };
 
@@ -494,13 +500,23 @@ export default function App() {
     step === "haushaltsrechnung" ||
     step === "sparplaner";
 
+  let moduleTitle = "Assetanalyse";
+  if (currentModule === "rentenluecke") {
+    moduleTitle = "Rentenlücke";
+  } else if (currentModule === "haushaltsrechnung") {
+    moduleTitle = "Haushaltsrechnung";
+  } else if (currentModule === "sparplaner") {
+    moduleTitle = "Sparplaner";
+  }
+
   return (
     <div className="min-h-screen bg-[#F7F4F0] text-[#3E2340] flex flex-col justify-between items-center selection:bg-[#B8873B]/20">
       {/* Mobile-first wrapper: 390px default, centered up to 430px on desktop */}
       <div className="w-full max-w-[430px] min-h-screen flex flex-col bg-[#F7F4F0] border-x border-[#E5DFD7]/60 shadow-xs relative">
-        {/* Header with back button and progress */}
+        {/* Header with back button, module title and progress */}
         {step !== "start" && (
           <Header
+            moduleTitle={moduleTitle}
             stepNumber={stepNumber}
             totalSteps={totalSteps}
             stepTitle={stepTitle}

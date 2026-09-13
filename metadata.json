@@ -1,6 +1,6 @@
 {
   "name": "Angelegt",
-  "description": "Angelegt – Leg an. Mit Plan. Asset Analyse & Orientierung für dein Vermögen. Wissenschaftlich fundierte Drei-Töpfe-Anlageaufteilung, Notgroschen-Planung und Depot-Audit.",
-  "requestFramePermissions": [],
+  "description": "Angelegt – Fundierte Finanzorientierung & Vermögensaufbau für Frauen. Wissenschaftlich fundierte Drei-Töpfe-Anlageaufteilung, Notgroschen-Planung und Depot-Audit.",
+  "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

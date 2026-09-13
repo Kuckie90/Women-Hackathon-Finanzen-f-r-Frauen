@@ -141,7 +141,10 @@ export interface VorsorgeVertraege {
 export interface IstBestandDetails {
   // Topf 1 (Sicherheit)
   tagesgeldGiro: number; // Tagesgeld, Girokonto, Sparbuch
-  festgeldBauspar: number; // Festgeld, Bausparvertrag
+  festgeldBauspar: number; // Festgeld, Bausparvertrag, Geldmarkt
+
+  // Anleihen & Rentenpapiere
+  anleihen?: number; // Staats- & Unternehmensanleihen
 
   // Altersvorsorge
   riesterKlassisch: number; // Für Rückwärtskompatibilität
@@ -154,11 +157,17 @@ export interface IstBestandDetails {
   einzelaktien: number; // Einzelaktien (für Klumpenrisiko-Check)
   goldRohstoffe: number; // Physisches Gold, ETCs, Rohstoffe (Krisendiversifikation nach Dalio)
 
+  // Immobilienanlagen & Sachwerte
+  immobilienfonds?: number; // Offene/geschlossene Immobilienfonds, HausInvest, REITs
+
   // Topf 3 (Spaßgeld / Spielgeld)
   kryptoTrends: number; // Krypto, Trend-Wetten, spekulatives Spielgeld
 
   // Illiquider Sachwert (separat erfasst nach Robbins / Christine Benz)
-  immobilieEigenkapital: number; // Selbstbewohnte Immobilie / getilgtes Eigenkapital
+  immobilieEigenkapital: number; // Selbstbewohnte/vermietete Immobilie / getilgtes Eigenkapital
+
+  // Zusätzliche freie benutzerdefinierte Positionen
+  customPositions?: Array<{ id: string; name: string; amount: number; category: string }>;
 }
 
 export interface IstBestand {
@@ -217,6 +226,8 @@ export interface UploadedReport {
     gesamt: number;
   };
   error?: string;
+  previewImageUrl?: string;
+  extractionMethod?: "ai" | "local";
 }
 
 export interface AuditFinding {
