@@ -249,7 +249,7 @@ export async function parseStatementFile(file: File): Promise<UploadedReport> {
       detectedBroker,
       positions: [],
       totals: { sicherheit: 0, wachstum: 0, spielgeld: 0, gesamt: 0 },
-      error: "Aus dieser Datei konnten keine eindeutigen Beträge oder Depotwerte erkannt werden. Bitte trage deine Werte einfach im Tab 'Töpfe direkt' oder 'Anlageformen' manuell ein.",
+      error: "Aus dieser Datei konnten keine eindeutigen Beträge oder Depotwerte erkannt werden. Bitte trage deine Werte einfach im Tab 'Anlageformen' manuell ein.",
     };
   }
 

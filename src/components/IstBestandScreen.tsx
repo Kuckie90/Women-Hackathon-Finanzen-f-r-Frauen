@@ -43,8 +43,8 @@ export function IstBestandScreen({
   onSkip,
   onOpenGlossary,
 }: IstBestandScreenProps) {
-  // Tabs: "bausteine" (Detaillierte Anlageformen nach Mapping-Tabelle 6a), "manuell" (3 Töpfe direkt), "upload" (Depotauszug)
-  const [activeTab, setActiveTab] = useState<"bausteine" | "manuell" | "upload">("bausteine");
+  // Tabs: "bausteine" (Detaillierte Anlageformen) und "upload" (Depotauszug)
+  const [activeTab, setActiveTab] = useState<"bausteine" | "upload">("bausteine");
 
   // Helper for additive evaluation: "1200 + 3500" -> 4700, handles German & intl notation
   const parseAdditiveValue = (raw: string): number => {
@@ -60,10 +60,6 @@ export function IstBestandScreen({
       }
     }
     return Math.round(total);
-  };
-
-  const sumEntries = (entries: string[]): number => {
-    return entries.reduce((acc, it) => acc + parseAdditiveValue(it), 0);
   };
 
   // Helper to sanitize additive inputs (digits, +, ., ,, and spaces)
@@ -119,67 +115,6 @@ export function IstBestandScreen({
   const [immobilieEigenkapital, setImmobilieEigenkapital] = useState<string>(
     initDet?.immobilieEigenkapital ? initDet.immobilieEigenkapital.toString() : initialValues.immobilien ? initialValues.immobilien.toString() : ""
   );
-
-  // State für direkte 3-Töpfe-Eingabe (manuell) - unterstützt mehrere addierbare Positionen pro Topf!
-  const [sicherheitEntries, setSicherheitEntries] = useState<string[]>([
-    initialValues.sicherheit > 0 ? initialValues.sicherheit.toString() : ""
-  ]);
-  const [wachstumEntries, setWachstumEntries] = useState<string[]>([
-    initialValues.wachstum > 0 ? initialValues.wachstum.toString() : ""
-  ]);
-  const [spielgeldEntries, setSpielgeldEntries] = useState<string[]>([
-    initialValues.spielgeld > 0 ? initialValues.spielgeld.toString() : ""
-  ]);
-  const [immobilienEntries, setImmobilienEntries] = useState<string[]>([
-    initialValues.immobilien ? initialValues.immobilien.toString() : ""
-  ]);
-
-  const updatePotEntry = (
-    pot: "sicherheit" | "wachstum" | "spielgeld" | "immobilien",
-    index: number,
-    value: string
-  ) => {
-    const sanitized = value.replace(/[^\d+.,\s]/g, "");
-    if (pot === "sicherheit") {
-      const next = [...sicherheitEntries];
-      next[index] = sanitized;
-      setSicherheitEntries(next);
-    } else if (pot === "wachstum") {
-      const next = [...wachstumEntries];
-      next[index] = sanitized;
-      setWachstumEntries(next);
-    } else if (pot === "spielgeld") {
-      const next = [...spielgeldEntries];
-      next[index] = sanitized;
-      setSpielgeldEntries(next);
-    } else if (pot === "immobilien") {
-      const next = [...immobilienEntries];
-      next[index] = sanitized;
-      setImmobilienEntries(next);
-    }
-  };
-
-  const addPotEntry = (pot: "sicherheit" | "wachstum" | "spielgeld" | "immobilien") => {
-    if (pot === "sicherheit") setSicherheitEntries([...sicherheitEntries, ""]);
-    else if (pot === "wachstum") setWachstumEntries([...wachstumEntries, ""]);
-    else if (pot === "spielgeld") setSpielgeldEntries([...spielgeldEntries, ""]);
-    else if (pot === "immobilien") setImmobilienEntries([...immobilienEntries, ""]);
-  };
-
-  const removePotEntry = (
-    pot: "sicherheit" | "wachstum" | "spielgeld" | "immobilien",
-    index: number
-  ) => {
-    if (pot === "sicherheit" && sicherheitEntries.length > 1) {
-      setSicherheitEntries(sicherheitEntries.filter((_, i) => i !== index));
-    } else if (pot === "wachstum" && wachstumEntries.length > 1) {
-      setWachstumEntries(wachstumEntries.filter((_, i) => i !== index));
-    } else if (pot === "spielgeld" && spielgeldEntries.length > 1) {
-      setSpielgeldEntries(spielgeldEntries.filter((_, i) => i !== index));
-    } else if (pot === "immobilien" && immobilienEntries.length > 1) {
-      setImmobilienEntries(immobilienEntries.filter((_, i) => i !== index));
-    }
-  };
 
   // Upload states
   const [isDragging, setIsDragging] = useState(false);
@@ -267,21 +202,6 @@ export function IstBestandScreen({
       return;
     }
 
-    if (activeTab === "manuell") {
-      const s = sumEntries(sicherheitEntries);
-      const w = sumEntries(wachstumEntries);
-      const sp = sumEntries(spielgeldEntries);
-      const imm = sumEntries(immobilienEntries);
-
-      onSubmit({
-        sicherheit: s,
-        wachstum: w,
-        spielgeld: sp,
-        immobilien: imm > 0 ? imm : undefined,
-      });
-      return;
-    }
-
     if (activeTab === "upload" && uploadReport && !uploadReport.error && uploadReport.positions.length > 0) {
       onSubmit({
         sicherheit: uploadReport.totals.sicherheit,
@@ -317,26 +237,15 @@ export function IstBestandScreen({
     const spPositions = verifiedPositions.filter((p) => p.category === "spielgeld");
     const immoPositions = verifiedPositions.filter((p) => p.category === "immobilien");
 
-    const sEntries = sPositions.map((p) => p.amount.toString()).filter((s) => s && s !== "0");
-    const wEntries = wPositions.map((p) => p.amount.toString()).filter((s) => s && s !== "0");
-    const spEntries = spPositions.map((p) => p.amount.toString()).filter((s) => s && s !== "0");
-    const immoEntries = immoPositions.map((p) => p.amount.toString()).filter((s) => s && s !== "0");
-
-    setSicherheitEntries(sEntries.length > 0 ? sEntries : [""]);
-    setWachstumEntries(wEntries.length > 0 ? wEntries : [""]);
-    setSpielgeldEntries(spEntries.length > 0 ? spEntries : [""]);
-    if (immoEntries.length > 0) {
-      setImmobilienEntries(immoEntries);
-    }
-
     const sTotal = sPositions.reduce((acc, p) => acc + (p.amount || 0), 0);
     const wTotal = wPositions.reduce((acc, p) => acc + (p.amount || 0), 0);
     const spTotal = spPositions.reduce((acc, p) => acc + (p.amount || 0), 0);
     const immoTotal = immoPositions.reduce((acc, p) => acc + (p.amount || 0), 0);
 
-    setTagesgeldGiro(sTotal.toString());
-    setWeltEtf(wTotal.toString());
-    setKryptoTrends(spTotal.toString());
+    if (sTotal > 0) setTagesgeldGiro(sTotal.toString());
+    if (wTotal > 0) setWeltEtf(wTotal.toString());
+    if (spTotal > 0) setKryptoTrends(spTotal.toString());
+    if (immoTotal > 0) setImmobilieEigenkapital(immoTotal.toString());
 
     if (uploadReport) {
       setUploadReport({
@@ -353,7 +262,7 @@ export function IstBestandScreen({
     }
 
     setShowVerificationStation(false);
-    setActiveTab("manuell");
+    setActiveTab("bausteine");
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -406,12 +315,12 @@ export function IstBestandScreen({
           </p>
         </div>
 
-        {/* Tab Switcher: Bausteine vs. Töpfe direkt vs. Upload */}
-        <div className="grid grid-cols-3 p-1 bg-[#EFECE6] rounded-xl border border-[#E5DFD7] text-xs font-semibold">
+        {/* Tab Switcher: Anlageformen vs. Depotauszug (Upload) */}
+        <div className="grid grid-cols-2 p-1 bg-[#EFECE6] rounded-xl border border-[#E5DFD7] text-xs font-semibold">
           <button
             type="button"
             onClick={() => setActiveTab("bausteine")}
-            className={`min-h-[38px] rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer ${
+            className={`min-h-[38px] rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "bausteine"
                 ? "bg-[#3E2340] text-[#F7F4F0] shadow-xs"
                 : "text-[#3E2340]/70 hover:text-[#3E2340]"
@@ -422,26 +331,8 @@ export function IstBestandScreen({
           </button>
           <button
             type="button"
-            onClick={() => {
-              // Synchronize calculated sums into manual inputs if manual inputs are empty
-              if (mappedSicherheit > 0 && sumEntries(sicherheitEntries) === 0) setSicherheitEntries([mappedSicherheit.toString()]);
-              if (mappedWachstum > 0 && sumEntries(wachstumEntries) === 0) setWachstumEntries([mappedWachstum.toString()]);
-              if (mappedSpielgeld > 0 && sumEntries(spielgeldEntries) === 0) setSpielgeldEntries([mappedSpielgeld.toString()]);
-              if (mappedImmobilien > 0 && sumEntries(immobilienEntries) === 0) setImmobilienEntries([mappedImmobilien.toString()]);
-              setActiveTab("manuell");
-            }}
-            className={`min-h-[38px] rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer ${
-              activeTab === "manuell"
-                ? "bg-[#3E2340] text-[#F7F4F0] shadow-xs"
-                : "text-[#3E2340]/70 hover:text-[#3E2340]"
-            }`}
-          >
-            <span>Töpfe direkt</span>
-          </button>
-          <button
-            type="button"
             onClick={() => setActiveTab("upload")}
-            className={`min-h-[38px] rounded-lg flex items-center justify-center gap-1 transition-all cursor-pointer ${
+            className={`min-h-[38px] rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "upload"
                 ? "bg-[#3E2340] text-[#F7F4F0] shadow-xs"
                 : "text-[#3E2340]/70 hover:text-[#3E2340]"
