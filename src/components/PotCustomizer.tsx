@@ -64,7 +64,7 @@ export function PotCustomizer({
                 </span>
               ) : (
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#2E7D32]/15 text-[#1B5E20] uppercase">
-                  Empfehlung aktiv
+                  Zielprofil aktiv
                 </span>
               )}
             </div>
@@ -85,7 +85,7 @@ export function PotCustomizer({
 
       <div className="text-xs text-[#3E2340]/75 space-y-1 leading-relaxed">
         <p>
-          Deine berechnete Empfehlung (Profil: <strong>{profileName}</strong>) lautet{" "}
+          Deine profilbasierte Zielallokation (Profil: <strong>{profileName}</strong>) lautet{" "}
           <strong>
             {recommendedAllocation.sicherheit} % Sicherheit /{" "}
             {recommendedAllocation.wachstum} % Wachstum /{" "}
@@ -95,7 +95,7 @@ export function PotCustomizer({
         </p>
         {recommendedRanges && (
           <p className="text-[11px] text-[#3E2340]/60">
-            Empfohlene BaFin-konforme Korridore: Sicherheit {recommendedRanges.sicherheit.min}–{recommendedRanges.sicherheit.max} %, Wachstum {recommendedRanges.wachstum.min}–{recommendedRanges.wachstum.max} %, Träume {recommendedRanges.spielgeld.min}–{recommendedRanges.spielgeld.max} %.
+            Berechnete Zielkorridore: Sicherheit {recommendedRanges.sicherheit.min}–{recommendedRanges.sicherheit.max} %, Wachstum {recommendedRanges.wachstum.min}–{recommendedRanges.wachstum.max} %, Träume {recommendedRanges.spielgeld.min}–{recommendedRanges.spielgeld.max} %.
           </p>
         )}
       </div>
@@ -209,7 +209,7 @@ export function PotCustomizer({
                 className="px-2.5 py-1 text-[11px] rounded-lg border border-[#C44D34]/30 bg-[#C44D34]/10 text-[#C44D34] font-semibold hover:bg-[#C44D34]/20 flex items-center gap-1 cursor-pointer ml-auto"
               >
                 <RotateCcw className="w-3 h-3" />
-                <span>Auf Empfehlung zurücksetzen</span>
+                <span>Auf Zielallokation zurücksetzen</span>
               </button>
             )}
           </div>

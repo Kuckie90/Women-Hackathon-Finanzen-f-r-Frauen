@@ -54,14 +54,14 @@ export function VorfrageScreen({ onSelectMode }: VorfrageScreenProps) {
               <strong className="text-[#3E2340]">
                 Dieses Geld darf man unter keinen Umständen brauchen müssen!
               </strong>{" "}
-              Ein Verlust bis zum Totalausfall darf dir wehtun, darf aber niemals deine Existenz gefährden. FinWise sagt dir, wie groß jedes Glas bei dir sein sollte.
+              Ein Verlust bis zum Totalausfall darf dir wehtun, darf aber niemals deine Existenz gefährden. AnGelegt sagt dir, wie groß jedes Glas bei dir sein sollte.
             </p>
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#EFECE6] border border-[#E5DFD7] text-xs text-[#3E2340]/80 space-y-1">
             <p className="font-semibold text-[#3E2340]">Was dich erwartet:</p>
             <p>
-              Wir führen dich Schritt für Schritt durch 8 einfache Fragen. Zu
+              Wir führen dich Schritt für Schritt durch die Fragen. Zu
               jedem Schritt findest du verständliche Erklärungen und kannst
               Fachbegriffe jederzeit antippen.
             </p>

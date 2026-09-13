@@ -113,6 +113,24 @@ export const GLOSSAR: Record<string, GlossaryItem> = {
     detail:
       "Laut Kabinettsbeschluss 2026 (rückwirkend für Jahrgänge ab 2020):\n• Der Staat zahlt 10 € pro Monat (120 € pro Jahr) direkt in ein zertifiziertes Altersvorsorgedepot des Kindes vom 6. bis zum 18. Lebensjahr ein.\n• 12 Jahre à 120 € ergeben 1.440 € reine staatliche Einzahlung.\n• Durch den immensen Zinseszins über 60 Jahre (bis zur Rente des Kindes bei ca. 6 % Rendite) werden aus dieser kleinen staatlichen Anschubfinanzierung voraussichtlich über 40.000 € Rentenvermögen!\n• Eltern können freiwillig einen eigenen Sparbetrag aufstocken, um den Effekt zu vervielfachen.",
   },
+  "Rebalancing": {
+    term: "Portfolio-Rebalancing (Swedroe 5/25-Standard)",
+    shortExplain: "Das Wiederherstellen der ursprünglichen Zielaufteilung nach Marktschwankungen.",
+    detail:
+      "Warum Rebalancing so wirkungsvoll ist:\n• Nach der bewährten Swedroe 5/25-Regel (Vanguard Research) sollte rebalanciert werden, wenn ein Topf um 5 Prozentpunkte absolut oder 25 % relativ von seinem Soll abweicht.\n• Mechanischer Antizyklik-Effekt: Durch Rebalancing verkaufst du automatisch teuer gewordene Anlagen (z. B. nach einer Aktienrallye) und kaufst günstig bewertete Bausteine nach.\n• Steuerschonendes Rebalancing: Wenn möglich, rebalanciert man vorrangig über neue Monatssparraten (Cashflow-Rebalancing), um Veräußerungsgewinnsteuern zu vermeiden.",
+  },
+  "Einlagensicherung": {
+    term: "Gesetzliche Einlagensicherung (§ 8 EinSiG)",
+    shortExplain: "Gesetzlicher Schutzschirm von 100.000 € je Anleger und Kreditinstitut.",
+    detail:
+      "Rechtsrahmen nach dem Einlagensicherungsgesetz (EinSiG):\n• Guthaben auf Girokonten, Tagesgeld und Festgeld sind bis 100.000 € gesetzlich vor Bankpleiten geschützt.\n• Temporär erhöhter Schutz: Bis zu 500.000 € für maximal 6 Monate bei besonderen Lebensereignissen (z. B. Immobilienverkäufe, Scheidung, Abfindungen gem. § 8 Abs. 2 EinSiG).\n• Konsequenz: Barvermögen über 100.000 € sollte immer auf mehrere Banken verteilt oder in liquide, sondervermögensgeschützte Geldmarkt-ETFs angelegt werden.",
+  },
+  "HomeBias": {
+    term: "Home Bias (Heimatmarkt-Neigung)",
+    shortExplain: "Die Neigung, das eigene Heimatland im Portfolio massiv überzugewichten.",
+    detail:
+      "Kapitalmarkt-Fakten:\n• Deutschland erwirtschaftet ca. 4,4 % des weltweiten Bruttoinlandsprodukts und macht nur rund 2,0 % der globalen Aktienmarktkapitalisierung aus.\n• Dennoch halten viele deutsche Privatanleger 30 % bis 50 % ihrer Aktien in heimischen DAX-Titeln (Whitebox 2023).\n• Gefahr des Doppelrisikos: Gerät die heimische Wirtschaft in eine Rezession, drohen zeitgleich Jobunsicherheit und Kursverluste im Depot. Eine breite globale Streuung (Welt-ETF) schützt davor verlässlich.",
+  },
 };
 
 export interface QuestionDef {

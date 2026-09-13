@@ -69,8 +69,8 @@ export function GateScreen({
 
         <div className="p-3.5 rounded-2xl bg-[#EFECE6] border border-[#E5DFD7] text-xs text-[#3E2340]/80">
           <p className="leading-relaxed">
-            Wir empfehlen, die ersten monatlichen Raten vollständig in den
-            Sicherheits-Puffer oder die Kredittilgung zu stecken, bevor das
+            Orientierung: Typischerweise fließen die ersten monatlichen Raten vorrangig in den
+            Sicherheits-Puffer oder die Kredittilgung, bevor das
             Wachstums-Glas befüllt wird.
           </p>
         </div>

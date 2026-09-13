@@ -45,7 +45,7 @@ export const ZIELALLOKATION: Record<ProfileType, PotAllocation> = {
 
 // ============================================================================
 // PROZENT-SPANNEN (ZIELKORRIDORE GEMÄSS BRIEFING ABSCHNITT 3 & 4)
-// Spannen statt starrer Fixwerte für realistische und BaFin-konforme Orientierung
+// Spannen statt starrer Fixwerte für realistische und transparente Orientierung
 // ============================================================================
 export const ZIELALLOKATION_SPANNEN: Record<ProfileType, PotAllocationRanges> = {
   "Absicherung zuerst": {
@@ -394,7 +394,7 @@ export function calculateSparraten(
       aufstockung,
       pufferMonate: 6,
       hinweis: detailText
-        ? `Geplante Veränderung (${detailText}): Daher empfehlen wir 6 Monatsausgaben Notgroschen und eine krisensichere Basis-Sparrate von ${basisrate} €.`
+        ? `Geplante Veränderung (${detailText}): Orientierung: 6 Monatsausgaben Notgroschen und eine krisensichere Basis-Sparrate von ${basisrate} €.`
         : "Eine Rate, die auch in der Unterbrechung läuft — und eine, die du in guten Monaten obendrauf legst.",
     };
   }

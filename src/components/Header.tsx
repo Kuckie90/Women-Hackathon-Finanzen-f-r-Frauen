@@ -41,7 +41,7 @@ export function Header({
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-1.5">
             <span className="font-serif text-lg font-bold tracking-tight text-[#3E2340]">
-              FinWise
+              AnGelegt
             </span>
             {onOpenArchitecture && (
               <button
@@ -77,7 +77,7 @@ export function Header({
         </div>
       </div>
 
-      {showProgress && (
+      {showProgress ? (
         <div className="mt-2.5">
           <div className="flex items-center justify-between text-xs text-[#3E2340]/70 mb-1 font-medium">
             <span>{stepTitle || `Frage ${stepNumber} von ${totalSteps}`}</span>
@@ -90,7 +90,13 @@ export function Header({
             />
           </div>
         </div>
-      )}
+      ) : stepTitle ? (
+        <div className="mt-2 text-center">
+          <span className="inline-block text-[11px] font-semibold text-[#3E2340]/75 bg-[#EFECE6] px-2.5 py-0.5 rounded-full border border-[#E5DFD7]">
+            {stepTitle}
+          </span>
+        </div>
+      ) : null}
     </header>
   );
 }

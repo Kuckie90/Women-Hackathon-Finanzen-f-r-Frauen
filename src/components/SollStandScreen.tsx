@@ -135,23 +135,23 @@ export function SollStandScreen({
         {/* Topf 3: Träume */}
         <div
           id="soll-topf-3"
-          className="p-3.5 rounded-2xl bg-[#B8873B]/10 border border-[#B8873B]/30 text-center space-y-1.5 shadow-xs flex flex-col justify-between"
+          className="p-3.5 rounded-2xl bg-white border border-[#E5DFD7] text-center space-y-1.5 shadow-xs flex flex-col justify-between"
         >
           <div className="space-y-1">
-            <div className="w-8 h-8 mx-auto rounded-full bg-[#B8873B] text-white flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
+            <div className="w-8 h-8 mx-auto rounded-full bg-[#B8873B]/10 text-[#B8873B] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-[#B8873B]" />
             </div>
-            <span className="text-[10px] font-bold text-[#8A5E1E] uppercase tracking-wider block">
+            <span className="text-[10px] font-bold text-[#3E2340]/60 uppercase tracking-wider block">
               Topf 3: Träume
             </span>
             <span className="font-serif text-2xl md:text-3xl font-bold text-[#3E2340] block">
               {sollAllocation.spielgeld} %
             </span>
-            <div className="inline-block px-2 py-0.5 rounded-full bg-white border border-[#B8873B]/30 text-[10px] font-semibold text-[#8A5E1E]">
+            <div className="inline-block px-2 py-0.5 rounded-full bg-[#F7F4F0] border border-[#E5DFD7] text-[10px] font-semibold text-[#8A5E1E]">
               Spannbreite: {sollSpannen.spielgeld.min}–{sollSpannen.spielgeld.max} %
             </div>
           </div>
-          <div className="pt-2 border-t border-[#B8873B]/20 text-[10px] text-[#3E2340]/70 leading-tight">
+          <div className="pt-2 border-t border-[#E5DFD7]/60 text-[10px] text-[#3E2340]/70 leading-tight">
             Freiheit & Wünsche
             {effektiveRate > 0 && (
               <span className="font-semibold text-[#3E2340] block pt-0.5">

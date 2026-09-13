@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   TrendingUp,
   Sparkles,
@@ -15,6 +15,9 @@ import {
   Clock,
   PiggyBank,
   HelpCircle,
+  Scale,
+  ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
 import { BuddhaIcon } from "./BuddhaIcon";
 import { Answers, IstBestand, ProfileType, PotAllocation, PotAllocationRanges } from "../types";
@@ -29,6 +32,8 @@ import {
 import { PotCustomizer } from "./PotCustomizer";
 import { PensionModuleTeaser } from "./PensionModuleTeaser";
 import { UncorrelatedAssetAnalysis } from "./UncorrelatedAssetAnalysis";
+import { runPortfolioAudit } from "../utils/auditEngine";
+import { PortfolioAuditModal } from "./PortfolioAuditModal";
 
 interface ResultScreenProps {
   answers: Answers;
@@ -59,6 +64,13 @@ export function ResultScreen({
   );
 
   const activeAllocation: PotAllocation = customAllocation || sollAllocation;
+
+  // Portfolio-Health-Check Audit
+  const [showAuditModal, setShowAuditModal] = useState(false);
+  const auditResult = useMemo(
+    () => runPortfolioAudit(istBestand, activeAllocation, answers),
+    [istBestand, activeAllocation, answers]
+  );
 
   // 2. Sparraten & Monatsaufteilung
   const sparratenInfo = calculateSparraten(
@@ -188,17 +200,17 @@ export function ResultScreen({
         </div>
 
         {/* Topf 3: Träume */}
-        <div className="p-3 rounded-2xl bg-[#B8873B]/10 border border-[#B8873B]/30 text-center space-y-1 shadow-xs">
-          <div className="w-7 h-7 mx-auto rounded-full bg-[#B8873B] text-white flex items-center justify-center">
-            <Sparkles className="w-4 h-4" />
+        <div className="p-3 rounded-2xl bg-white border border-[#E5DFD7] text-center space-y-1 shadow-xs">
+          <div className="w-7 h-7 mx-auto rounded-full bg-[#B8873B]/10 text-[#B8873B] flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-[#B8873B]" />
           </div>
-          <span className="text-[10px] font-bold text-[#B8873B] uppercase tracking-wider block">
+          <span className="text-[10px] font-bold text-[#3E2340]/60 uppercase tracking-wider block">
             Träume
           </span>
           <span className="font-serif text-2xl font-bold text-[#3E2340] block">
             {activeAllocation.spielgeld} %
           </span>
-          <div className="inline-block px-1.5 py-0.5 rounded-full bg-white border border-[#B8873B]/30 text-[10px] font-semibold text-[#8A5E1E]">
+          <div className="inline-block px-1.5 py-0.5 rounded-full bg-[#F7F4F0] border border-[#E5DFD7] text-[10px] font-semibold text-[#8A5E1E]">
             Korridor: {sollSpannen.spielgeld.min}–{sollSpannen.spielgeld.max} %
           </div>
           <span className="text-[10px] text-[#3E2340]/70 block leading-tight pt-0.5">
@@ -469,6 +481,87 @@ export function ResultScreen({
         answers={answers}
         onOpenGlossary={onOpenGlossary}
       />
+
+      {/* PORTFOLIO-HEALTH-CHECK & AUDIT TEASER CARD */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#B8873B]/40 space-y-3.5 shadow-xs">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative shrink-0">
+              <div
+                className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center border-2 ${
+                  auditResult.totalScore >= 85
+                    ? "border-emerald-500 bg-emerald-50/60 text-emerald-950"
+                    : auditResult.totalScore >= 70
+                    ? "border-amber-500 bg-amber-50/60 text-amber-950"
+                    : "border-rose-500 bg-rose-50/60 text-rose-950"
+                }`}
+              >
+                <span className="font-serif font-bold text-xl leading-none">
+                  {auditResult.totalScore}
+                </span>
+                <span className="text-[9px] uppercase font-bold text-slate-500 mt-0.5">/ 100</span>
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#B8873B]">
+                  Depot-Health-Check & Audit
+                </span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 bg-[#F7F4F0] text-[#3E2340]/70 rounded border border-[#E5DFD7]">
+                  28 Regeln
+                </span>
+              </div>
+              <h3 className="font-serif font-bold text-base text-[#3E2340]">
+                {auditResult.totalScore >= 85
+                  ? "Ausgezeichnete Portfoliostruktur"
+                  : auditResult.totalScore >= 70
+                  ? "Solide mit konkreten Stellschrauben"
+                  : "Erhöhter Handlungsbedarf erkannt"}
+              </h3>
+              <p className="text-xs text-[#3E2340]/70 mt-0.5">
+                Audit gegen MSCI World 2026, § 8 EinSiG (100k €) & Swedroe 5/25 Rebalancing.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowAuditModal(true)}
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#3E2340] text-white font-semibold text-xs hover:bg-[#2A182C] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs shrink-0"
+          >
+            <Scale className="w-3.5 h-3.5 text-[#B8873B]" />
+            <span>Audit-Bericht öffnen</span>
+          </button>
+        </div>
+
+        {/* Quick Micro-Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
+          <div className="p-2.5 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7]/80">
+            <span className="text-[10px] text-[#3E2340]/60 block">Struktur & Notgroschen</span>
+            <span className="font-bold text-[#3E2340] font-serif">
+              {auditResult.blockScores.struktur.score} / {auditResult.blockScores.struktur.maxScore} Pkt.
+            </span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7]/80">
+            <span className="text-[10px] text-[#3E2340]/60 block">Einlagensicherung</span>
+            <span className="font-bold text-[#3E2340] font-serif">
+              {auditResult.blockScores.sicherheit.score} / {auditResult.blockScores.sicherheit.maxScore} Pkt.
+            </span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7]/80">
+            <span className="text-[10px] text-[#3E2340]/60 block">Wachstum & Streuung</span>
+            <span className="font-bold text-[#3E2340] font-serif">
+              {auditResult.blockScores.wachstum.score} / {auditResult.blockScores.wachstum.maxScore} Pkt.
+            </span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7]/80">
+            <span className="text-[10px] text-[#3E2340]/60 block">Swedroe Rebalancing</span>
+            <span className={`font-bold font-serif ${auditResult.swedroeRebalancing.needsRebalancing ? "text-amber-800" : "text-emerald-800"}`}>
+              {auditResult.swedroeRebalancing.needsRebalancing ? "Drift > Toleranz" : "Im Korridor"}
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* MONATLICHE SPARRATEN-AUFTEILUNG & RECHNER */}
       <div className="p-4 rounded-2xl bg-white border border-[#B8873B]/30 space-y-3 shadow-xs">
@@ -874,11 +967,11 @@ export function ResultScreen({
         </p>
       </div>
 
-      {/* BaFin-Konformität: Transparenter Bildungs- & Rechts-Disclaimer */}
+      {/* Bildungs- & Rechts-Disclaimer */}
       <div className="p-3 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-[10px] text-[#3E2340]/60 space-y-1">
         <div className="flex items-center gap-1.5 font-bold text-[#3E2340]/80">
           <Info className="w-3.5 h-3.5 text-[#B8873B]" />
-          <span>Rechtlicher Hinweis & BaFin-Konformität gem. § 2 Abs. 2 Nr. 4 WpHG</span>
+          <span>Rechtlicher Hinweis & Transparenz</span>
         </div>
         <p className="leading-relaxed">
           Diese Web-App dient ausschließlich der allgemeinen finanziellen Bildung, Orientierung und Veranschaulichung methodischer Vermögensaufteilungen (Drei-Töpfe-Modell nach Robbins / Benz / Dalio sowie Altersvorsorgereform 2026). Sämtliche Berechnungen, Renditeannahmen und Portfoliostrukturen stellen weder eine Anlageberatung noch eine Aufforderung oder Empfehlung zum Kauf oder Verkauf konkreter Finanzinstrumente dar. Historische Wertentwicklungen sind keine Garantie für die Zukunft.
@@ -896,6 +989,15 @@ export function ResultScreen({
           <span>Neu berechnen oder anpassen</span>
         </button>
       </div>
+
+      {/* Audit Modal */}
+      {showAuditModal && (
+        <PortfolioAuditModal
+          auditResult={auditResult}
+          onClose={() => setShowAuditModal(false)}
+          onOpenGlossary={onOpenGlossary ? () => onOpenGlossary("Rebalancing") : undefined}
+        />
+      )}
     </div>
   );
 }

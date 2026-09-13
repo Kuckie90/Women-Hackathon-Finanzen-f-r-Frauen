@@ -291,10 +291,16 @@ export default function App() {
     }
   };
 
-  // Calculate question step numbers for progress bar
+  // Calculate question step numbers and titles for progress bar and header
   let stepNumber: number | undefined;
-  const totalSteps = 11;
+  let totalSteps: number | undefined = 10;
+  let stepTitle: string | undefined;
+
   switch (step) {
+    case "vorfrage":
+      stepTitle = "Vorfrage: Begleitmodus";
+      totalSteps = undefined;
+      break;
     case "q1_puffer":
       stepNumber = 1;
       break;
@@ -325,11 +331,37 @@ export default function App() {
     case "q10_ziel":
       stepNumber = 10;
       break;
+    case "q_lebensziele":
+      stepTitle = "Lebensziele & Renten-Check";
+      totalSteps = undefined;
+      break;
     case "q8_betraege":
-      stepNumber = 11;
+      stepTitle = "Beträge & Sparrate";
+      totalSteps = undefined;
+      break;
+    case "q_optional":
+      stepTitle = "Werte & Präferenzen (optional)";
+      totalSteps = undefined;
+      break;
+    case "soll_stand":
+      stepTitle = "Deine Zielallokation";
+      totalSteps = undefined;
+      break;
+    case "ist_bestand":
+      stepTitle = "Was liegt aktuell wo?";
+      totalSteps = undefined;
+      break;
+    case "gate":
+      stepTitle = "Sicherheits-Check";
+      totalSteps = undefined;
+      break;
+    case "auswertung":
+      stepTitle = "Ergebnis & Vermögensstruktur";
+      totalSteps = undefined;
       break;
     default:
       stepNumber = undefined;
+      totalSteps = undefined;
   }
 
   const isExplainMode = !answers.erfahren;
@@ -343,6 +375,7 @@ export default function App() {
           <Header
             stepNumber={stepNumber}
             totalSteps={totalSteps}
+            stepTitle={stepTitle}
             onBack={handleBack}
             onReset={handleReset}
             isExplainMode={isExplainMode}

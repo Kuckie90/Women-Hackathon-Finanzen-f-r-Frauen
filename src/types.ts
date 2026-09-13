@@ -196,7 +196,7 @@ export interface ParsedPosition {
   id: string;
   name: string;
   amount: number;
-  category: "sicherheit" | "wachstum" | "spielgeld";
+  category: "sicherheit" | "wachstum" | "spielgeld" | "immobilien";
   notes?: string;
 }
 
@@ -210,7 +210,55 @@ export interface UploadedReport {
     sicherheit: number;
     wachstum: number;
     spielgeld: number;
+    immobilien?: number;
     gesamt: number;
+  };
+  error?: string;
+}
+
+export interface AuditFinding {
+  id: string;
+  ruleId: string;
+  block: "struktur" | "sicherheit" | "wachstum" | "klumpen" | "produkt" | "kosten" | "rebalancing";
+  level: "green" | "yellow" | "red" | "info";
+  title: string;
+  // Guardrail Vierklang: Befund (mit Zahl) -> Referenz -> Stressfall -> Reflexionsfrage
+  findingText: string;     // Konkreter Befund mit Zahl
+  referenceText: string;   // Fachliche Referenz (Benchmark, Konvention oder Gesetz)
+  stressText?: string;     // Was passiert im Stressfall / Szenario?
+  questionText?: string;   // Reflektierende Frage für die Nutzerin
+  isLaw: boolean;          // Gesetzliche Vorgabe (z.B. § 8 EinSiG, § 255 KAGB) vs. Konvention
+  source: string;          // Quellenangabe
+  scoreDeduction: number;  // Abgezogene Punkte
+}
+
+export interface AuditBlockScore {
+  key: string;
+  label: string;
+  score: number;
+  maxScore: number;
+  yellowCount: number;
+  redCount: number;
+}
+
+export interface PortfolioAuditResult {
+  totalScore: number; // 0 bis 100
+  blockScores: {
+    struktur: AuditBlockScore;
+    sicherheit: AuditBlockScore;
+    wachstum: AuditBlockScore;
+    klumpen: AuditBlockScore;
+    produkt_kosten: AuditBlockScore;
+  };
+  findings: AuditFinding[]; // Nur Gelb- und Rot-Meldungen sowie Empfehlungen
+  positiveFindings: AuditFinding[]; // Grün-Meldungen (Positivbefunde gemäß Phrasing Guardrails)
+  swedroeRebalancing: {
+    needsRebalancing: boolean;
+    urgency: "none" | "moderate" | "high";
+    sicherheitDrift: { absolutePP: number; relative: number; direction: "over" | "under" | "in_band" };
+    wachstumDrift: { absolutePP: number; relative: number; direction: "over" | "under" | "in_band" };
+    spielgeldDrift: { absolutePP: number; relative: number; direction: "over" | "under" | "in_band" };
+    summaryText: string;
   };
 }
 

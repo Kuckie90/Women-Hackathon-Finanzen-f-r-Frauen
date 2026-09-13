@@ -1,6 +1,6 @@
 {
-  "name": "FinWise",
-  "description": "FinWise – Wissenschaftlich fundierte Drei-Töpfe-Anlageaufteilung für Frauen: Ermittle deine persönliche Zielallokation aus Sicherheit, Wachstum und Träumen, nutze das Altersvorsorgedepot 2026, prüfe Klumpenrisiken und verfolge deine Lebensziele.",
+  "name": "AnGelegt",
+  "description": "AnGelegt – Leg an. Mit Plan. Asset Analyse & Orientierung für dein Vermögen. Wissenschaftlich fundierte Drei-Töpfe-Anlageaufteilung, Notgroschen-Planung und Depot-Audit.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

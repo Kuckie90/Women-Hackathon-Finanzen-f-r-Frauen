@@ -49,7 +49,7 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
           <div className="p-4 rounded-2xl bg-white border border-[#E5DFD7] space-y-4 shadow-xs">
             <div className="text-center space-y-1">
               <span className="text-[10px] font-bold text-[#B8873B] uppercase tracking-wider block">
-                Architekturmodell FinWise
+                Architekturmodell AnGelegt
               </span>
               <p className="text-xs font-semibold text-[#3E2340]">
                 Modulare Aufteilung: MVP vs. Gesamtlösung
@@ -70,7 +70,7 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
                       Asset Tool
                     </span>
                     <span className="text-[10px] text-[#2E7D32] font-medium block">
-                      Analyse & Beratung
+                      Analyse & Orientierung
                     </span>
                   </div>
                   <p className="text-[9px] text-[#1B5E20]/80 leading-tight pt-1">
@@ -104,7 +104,7 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
               <div className="p-3 rounded-2xl bg-[#EFECE6] border border-[#D5CEC4] text-center space-y-1">
                 <div className="flex items-center justify-center gap-1.5 font-bold text-xs text-[#3E2340]">
                   <Database className="w-3.5 h-3.5 text-[#B8873B]" />
-                  <span>FinWise Core Plattform & Datenschnittstelle</span>
+                  <span>AnGelegt Core Plattform & Datenschnittstelle</span>
                 </div>
                 <p className="text-[10px] text-[#3E2340]/70">
                   Schnittstelle zur Zusammenführung von Asset-Allokation, Haushaltsbudget & Risikoparametern
@@ -148,7 +148,7 @@ export function ArchitectureModal({ isOpen, onClose }: ArchitectureModalProps) {
           {/* Explanation Text */}
           <div className="space-y-3">
             <h3 className="font-bold text-sm text-[#3E2340]">
-              Warum der MVP-Fokus auf Asset Analyse & Beratung?
+              Warum der MVP-Fokus auf Asset Analyse & Orientierung?
             </h3>
             <p>
               Unser aktuelles <strong>Asset Tool (MVP)</strong> konzentriert sich bewusst auf die Kernherausforderung: Frauen in Deutschland bei der <strong>wissenschaftlich fundierten Anlageaufteilung und Portfolio-Analyse</strong> zu unterstützen.
