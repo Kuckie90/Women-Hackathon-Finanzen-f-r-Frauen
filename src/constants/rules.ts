@@ -420,45 +420,33 @@ export function getPotExamples(
   answers: Answers
 ): string {
   if (pot === "sicherheit") {
-    const techHint = answers.techAffinitaet === "digital" 
-      ? " (Tagesgeld- & Geldmarktkonten via Neobroker oder Direktbank)" 
-      : answers.techAffinitaet === "klassisch" 
-      ? " (Tages- & Festgeldkonto bei deiner Hausbank vor Ort)" 
-      : "";
-    return `Sichere Anlagen mit absolutem Kapitalerhalt, garantierter Liquidität und null Kursrisiko: Tagesgeld (Notgroschen für unvorhergesehene Ausgaben), Festgeld, Geldmarktfonds, kurzlaufende Euro-Staatsanleihen${techHint}.`;
+    return "Methodische Kategorie: Absoluter Kapitalerhalt, garantierte Liquidität und geringes Risiko. Typische Instrumente: Tagesgeld (Notgroschen für unvorhergesehene Ausgaben), Festgeld, Geldmarktfonds oder kurzlaufende Euro-Staatsanleihen höchster Bonität.";
   }
 
   if (pot === "wachstum") {
     const nScale = answers.nachhaltigkeitScale ?? (answers.nachhaltigkeit === "wichtig" ? 8 : 4);
     const gScale = answers.greifbarScale ?? (answers.greifbar === "greifbar" ? 8 : 3);
-    const marken = answers.markenPraeferenz;
 
     const isHighSustainability = nScale >= 6;
     const isHighTangible = gScale >= 6;
 
-    let aktienText = "breit gestreute Welt-Aktien-ETFs (tausende weltweite Unternehmen, z. B. MSCI World / FTSE All-World)";
+    let aktienText = "breit gestreute Welt-Aktien-ETFs (tausende weltweite Unternehmen über bewährte Welt-Indizes)";
     if (isHighSustainability) {
       aktienText =
         nScale >= 8
-          ? "strenge nachhaltige SRI/ESG Welt-Aktien-ETFs (ohne Rüstung, Kohle, Tabak)"
+          ? "strenge nachhaltige Welt-Aktien-ETFs nach SRI/ESG-Kriterien (Ausschluss von Rüstung, Kohle, Tabak)"
           : "breit gestreute Welt-Aktien-ETFs mit Nachhaltigkeitsfilter";
     }
 
-    if (marken === "bekannte_marken") {
-      aktienText += " mit Beimischung etablierter Qualitätsmarken";
-    } else if (marken === "offen") {
-      aktienText += " in Core-Satellite-Struktur";
-    }
-
     const goldText = isHighTangible
-      ? "physisches Gold (Tresor/Schließfach) bzw. Xetra-Gold als Krisenpuffer"
-      : "Gold als wertbeständige Beimischung";
+      ? ", ergänzt um physisches Gold bzw. Gold-Wertpapiere als haptische Krisenbeimischung"
+      : ", ergänzt um Gold oder Immobilienanteile als wertbeständige Sachwert-Beimischung";
 
-    return `Risikoaffiner und wachstumsstärker – der Motor für langfristigen Vermögensaufbau & Altersvorsorge: ${aktienText}, ergänzt um ${goldText}.`;
+    return `Methodische Kategorie: Risikoaffiner und substanziell wachstumsstärker – der Motor für langfristigen Vermögensaufbau & Altersvorsorge: ${aktienText}${goldText}.`;
   }
 
   // spaßgeld / spielgeld / träume
-  return `Kann bei Gelingen für Träume genutzt werden – dieses Geld darf man aber unter keinen Umständen im Alltag oder für die Existenz brauchen müssen! Vollständig bis zum Totalverlust verkraftbar: Krypto (Bitcoin, Ethereum – max. 50 % dieses Topfes), chancenreiche Einzelaktien, Trendthemen, freie Experimente.`;
+  return "Methodische Kategorie: Kann bei Gelingen für persönliche Träume genutzt werden – dieses Kapital darf man jedoch unter keinen Umständen im Alltag oder für die Existenz brauchen müssen! Vollständig bis zum Totalverlust verkraftbar: Freie Chancen, Trendthemen, Krypto-Assets oder Einzeltitel (max. 50 % dieses Topfes).";
 }
 
 /**

@@ -1047,7 +1047,7 @@ export function IstBestandScreen({
                 </div>
               </div>
               <p className="text-[11px] text-[#3E2340]/70">
-                Tagesgeld, Notgroschen, Festgeld, Geldmarkt, Instandhaltungsrücklage. Kapitalerhalt & kein Kursrisiko.
+                Tagesgeld, Notgroschen, Festgeld, Geldmarkt, Instandhaltungsrücklage. Kapitalerhalt & geringes Risiko.
               </p>
 
               <div className="space-y-2 pt-1">

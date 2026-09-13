@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { HelpCircle, Check, ArrowRight, Calendar, Clock, Briefcase, Info } from "lucide-react";
+import { HelpCircle, Check, ArrowRight, Calendar, Clock, Briefcase, Info, Target, Sparkles } from "lucide-react";
 import { QuestionDef } from "../data/questionsData";
 import {
   UnterbrechungDetails,
@@ -7,6 +7,7 @@ import {
   UnterbrechungDauer,
   UnterbrechungUmfang,
 } from "../types";
+import { formatEuro } from "../constants/rules";
 
 interface QuestionScreenProps {
   question: QuestionDef;
@@ -16,6 +17,9 @@ interface QuestionScreenProps {
   isExplainMode: boolean;
   onOpenGlossary: (termKey: string) => void;
   contextNote?: string;
+  hasCalculatedRentenluecke?: boolean;
+  onNavigateToRentenluecke?: () => void;
+  rentenRate?: number;
 }
 
 export function QuestionScreen({
@@ -26,6 +30,9 @@ export function QuestionScreen({
   isExplainMode,
   onOpenGlossary,
   contextNote,
+  hasCalculatedRentenluecke,
+  onNavigateToRentenluecke,
+  rentenRate,
 }: QuestionScreenProps) {
   const [currentChoice, setCurrentChoice] = useState<string | undefined>(selectedValue);
 
@@ -66,6 +73,16 @@ export function QuestionScreen({
       className="flex flex-col flex-1 px-5 pt-2 pb-4"
     >
       <div className="space-y-4 my-auto py-2">
+        {/* Category Badge */}
+        {question.category && (
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B8873B]/10 text-[#8A5E1E] text-[11px] font-semibold tracking-wide border border-[#B8873B]/20">
+              <Sparkles className="w-3 h-3 text-[#B8873B]" />
+              <span>{question.category}</span>
+            </span>
+          </div>
+        )}
+
         {/* Title & Subtitle */}
         <div className="space-y-1.5">
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#3E2340] leading-snug">
@@ -111,7 +128,7 @@ export function QuestionScreen({
                 <strong>• Welches Geld ist gemeint?</strong> Hier geht es um das Geld, das du für den langfristigen Vermögensaufbau (Topf 2: Welt-ETFs) oder persönliche Träume (Topf 3) anlegen möchtest. Dein <em>Notgroschen</em> (Topf 1) bleibt selbstverständlich unberührt und jederzeit verfügbar auf dem Tagesgeldkonto.
               </p>
               <p>
-                <strong>• Wieviel Geld?</strong> Deine genaue Summe (Einmalbetrag & monatliche Sparrate) bestimmst du gleich in Schritt 8. Hier geht es rein um den <strong>Zeithorizont</strong>: Wie viele Jahre darf das Geld unberührt für dich arbeiten?
+                <strong>• Wieviel Geld?</strong> Hier geht es rein um den <strong>Zeithorizont</strong>: Wie viele Jahre darf das Geld unberührt für dich arbeiten? Deine genaue Sparrate und Allokation schauen wir uns direkt nach der Ermittlung deiner Topfzuteilung an.
               </p>
             </div>
           </div>
@@ -350,6 +367,58 @@ export function QuestionScreen({
             <p className="text-xs leading-relaxed text-[#3E2340]/80">
               {question.explanationText}
             </p>
+          </div>
+        )}
+
+        {/* Rentenlücken-Modul Button & Status Card for Question 10 (Ziel) */}
+        {question.key === "ziel" && (
+          <div
+            id="q10-rentenluecke-card"
+            className="mt-3 p-3.5 rounded-2xl bg-white border border-[#E5DFD7] space-y-2.5 shadow-xs"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Target className="w-4 h-4 text-[#B8873B]" />
+                <span className="text-xs font-bold text-[#3E2340]">
+                  Rentenlücke & Altersvorsorge
+                </span>
+              </div>
+              {hasCalculatedRentenluecke ? (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#2E7D32]/15 text-[#1B5E20] font-bold">
+                  Berechnet {rentenRate ? `(${formatEuro(rentenRate)} / Mon.)` : ""}
+                </span>
+              ) : (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#B8873B]/15 text-[#8A5E1E] font-bold">
+                  Noch offen
+                </span>
+              )}
+            </div>
+
+            <p className="text-[11px] text-[#3E2340]/75 leading-relaxed">
+              {hasCalculatedRentenluecke
+                ? "Deine Rentenlücke wurde im Modul Rentenlücke berechnet und steht dir im nächsten Schritt als Sparrate zur Verfügung."
+                : "Du hast deine persönliche Rentenlücke noch nicht berechnet? Im Modul Rentenlücke kannst du deinen genauen monatlichen Vorsorgebedarf ermitteln."}
+            </p>
+
+            {onNavigateToRentenluecke && (
+              <button
+                type="button"
+                id="q10-goto-rentenluecke-btn"
+                onClick={onNavigateToRentenluecke}
+                className={`w-full py-2.5 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  hasCalculatedRentenluecke
+                    ? "bg-[#F7F4F0] border-[#E5DFD7] text-[#3E2340] hover:bg-[#E5DFD7]"
+                    : "bg-[#3E2340] text-[#F7F4F0] hover:bg-[#3E2340]/90 shadow-xs"
+                }`}
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${hasCalculatedRentenluecke ? "text-[#B8873B]" : "text-[#B8873B]"}`} />
+                <span>
+                  {hasCalculatedRentenluecke
+                    ? "Rentenlückenrechnung anpassen →"
+                    : "Rentenlücke jetzt berechnen →"}
+                </span>
+              </button>
+            )}
           </div>
         )}
       </div>

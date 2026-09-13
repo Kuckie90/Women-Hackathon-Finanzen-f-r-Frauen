@@ -15,7 +15,7 @@ export function GateScreen({
   onBackToAdjust,
 }: GateScreenProps) {
   const isPufferUnder3 = puffer === "unter3";
-  const isSchuldenOver5 = schulden === "konsum_ueber5" || schulden === "ueber5";
+  const isSchuldenOver5 = schulden === "konsum" || schulden === "konsum_ueber5" || schulden === "ueber5";
 
   return (
     <div id="gate-screen" className="flex flex-col flex-1 px-5 pt-3 pb-4">
@@ -55,11 +55,11 @@ export function GateScreen({
             <div className="p-4 rounded-2xl bg-white border border-[#B8873B]/40 shadow-xs space-y-1">
               <div className="flex items-center gap-2 text-xs font-bold text-[#B8873B]">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>Teure Konsumschulden vorhanden</span>
+                <span>Konsumschulden vorhanden (erst tilgen)</span>
               </div>
               <p className="text-sm leading-relaxed text-[#3E2340] font-medium">
-                Ein Konsumkredit oder Dispo über 5 % Zinsen kostet dich sicher,
-                was ein Depot nur vielleicht bringt. Erst Konsumschulden tilgen,
+                Konsumschulden (Dispo, Kreditkarten, Ratenkäufe) kosten dich garantiert Zinsen.
+                Die Tilgung von Konsumschulden bringt eine sichere 'Rendite'. Erst Konsumschulden tilgen,
                 dann anlegen. (Planmäßige Baukredite für Immobilien sind hiervon
                 nicht betroffen.)
               </p>

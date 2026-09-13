@@ -1,5 +1,4 @@
-import { ChevronLeft, RotateCcw, Layers } from "lucide-react";
-import { AngelegtLogo } from "./AngelegtLogo";
+import { ChevronLeft, RotateCcw } from "lucide-react";
 
 interface HeaderProps {
   stepTitle?: string;
@@ -9,6 +8,7 @@ interface HeaderProps {
   onReset?: () => void;
   isExplainMode?: boolean;
   onOpenArchitecture?: () => void;
+  isQuestionSlide?: boolean;
 }
 
 export function Header({
@@ -17,15 +17,15 @@ export function Header({
   totalSteps,
   onBack,
   onReset,
-  isExplainMode,
-  onOpenArchitecture,
+  isQuestionSlide,
 }: HeaderProps) {
   const showProgress = stepNumber !== undefined && totalSteps !== undefined;
+  const isQuestion = isQuestionSlide ?? showProgress;
   const progressPercent = showProgress ? Math.min(100, Math.round((stepNumber / totalSteps) * 100)) : 0;
 
   return (
     <header id="topfgeld-header" className="w-full pt-3 pb-2.5 px-4 bg-[#F7F4F0] border-b border-[#E5DFD7]/50 shrink-0">
-      <div className="flex items-center justify-between min-h-[40px]">
+      <div className="flex items-center justify-between min-h-[36px]">
         <div className="w-10 flex items-center justify-start">
           {onBack && (
             <button
@@ -39,27 +39,11 @@ export function Header({
           )}
         </div>
 
-        <div className="flex flex-col items-center">
-          <div className="flex items-center gap-2">
-            <AngelegtLogo className="w-6 h-6 rounded-md" />
-            <span className="font-serif text-lg font-bold tracking-tight text-[#3E2340]">
-              Angelegt
-            </span>
-            {onOpenArchitecture && (
-              <button
-                type="button"
-                onClick={onOpenArchitecture}
-                title="Systemarchitektur: Unser MVP im Gesamtsystem anzeigen"
-                className="px-1.5 py-0.5 rounded-md bg-[#2E7D32]/10 text-[#1B5E20] text-[9px] font-bold tracking-wide border border-[#2E7D32]/20 hover:bg-[#2E7D32]/20 transition-all cursor-pointer flex items-center gap-0.5"
-              >
-                <Layers className="w-2.5 h-2.5 text-[#2E7D32]" />
-                <span>MVP</span>
-              </button>
-            )}
-          </div>
-          {isExplainMode !== undefined && (
-            <span className="text-[9px] uppercase tracking-wider text-[#B8873B] font-semibold">
-              {isExplainMode ? "Erklär-Modus" : "Kurzmodus"}
+        {/* Auf Frageslides ist hier ALLES gelöscht (kein Logo, kein Angelegt, kein MVP, kein Erklär-Modus) */}
+        <div className="flex-1 flex justify-center items-center">
+          {!isQuestion && stepTitle && (
+            <span className="font-serif text-base font-bold text-[#3E2340] tracking-tight">
+              {stepTitle}
             </span>
           )}
         </div>
@@ -80,7 +64,7 @@ export function Header({
       </div>
 
       {showProgress ? (
-        <div className="mt-2.5">
+        <div className="mt-2">
           <div className="flex items-center justify-between text-xs text-[#3E2340]/70 mb-1 font-medium">
             <span>{stepTitle || `Frage ${stepNumber} von ${totalSteps}`}</span>
             <span>{progressPercent}%</span>
@@ -92,13 +76,8 @@ export function Header({
             />
           </div>
         </div>
-      ) : stepTitle ? (
-        <div className="mt-2 text-center">
-          <span className="inline-block text-[11px] font-semibold text-[#3E2340]/75 bg-[#EFECE6] px-2.5 py-0.5 rounded-full border border-[#E5DFD7]">
-            {stepTitle}
-          </span>
-        </div>
       ) : null}
     </header>
   );
 }
+

@@ -7,6 +7,8 @@ interface Question8BetraegeProps {
   initialMonatsrate: number;
   initialNettoeinkommen?: number;
   monatlicheSparrateFuerRente?: number;
+  hasCalculatedRentenluecke?: boolean;
+  onOpenRentenluecke?: () => void;
   onSubmit: (einmalbetrag: number, monatsrate: number, nettoeinkommen?: number) => void;
   isExplainMode: boolean;
 }
@@ -16,6 +18,8 @@ export function Question8Betraege({
   initialMonatsrate,
   initialNettoeinkommen,
   monatlicheSparrateFuerRente,
+  hasCalculatedRentenluecke,
+  onOpenRentenluecke,
   onSubmit,
   isExplainMode,
 }: Question8BetraegeProps) {
@@ -225,11 +229,77 @@ export function Question8Betraege({
                     </span>
                   </button>
 
+                  {/* Option 3: Rentenlücken-Option oder Weiterleitung */}
+                  {hasCalculatedRentenluecke && rentenRate > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRechnerTarget("rente");
+                        setMonat(rentenRate.toString());
+                      }}
+                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                        rechnerTarget === "rente" && parseFloat(monat) === rentenRate
+                          ? "bg-[#2E7D32]/10 border-[#2E7D32] ring-1 ring-[#2E7D32]"
+                          : "bg-[#F7F4F0] border-[#E5DFD7] hover:border-[#2E7D32]"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-[#3E2340]">
+                            Rentenlücke schließen
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#2E7D32]/15 text-[#1B5E20] font-semibold">
+                            Berechnet
+                          </span>
+                        </div>
+                        <span className="text-[11px] text-[#3E2340]/70 block pt-0.5">
+                          Deine exakt berechnete Sparrate für den Ruhestand
+                        </span>
+                      </div>
+                      <span className="text-lg font-serif font-bold text-[#2E7D32]">
+                        {formatEuro(rentenRate)} / Mon.
+                      </span>
+                    </button>
+                  ) : (
+                    onOpenRentenluecke && (
+                      <button
+                        type="button"
+                        id="q8-goto-rentenluecke-btn"
+                        onClick={onOpenRentenluecke}
+                        className="p-3 rounded-xl border border-[#B8873B]/60 bg-[#B8873B]/10 hover:bg-[#B8873B]/15 text-left flex items-center justify-between transition-all cursor-pointer"
+                      >
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-[#B8873B]" />
+                            <span className="text-xs font-bold text-[#3E2340]">
+                              Rentenlücke noch nicht berechnet?
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-[#3E2340]/70 block pt-0.5">
+                            Jetzt im Modul Rentenlücke deine Versorgungslücke ermitteln
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-[#B8873B] shrink-0">
+                          Berechnen →
+                        </span>
+                      </button>
+                    )
+                  )}
+
                   {/* Hinweis auf das verknüpfte Altersvorsorge-Modul */}
                   <div className="p-2.5 rounded-xl bg-[#F7F4F0] border border-[#E5DFD7] text-[11px] text-[#3E2340]/75 flex items-start gap-2 mt-1">
                     <Sparkles className="w-3.5 h-3.5 text-[#B8873B] shrink-0 mt-0.5" />
                     <span>
-                      <strong>Modul-Verbindung:</strong> Deine exakte Rentenlücke und geförderte Altersvorsorge werden im separaten Modul <em>Altersvorsorge & Rentenlücke</em> berechnet (siehe Teaser in der Auswertung).
+                      <strong>Modul-Verbindung:</strong> Deine Rentenlücke wird im separaten Modul <em>Rentenlücke</em> berechnet.
+                      {onOpenRentenluecke && (
+                        <button
+                          type="button"
+                          onClick={onOpenRentenluecke}
+                          className="ml-1 text-[#B8873B] font-bold hover:underline cursor-pointer inline"
+                        >
+                          {hasCalculatedRentenluecke ? "Rentenlücke anpassen →" : "Jetzt berechnen →"}
+                        </button>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -252,7 +322,7 @@ export function Question8Betraege({
                 >
                   Monatliche Sparrate
                 </label>
-                {rentenRate > 0 && (
+                {hasCalculatedRentenluecke && rentenRate > 0 ? (
                   <button
                     type="button"
                     onClick={() => setMonat(rentenRate.toString())}
@@ -260,6 +330,17 @@ export function Question8Betraege({
                   >
                     <span>Rentenlücke ({formatEuro(rentenRate)}) übernehmen</span>
                   </button>
+                ) : (
+                  onOpenRentenluecke && (
+                    <button
+                      type="button"
+                      onClick={onOpenRentenluecke}
+                      className="text-[11px] font-bold text-[#B8873B] hover:underline cursor-pointer flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3 text-[#B8873B]" />
+                      <span>Rentenlücke berechnen →</span>
+                    </button>
+                  )
                 )}
               </div>
 

@@ -7,7 +7,7 @@ export interface GlossaryItem {
 export const GLOSSAR: Record<string, GlossaryItem> = {
   "Sicherheit": {
     term: "Topf 1: Sichere Anlagen (Sicherheit / Das Fundament)",
-    shortExplain: "Kapitalerhalt, garantierte Liquidität und null Kursrisiko. Dein unverzichtbares Sicherheitsnetz.",
+    shortExplain: "Kapitalerhalt, garantierte Liquidität und geringes Risiko. Dein unverzichtbares Sicherheitsnetz.",
     detail:
       "Was gehört hinein?\n• Notgroschen auf dem Tagesgeldkonto (3–6 Monatsausgaben für Notfälle)\n• Festgelder mit sicherem Rückzahldatum\n• Geldmarktfonds & kurzlaufende Euro-Staatsanleihen (AAA-Rating)\n• Instandhaltungsrücklage für die eigene Immobilie\n\nZweck: Schützt dich absolut verlässlich vor finanziellen Notlagen (Waschmaschine kaputt, Jobverlust) und verhindert Notverkäufe an der Börse.",
   },
@@ -136,6 +136,7 @@ export const GLOSSAR: Record<string, GlossaryItem> = {
 export interface QuestionDef {
   id: number;
   key: string;
+  category?: string;
   title: string;
   subtitle?: string;
   explanationTitle?: string;
@@ -154,6 +155,7 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: 1,
     key: "puffer",
+    category: "Finanzielle Basis",
     title: "Wie viele Monatsausgaben liegen verfügbar auf deinem Konto?",
     subtitle: "Girokonto, Tagesgeld oder Notgroschen",
     explanationTitle: "Warum wir das fragen:",
@@ -174,18 +176,19 @@ export const QUESTIONS: QuestionDef[] = [
       {
         value: "ueber6",
         label: "Mehr als 6 Monatsausgaben",
-        description: "Sehr komfortables und ruhiges Polster",
+        description: "Sehr komfortables Polster",
       },
     ],
   },
   {
     id: 2,
     key: "schulden",
+    category: "Finanzielle Basis",
     title: "Wie sieht deine Schuldensituation aus?",
-    subtitle: "Immobilienschulden (Baukredit) werden völlig anders bewertet als echte Konsumschulden",
-    explanationTitle: "Gute Schulden vs. Konsumschulden:",
+    subtitle: "Immobilienschulden (Baukredit) werden völlig anders bewertet als Konsumschulden",
+    explanationTitle: "Immobilienschulden vs. Konsumschulden:",
     explanationText:
-      "Ein Baukredit finanziert einen bleibenden Sachwert — jede Monatsrate tilgt deine Schuld und baut dein Nettovermögen in Topf 2 (Wachstum) auf. Baukredite erfordern keinen Anlagestopp! Echte Konsumschulden (Dispo, Ratenkauf, Kreditkarte) hingegen kosten teure 8–15 % Zinsen für Dinge, die an Wert verlieren. Konsumschulden tilgen hat daher immer absolute Priorität.",
+      "Ein Baukredit finanziert einen bleibenden Sachwert — jede Monatsrate tilgt deine Schuld und baut dein Nettovermögen in Topf 2 (Wachstum) auf. Baukredite erfordern keinen Anlagestopp! Echte Konsumschulden (Dispo, Ratenkauf, Kreditkarte) hingegen kosten teure Zinsen für Dinge, die an Wert verlieren. Konsumschulden tilgen hat daher immer absolute Priorität.",
     glossaryKey: "Schuldenarten",
     options: [
       {
@@ -203,16 +206,9 @@ export const QUESTIONS: QuestionDef[] = [
         badgeColor: "gold",
       },
       {
-        value: "konsum_unter5",
-        label: "Günstige Kredite (unter 5 % Zinsen)",
-        description: "Z. B. KfW-, Studien- oder zinsgünstiger Autokredit (mit oder ohne Baukredit)",
-        badge: "Niedrigzins (Parallel investieren)",
-        badgeColor: "neutral",
-      },
-      {
-        value: "konsum_ueber5",
-        label: "Teure Konsumschulden (über 5 % Zinsen)",
-        description: "Dispo, Kreditkarte, Ratenkäufe oder Konsumdarlehen (mit oder ohne Baukredit)",
+        value: "konsum",
+        label: "Konsumschulden (erst tilgen)",
+        description: "Dispokredit, Kreditkarte, Ratenkäufe oder Konsumdarlehen — vorrangig tilgen!",
         badge: "Konsumschuld (Erst tilgen!)",
         badgeColor: "red",
       },
@@ -221,6 +217,7 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: 3,
     key: "einkommen",
+    category: "Finanzielle Basis",
     title: "Wie sicher ist dein Einkommen in den nächsten drei Jahren?",
     subtitle: "Branche, Stabilität und Vorhersehbarkeit deines monatlichen Zuflusses",
     explanationTitle: "Warum dein Berufsfeld entscheidend ist:",
@@ -267,6 +264,7 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: 4,
     key: "unterbrechung",
+    category: "Finanzielle Basis",
     title: "Planst du in den nächsten fünf Jahren eine Unterbrechung oder Reduzierung?",
     subtitle: "Elternzeit, Pflege, Weiterbildung oder Sabbatical",
     explanationTitle: "Lebensphasen mitdenken:",
@@ -294,6 +292,7 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: 5,
     key: "horizont",
+    category: "Finanzielle Basis",
     title: "Wann brauchst du das angelegte Geld wieder?",
     subtitle: "Dein geplanter Anlagezeitraum für das anzulegende Kapital",
     explanationTitle: "Warum der Anlagehorizont entscheidend ist:",
@@ -319,34 +318,8 @@ export const QUESTIONS: QuestionDef[] = [
   },
   {
     id: 6,
-    key: "reaktion",
-    title: "Dein Depot steht 30 % im Minus. Was tust du?",
-    subtitle: "Ehrliche Selbsteinschätzung bei Marktturbulenzen",
-    explanationTitle: "Psychologie der Börse:",
-    explanationText:
-      "Die größte Gefahr beim Anlegen ist nicht die Börse, sondern die eigene Panik. Wer im Tief verkauft, verwandelt Buchverluste in echte Verluste.",
-    glossaryKey: "Volatilität",
-    options: [
-      {
-        value: "verkaufen",
-        label: "Verkaufen",
-        description: "Reißleine ziehen, um noch Schlimmeres zu verhindern",
-      },
-      {
-        value: "aussitzen",
-        label: "Aussitzen",
-        description: "Ruhe bewahren, die Kurse erholen sich historisch wieder",
-      },
-      {
-        value: "nachkaufen",
-        label: "Nachkaufen",
-        description: "Günstige Einstiegspreise nutzen und mehr Anteile sichern",
-      },
-    ],
-  },
-  {
-    id: 7,
     key: "renditeFokus",
+    category: "Risikobereitschaft & Anlageziel",
     title: "Was steht bei deiner Geldanlage an erster Stelle?",
     subtitle: "Dein persönlicher Schwerpunkt zwischen Sicherheit und Rendite",
     explanationTitle: "Risikofreude vs. Kapitalschutz:",
@@ -378,8 +351,9 @@ export const QUESTIONS: QuestionDef[] = [
     ],
   },
   {
-    id: 8,
+    id: 7,
     key: "verlustToleranz",
+    category: "Risikobereitschaft & Anlageziel",
     title: "Wie lange könntest du eine schwache Börsenphase aussitzen?",
     subtitle: "Nervenstärke und Zeithorizont bei längeren Durststrecken",
     explanationTitle: "Zyklen verstehen:",
@@ -405,8 +379,9 @@ export const QUESTIONS: QuestionDef[] = [
     ],
   },
   {
-    id: 9,
+    id: 8,
     key: "erfahrungLevel",
+    category: "Risikobereitschaft & Anlageziel",
     title: "Welche Erfahrung hast du bisher mit Geldanlagen?",
     subtitle: "Dein Vorwissen mit Wertpapieren, Fonds oder ETFs",
     explanationTitle: "Erfahrung stärkt das Vertrauen:",
@@ -437,8 +412,9 @@ export const QUESTIONS: QuestionDef[] = [
     ],
   },
   {
-    id: 10,
+    id: 9,
     key: "ziel",
+    category: "Risikobereitschaft & Anlageziel",
     title: "Wofür legst du an?",
     subtitle: "Dein Hauptziel bestimmt die Risikobereitschaft",
     explanationTitle: "Ziel und Strategie:",
@@ -459,6 +435,133 @@ export const QUESTIONS: QuestionDef[] = [
         value: "anschaffung",
         label: "Größere Anschaffung",
         description: "Immobilienkauf, Selbstständigkeit oder große Projekte",
+      },
+    ],
+  },
+  {
+    id: 10,
+    key: "reaktion",
+    category: "Anlegerinnen-Persönlichkeit",
+    title: "Dein Depot steht 30 % im Minus. Was tust du?",
+    subtitle: "Ehrliche Selbsteinschätzung bei Marktturbulenzen",
+    explanationTitle: "Psychologie der Börse:",
+    explanationText:
+      "Die größte Gefahr beim Anlegen ist nicht die Börse, sondern die eigene Panik. Wer im Tief verkauft, verwandelt Buchverluste in echte Verluste. Ein klares Regelwerk und Disziplin schützen dich vor Fehlentscheidungen.",
+    glossaryKey: "Volatilität",
+    options: [
+      {
+        value: "verkaufen",
+        label: "Verkaufen",
+        description: "Reißleine ziehen, um noch Schlimmeres zu verhindern",
+      },
+      {
+        value: "aussitzen",
+        label: "Aussitzen",
+        description: "Ruhe bewahren, die Kurse erholen sich historisch wieder",
+      },
+      {
+        value: "nachkaufen",
+        label: "Nachkaufen",
+        description: "Günstige Einstiegspreise nutzen und mehr Anteile sichern",
+      },
+    ],
+  },
+  {
+    id: 11,
+    key: "entscheidungsStil",
+    category: "Anlegerinnen-Persönlichkeit",
+    title: "Wie triffst du Finanzentscheidungen am liebsten?",
+    subtitle: "Rationale Fakten vs. emotionales Bauchgefühl",
+    explanationTitle: "Kopf vs. Bauch:",
+    explanationText:
+      "Manche Anlegerinnen brauchen wissenschaftliche Studien und Kennzahlen, andere vertrauen ihrer Intuition oder wollen vor allem nachts ruhig schlafen. Beides ist völlig legitim und hilft uns, deine Strategie auf dich abzustimmen.",
+    options: [
+      {
+        value: "rational",
+        label: "Nüchterne Zahlen & Fakten",
+        description: "Wissenschaftliche Daten, Statistiken und rationale Kennzahlen geben mir Sicherheit",
+        badge: "Rational / Zahlenbasiert",
+        badgeColor: "gold",
+      },
+      {
+        value: "ausgewogen",
+        label: "Ausgewogen (Kopf & Herz)",
+        description: "Die Zahlen müssen stimmen, aber das Bauchgefühl muss sich ebenfalls gut anfühlen",
+        badge: "Ausgewogen",
+        badgeColor: "green",
+      },
+      {
+        value: "emotional",
+        label: "Gutes Gefühl & Seelenruhe",
+        description: "Ruhiger Schlaf und emotionales Wohlbefinden zählen für mich mehr als die letzte Nachkommastelle Rendite",
+        badge: "Seelenruhe zuerst",
+        badgeColor: "neutral",
+      },
+    ],
+  },
+  {
+    id: 12,
+    key: "greifbar",
+    category: "Anlegerinnen-Persönlichkeit",
+    title: "Wie wichtig sind dir anfassbare, haptische Sachwerte?",
+    subtitle: "Physisches Gold & reale Werte vs. rein digitale Wertpapier-Depots",
+    explanationTitle: "Haptik & mentale Beruhigung:",
+    explanationText:
+      "Ein Wertpapierdepot ist rein digital. Manch eine Anlegerin schätzt als mentale Beruhigung eine Beimischung greifbarer Werte wie physisches Gold im Tresor oder Immobilien.",
+    options: [
+      {
+        value: "digital",
+        label: "Rein digital reicht vollkommen",
+        description: "ETFs und digitale Verwahrung im Depot sind modern, liquide und unkompliziert",
+        badge: "Modern & Digital",
+        badgeColor: "green",
+      },
+      {
+        value: "ausgewogen",
+        label: "Ausgewogen (Digital mit realem Anker)",
+        description: "Digital ist praktisch, aber eine kleine greifbare Sachwert-Beimischung beruhigt",
+        badge: "Ausgewogen",
+        badgeColor: "gold",
+      },
+      {
+        value: "physisch",
+        label: "Anfassbare Sachwerte essenziell",
+        description: "Echtes Gold, haptische Sachwerte oder Immobilien im Hintergrund sind mir persönlich sehr wichtig",
+        badge: "Haptisch / Gold-affin",
+        badgeColor: "gold",
+      },
+    ],
+  },
+  {
+    id: 13,
+    key: "nachhaltigkeit",
+    category: "Anlegerinnen-Persönlichkeit",
+    title: "Welche Rolle spielen Nachhaltigkeit & Ethik bei deiner Geldanlage?",
+    subtitle: "Ökologische, soziale und ethische Kriterien (ESG/SRI)",
+    explanationTitle: "Geld mit gutem Gewissen anlegen:",
+    explanationText:
+      "Nachhaltige ETFs schließen Unternehmen aus kontroversen Branchen (z. B. Waffen, Kohle, Tabak) aus. Du entscheidest, wie streng die Filter für deine Anlagekategorien sein sollen.",
+    options: [
+      {
+        value: "pragmatisch",
+        label: "Pragmatisch / Maximale Marktstreuung",
+        description: "Klassischer Welt-Index ohne ESG-Filter, volle weltweite Marktabdeckung",
+        badge: "Maximal gestreut",
+        badgeColor: "neutral",
+      },
+      {
+        value: "wichtig",
+        label: "Wichtig: ESG- & SRI-gefiltert",
+        description: "Ausschluss kontroverser Branchen wie Rüstung, Tabak oder fossile Energieträger",
+        badge: "ESG-Standard",
+        badgeColor: "green",
+      },
+      {
+        value: "strikt",
+        label: "Höchste Priorität: Kompromisslos nachhaltig",
+        description: "Strikte ethisch-ökologische Kriterien und gezielte Zukunftsthemen (Klima, saubere Energie)",
+        badge: "Strikt Nachhaltig",
+        badgeColor: "green",
       },
     ],
   },

@@ -18,6 +18,8 @@ interface LebenszieleScreenProps {
   nettoeinkommen?: number;
   onSubmit: (config: LebenszieleConfig) => void;
   onOpenGlossary?: (term: string) => void;
+  onBackToStart?: () => void;
+  isStandaloneFromStart?: boolean;
 }
 
 export function LebenszieleScreen({
@@ -25,6 +27,8 @@ export function LebenszieleScreen({
   nettoeinkommen,
   onSubmit,
   onOpenGlossary,
+  onBackToStart,
+  isStandaloneFromStart,
 }: LebenszieleScreenProps) {
   // Alter & Rente
   const [alterStr, setAlterStr] = useState<string>(
@@ -659,15 +663,29 @@ export function LebenszieleScreen({
         </div>
 
         {/* Weiter-Button */}
-        <div className="pt-2">
+        <div className="pt-2 space-y-2">
           <button
             type="submit"
             id="lebensziele-submit-btn"
             className="w-full min-h-[52px] rounded-2xl bg-[#3E2340] text-[#F7F4F0] font-semibold text-base flex items-center justify-center gap-2 shadow-md hover:bg-[#3E2340]/90 active:scale-[0.99] transition-all cursor-pointer"
           >
-            <span>Ziele übernehmen & weiter</span>
+            <span>
+              {isStandaloneFromStart
+                ? "Rentenlücke speichern & in Assetanalyse übernehmen"
+                : "Ziele übernehmen & weiter"}
+            </span>
             <ArrowRight className="w-5 h-5 text-[#B8873B]" />
           </button>
+
+          {onBackToStart && (
+            <button
+              type="button"
+              onClick={onBackToStart}
+              className="w-full py-2.5 text-xs text-[#3E2340]/70 hover:text-[#3E2340] font-medium text-center cursor-pointer transition-colors"
+            >
+              ← Zurück zur Startseite
+            </button>
+          )}
         </div>
       </form>
     </div>

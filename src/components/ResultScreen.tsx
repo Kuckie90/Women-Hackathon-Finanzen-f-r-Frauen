@@ -733,7 +733,7 @@ export function ResultScreen({
               <div className="w-7 h-7 rounded-xl bg-[#B8873B]/15 text-[#B8873B] flex items-center justify-center shrink-0">
                 <Building className="w-4 h-4" />
               </div>
-            ) : answers.schulden === "konsum_ueber5" || answers.schulden === "ueber5" ? (
+            ) : answers.schulden === "konsum" || answers.schulden === "konsum_ueber5" || answers.schulden === "ueber5" ? (
               <div className="w-7 h-7 rounded-xl bg-[#C44D34]/15 text-[#C44D34] flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-4 h-4" />
               </div>
@@ -749,8 +749,8 @@ export function ResultScreen({
               <h4 className="font-bold text-xs text-[#3E2340]">
                 {answers.schulden === "nur_immobilie"
                   ? "Immobilienschulden: Sachwertaufbau statt Konsumschuld"
-                  : answers.schulden === "konsum_ueber5" || answers.schulden === "ueber5"
-                  ? "Teure Konsumschulden: Erst tilgen, dann investieren"
+                  : answers.schulden === "konsum" || answers.schulden === "konsum_ueber5" || answers.schulden === "ueber5"
+                  ? "Konsumschulden: Erst tilgen, dann investieren"
                   : answers.schulden === "konsum_unter5" || answers.schulden === "unter5"
                   ? "Günstige Kredite (< 5 %): Planmäßig tilgen & parallel anlegen"
                   : "Schuldenfrei: Optimale Ausgangslage"}
@@ -764,7 +764,7 @@ export function ResultScreen({
             <>
               Dein Baukredit ist <strong>kein Grund für einen Anlagestopp</strong>! Jede monatliche Rate enthält einen <strong>Tilgungsanteil</strong>, mit dem du aktiv Nettovermögen in <strong>Topf 2 (Wachstum)</strong> aufbaust. Da eine Baufinanzierung 20 bis 30 Jahre läuft, würdest du ohne parallelen Sparplan wertvolle Jahrzehnte des Zinseszinses verpassen. Wichtig: Halte in <strong>Topf 1 (Sicherheit)</strong> eine eigene Instandhaltungsrücklage (1–2 €/qm) vor, damit Reparaturen nie in den Dispo führen.
             </>
-          ) : answers.schulden === "konsum_ueber5" || answers.schulden === "ueber5" ? (
+          ) : answers.schulden === "konsum" || answers.schulden === "konsum_ueber5" || answers.schulden === "ueber5" ? (
             <>
               Dispo, Kreditkarten oder Ratenkredite kosten garantiert 8 % bis 15 % Zinsen pro Jahr. Das frisst jeden Kapitalmarktertrag sofort auf. Die Tilgung von Konsumschulden bringt dir eine <strong>garantierte, steuerfreie 'Rendite'</strong> in Höhe deines Kreditzinses. Priorisiere das Schließen dieser Kredite!
             </>
@@ -774,7 +774,7 @@ export function ResultScreen({
             </>
           ) : (
             <>
-              Du hast weder Immobilienschulden noch teure Konsumschulden. Deine monatlichen Ersparnisse fließen direkt und ungeschmälert in den Aufbau deiner drei Töpfe.
+              Du hast weder Immobilienschulden noch Konsumschulden. Deine monatlichen Ersparnisse fließen direkt und ungeschmälert in den Aufbau deiner drei Töpfe.
             </>
           )}
         </p>
@@ -860,11 +860,16 @@ export function ResultScreen({
         )}
       </div>
 
-      {/* Konkrete Anlagebeispiele für die Töpfe */}
+      {/* Methodische Anlagekategorien der Töpfe (Keine Anlageberatung / Produktempfehlungen) */}
       <div className="p-4 rounded-2xl bg-white border border-[#E5DFD7] space-y-3 text-xs shadow-xs">
-        <h3 className="font-semibold text-[#3E2340] uppercase tracking-wider text-xs">
-          Konkrete Anlageformen für deine Töpfe
-        </h3>
+        <div>
+          <h3 className="font-semibold text-[#3E2340] uppercase tracking-wider text-xs">
+            Methodische Anlagekategorien deiner Töpfe
+          </h3>
+          <p className="text-[11px] text-[#3E2340]/65 mt-0.5">
+            Allgemeine methodische Zuordnung der Anlageformen (keine konkreten Einzelproduktempfehlungen oder Anlageberatung):
+          </p>
+        </div>
 
         <div className="space-y-2">
           <div className="p-2.5 rounded-xl bg-[#F7F4F0] space-y-1">
@@ -947,7 +952,7 @@ export function ResultScreen({
               <p>• 5–9 Pkt. = Ausgewogen (40/55/5)</p>
               <p>• 10–13 Pkt. = Offensiv (20/70/10)</p>
               <p className="pt-1">
-                Deine Angaben auf den Skalen für Nachhaltigkeit ({answers.nachhaltigkeitScale}/10) und haptische Sachwerte ({answers.greifbarScale}/10) passen die Produktbeispiele gezielt an, berühren jedoch nicht die Kernquote.
+                Deine Angaben auf den Skalen für Nachhaltigkeit ({answers.nachhaltigkeitScale}/10) und haptische Sachwerte ({answers.greifbarScale}/10) individualisieren die methodische Ausrichtung deiner Töpfe, berühren jedoch nicht die Kernquote.
               </p>
             </div>
           </div>

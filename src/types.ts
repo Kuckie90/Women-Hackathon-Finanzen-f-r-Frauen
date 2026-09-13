@@ -6,6 +6,7 @@ export type PufferChoice = "unter3" | "3bis6" | "ueber6";
 export type SchuldenChoice =
   | "keine"
   | "nur_immobilie"
+  | "konsum"
   | "konsum_unter5"
   | "konsum_ueber5"
   | "unter5"
@@ -78,6 +79,8 @@ export interface Answers {
   // Monatliches Nettoeinkommen für die automatische Sparraten-Empfehlung (optional)
   nettoeinkommen?: number;
   sparrateModus?: "berechnen" | "manuell";
+  // Rentenlücken-Status
+  hasCalculatedRentenluecke?: boolean;
   // Gesamtlebensziele & Rentenlücke
   lebensziele?: LebenszieleConfig;
   // Händisch angepasste Töpfe (falls die Nutzerin vom berechneten Soll abweichen möchte)
@@ -272,15 +275,32 @@ export type AppStep =
   | "q4_unterbrechung"
   | "q5_horizont"
   | "q6_reaktion"
+  | "q7_entscheidungsstil"
+  | "q8_renditefokus"
+  | "q9_verlusttoleranz"
+  | "q10_erfahrung"
+  | "q11_ziel"
+  | "q12_nachhaltigkeit"
+  | "q13_greifbar"
+  | "q6_renditefokus"
   | "q7_renditefokus"
+  | "q7_verlusttoleranz"
   | "q8_verlusttoleranz"
+  | "q8_erfahrung"
   | "q9_erfahrung"
+  | "q9_ziel"
   | "q10_ziel"
+  | "q10_reaktion"
+  | "q11_entscheidungsstil"
+  | "q_optional"
   | "q_lebensziele"
   | "q8_betraege"
-  | "q_optional"
+  | "haushaltsrechnung"
+  | "sparplaner"
   | "soll_stand"
   | "ist_bestand"
+  | "ist_analyse"
   | "gate"
+  | "sparrate_allokation"
   | "auswertung"
   | "lexikon";

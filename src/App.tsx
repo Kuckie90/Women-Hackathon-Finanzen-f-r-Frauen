@@ -27,7 +27,9 @@ import {
 } from "./types";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { StartScreen } from "./components/StartScreen";
+import { StartScreen, StartModule } from "./components/StartScreen";
+import { HaushaltsrechnungScreen } from "./components/HaushaltsrechnungScreen";
+import { SparplanerScreen } from "./components/SparplanerScreen";
 import { VorfrageScreen } from "./components/VorfrageScreen";
 import { QuestionScreen } from "./components/QuestionScreen";
 import { Question8Betraege } from "./components/Question8Betraege";
@@ -36,6 +38,8 @@ import { IstBestandScreen } from "./components/IstBestandScreen";
 import { LebenszieleScreen } from "./components/LebenszieleScreen";
 import { GateScreen } from "./components/GateScreen";
 import { SollStandScreen } from "./components/SollStandScreen";
+import { IstAnalyseScreen } from "./components/IstAnalyseScreen";
+import { SparrateAllokationScreen } from "./components/SparrateAllokationScreen";
 import { ResultScreen } from "./components/ResultScreen";
 import { GlossaryModal } from "./components/GlossaryModal";
 import { ArchitectureModal } from "./components/ArchitectureModal";
@@ -63,6 +67,7 @@ const INITIAL_ANSWERS: Answers = {
   einmalbetrag: 0,
   monatsrate: 0,
   nettoeinkommen: undefined,
+  hasCalculatedRentenluecke: false,
   lebensziele: DEFAULT_LEBENSZIELE,
 };
 
@@ -80,6 +85,7 @@ export default function App() {
   const [hasGateBypassed, setHasGateBypassed] = useState<boolean>(false);
   const [activeGlossaryKey, setActiveGlossaryKey] = useState<string | null>(null);
   const [showArchitectureModal, setShowArchitectureModal] = useState<boolean>(false);
+  const [returnStepAfterLebensziele, setReturnStepAfterLebensziele] = useState<AppStep | null>(null);
 
   // Reset to initial state
   const handleReset = () => {
@@ -87,6 +93,21 @@ export default function App() {
     setAnswers(INITIAL_ANSWERS);
     setIstBestand(INITIAL_IST_BESTAND);
     setHasGateBypassed(false);
+    setReturnStepAfterLebensziele(null);
+  };
+
+  // Handler for Start Screen 4 Modules
+  const handleSelectStartModule = (module: StartModule) => {
+    if (module === "assetanalyse") {
+      setStep("vorfrage");
+    } else if (module === "rentenluecke") {
+      setReturnStepAfterLebensziele("start");
+      setStep("q_lebensziele");
+    } else if (module === "haushaltsrechnung") {
+      setStep("haushaltsrechnung");
+    } else if (module === "sparplaner") {
+      setStep("sparplaner");
+    }
   };
 
   // Vorfrage Mode selection
@@ -95,7 +116,7 @@ export default function App() {
     setStep("q1_puffer");
   };
 
-  // Question 1 to 7 handlers
+  // Question 1 to 6 handlers
   const handleSelectQ1 = (val: string) => {
     setAnswers((prev) => ({ ...prev, puffer: val as PufferChoice }));
     setStep("q2_schulden");
@@ -127,41 +148,89 @@ export default function App() {
 
   const handleSelectQ5 = (val: string) => {
     setAnswers((prev) => ({ ...prev, horizont: val as HorizontChoice }));
-    setStep("q6_reaktion");
+    setStep("q6_renditefokus");
   };
 
   const handleSelectQ6 = (val: string) => {
-    setAnswers((prev) => ({ ...prev, reaktion: val as ReaktionChoice }));
-    setStep("q7_renditefokus");
+    setAnswers((prev) => ({ ...prev, renditeFokus: val as RenditeFokusChoice }));
+    setStep("q7_verlusttoleranz");
   };
 
   const handleSelectQ7 = (val: string) => {
-    setAnswers((prev) => ({ ...prev, renditeFokus: val as RenditeFokusChoice }));
-    setStep("q8_verlusttoleranz");
+    setAnswers((prev) => ({ ...prev, verlustToleranz: val as VerlustToleranzChoice }));
+    setStep("q8_erfahrung");
   };
 
   const handleSelectQ8 = (val: string) => {
-    setAnswers((prev) => ({ ...prev, verlustToleranz: val as VerlustToleranzChoice }));
-    setStep("q9_erfahrung");
+    setAnswers((prev) => ({ ...prev, erfahrungLevel: val as ErfahrungChoice }));
+    setStep("q9_ziel");
   };
 
   const handleSelectQ9 = (val: string) => {
-    setAnswers((prev) => ({ ...prev, erfahrungLevel: val as ErfahrungChoice }));
-    setStep("q10_ziel");
-  };
-
-  const handleSelectQ10 = (val: string) => {
     setAnswers((prev) => ({ ...prev, ziel: val as ZielChoice }));
-    setStep("q8_betraege");
+    setStep("q10_reaktion");
   };
 
-  // Lebensziele & Rentenlücke handler (falls als Demo-Modul aufgerufen)
+  // Q10: Reaktion bei 30% Minus im Depot (Anlegerinnenpersönlichkeit)
+  const handleSelectQ10 = (val: string) => {
+    setAnswers((prev) => ({ ...prev, reaktion: val as ReaktionChoice }));
+    setStep("q11_entscheidungsstil");
+  };
+
+  // Q11: Entscheidungs- und Kontrollstil (Anlegerinnenpersönlichkeit)
+  const handleSelectQ11 = (val: string) => {
+    setAnswers((prev) => ({ ...prev, entscheidungsStil: val as EntscheidungsStilChoice }));
+    setStep("q12_greifbar");
+  };
+
+  // Q12: Greifbare Sachwerte (Anlegerinnenpersönlichkeit)
+  const handleSelectQ12 = (val: string) => {
+    const scale = val === "physisch" ? 8 : val === "ausgewogen" ? 5 : 2;
+    const choice: GreifbarChoice = val === "physisch" ? "greifbar" : "egal";
+    setAnswers((prev) => ({
+      ...prev,
+      greifbar: choice,
+      greifbarScale: scale,
+    }));
+    setStep("q13_nachhaltigkeit");
+  };
+
+  // Q13: Nachhaltigkeit & Ethik (Anlegerinnenpersönlichkeit) -> Directly to Topfverteilungsvorschlag!
+  const handleSelectQ13 = (val: string) => {
+    const scale = val === "strikt" ? 9 : val === "wichtig" ? 7 : 3;
+    const choice: NachhaltigkeitChoice = val === "pragmatisch" ? "egal" : "wichtig";
+    setAnswers((prev) => ({
+      ...prev,
+      nachhaltigkeit: choice,
+      nachhaltigkeitScale: scale,
+    }));
+    // All questions finished -> first step is the proposed pot allocation (Soll-Stand)
+    setStep("soll_stand");
+  };
+
+  // Lebensziele & Rentenlücke handler
   const handleSubmitLebensziele = (lebensziele: LebenszieleConfig) => {
-    setAnswers((prev) => ({ ...prev, lebensziele }));
-    setStep("q8_betraege");
+    setAnswers((prev) => ({
+      ...prev,
+      lebensziele,
+      hasCalculatedRentenluecke: true,
+      monatsrate:
+        prev.monatsrate > 0
+          ? prev.monatsrate
+          : lebensziele.rentenluecke.monatlicheSparrateFuerRente,
+    }));
+    if (returnStepAfterLebensziele && returnStepAfterLebensziele !== "start") {
+      const dest = returnStepAfterLebensziele;
+      setReturnStepAfterLebensziele(null);
+      setStep(dest);
+    } else {
+      // Direct module from start: proceed into assetanalyse with prefilled Rentenlücke rate
+      setReturnStepAfterLebensziele(null);
+      setStep("vorfrage");
+    }
   };
 
-  // Question 8 handler (Beträge & berechnete Sparrate)
+  // Optional Question 8 handler (Beträge & berechnete Sparrate)
   const handleSubmitQ8 = (
     einmalbetrag: number,
     monatsrate: number,
@@ -173,39 +242,45 @@ export default function App() {
       monatsrate,
       nettoeinkommen,
     }));
-    setStep("q_optional");
+    setStep("soll_stand");
   };
 
-  // Optional questions handler (Briefing dimensions: scales & preferences)
-  const handleSubmitOptional = (
-    nachhaltigkeitScale: number,
-    greifbarScale: number,
-    nachhaltigkeit: NachhaltigkeitChoice,
-    greifbar: GreifbarChoice,
-    entscheidungsStil: EntscheidungsStilChoice,
-    markenPraeferenz: MarkenPraeferenzChoice,
-    techAffinitaet: TechAffinitaetChoice
-  ) => {
+  // Haushaltsrechnung & Sparplaner Handlers
+  const handleApplyHaushaltSavings = (monatsrate: number, nettoeinkommen: number) => {
     setAnswers((prev) => ({
       ...prev,
-      nachhaltigkeitScale,
-      greifbarScale,
-      nachhaltigkeit,
-      greifbar,
-      entscheidungsStil,
-      markenPraeferenz,
-      techAffinitaet,
+      monatsrate,
+      nettoeinkommen,
     }));
-    setStep("soll_stand");
+    setStep("vorfrage");
+  };
+
+  const handleOpenSparplanerFromHaushalt = (monatsrate: number) => {
+    setAnswers((prev) => ({
+      ...prev,
+      monatsrate,
+    }));
+    setStep("sparplaner");
+  };
+
+  const handleApplySparplan = (monatsrate: number, einmalbetrag: number) => {
+    setAnswers((prev) => ({
+      ...prev,
+      monatsrate,
+      einmalbetrag,
+    }));
+    setStep("vorfrage");
   };
 
   // Check gate condition
   const checkGateAndProceed = (currentIst: IstBestand) => {
     setIstBestand(currentIst);
-    const hasExpensiveConsumerDebt =
-      answers.schulden === "konsum_ueber5" || answers.schulden === "ueber5";
+    const hasConsumerDebt =
+      answers.schulden === "konsum" ||
+      answers.schulden === "konsum_ueber5" ||
+      answers.schulden === "ueber5";
     const triggersGate =
-      answers.puffer === "unter3" || hasExpensiveConsumerDebt;
+      answers.puffer === "unter3" || hasConsumerDebt;
 
     if (triggersGate) {
       setStep("gate");
@@ -216,11 +291,13 @@ export default function App() {
   };
 
   const handleIstBestandSubmit = (values: IstBestand) => {
-    checkGateAndProceed(values);
+    setIstBestand(values);
+    setStep("ist_analyse");
   };
 
   const handleIstBestandSkip = () => {
-    checkGateAndProceed({ sicherheit: 0, wachstum: 0, spielgeld: 0 });
+    setIstBestand({ sicherheit: 0, wachstum: 0, spielgeld: 0 });
+    setStep("ist_analyse");
   };
 
   // Gate actions
@@ -250,41 +327,65 @@ export default function App() {
       case "q5_horizont":
         setStep("q4_unterbrechung");
         break;
-      case "q6_reaktion":
+      case "q6_renditefokus":
         setStep("q5_horizont");
         break;
-      case "q7_renditefokus":
-        setStep("q6_reaktion");
+      case "q7_verlusttoleranz":
+        setStep("q6_renditefokus");
         break;
-      case "q8_verlusttoleranz":
-        setStep("q7_renditefokus");
+      case "q8_erfahrung":
+        setStep("q7_verlusttoleranz");
         break;
-      case "q9_erfahrung":
-        setStep("q8_verlusttoleranz");
+      case "q9_ziel":
+        setStep("q8_erfahrung");
         break;
-      case "q10_ziel":
-        setStep("q9_erfahrung");
+      case "q10_reaktion":
+        setStep("q9_ziel");
+        break;
+      case "q11_entscheidungsstil":
+        setStep("q10_reaktion");
+        break;
+      case "q12_greifbar":
+        setStep("q11_entscheidungsstil");
+        break;
+      case "q13_nachhaltigkeit":
+        setStep("q12_greifbar");
         break;
       case "q_lebensziele":
-        setStep("q10_ziel");
+        if (returnStepAfterLebensziele) {
+          const dest = returnStepAfterLebensziele;
+          setReturnStepAfterLebensziele(null);
+          setStep(dest);
+        } else {
+          setStep("start");
+        }
         break;
       case "q8_betraege":
-        setStep("q10_ziel");
+        setStep("q13_nachhaltigkeit");
         break;
-      case "q_optional":
-        setStep("q8_betraege");
+      case "haushaltsrechnung":
+        setStep("start");
+        break;
+      case "sparplaner":
+        setStep("start");
         break;
       case "soll_stand":
-        setStep("q_optional");
+        setStep("q13_nachhaltigkeit");
         break;
       case "ist_bestand":
         setStep("soll_stand");
         break;
-      case "gate":
+      case "ist_analyse":
         setStep("ist_bestand");
         break;
+      case "sparrate_allokation":
+        setStep("ist_analyse");
+        break;
+      case "gate":
+        setStep("sparrate_allokation");
+        break;
       case "auswertung":
-        setStep("ist_bestand");
+        setStep("sparrate_allokation");
         break;
       default:
         setStep("start");
@@ -293,7 +394,7 @@ export default function App() {
 
   // Calculate question step numbers and titles for progress bar and header
   let stepNumber: number | undefined;
-  let totalSteps: number | undefined = 10;
+  let totalSteps: number | undefined = 13;
   let stepTitle: string | undefined;
 
   switch (step) {
@@ -316,39 +417,60 @@ export default function App() {
     case "q5_horizont":
       stepNumber = 5;
       break;
-    case "q6_reaktion":
+    case "q6_renditefokus":
       stepNumber = 6;
       break;
-    case "q7_renditefokus":
+    case "q7_verlusttoleranz":
       stepNumber = 7;
       break;
-    case "q8_verlusttoleranz":
+    case "q8_erfahrung":
       stepNumber = 8;
       break;
-    case "q9_erfahrung":
+    case "q9_ziel":
       stepNumber = 9;
       break;
-    case "q10_ziel":
+    case "q10_reaktion":
       stepNumber = 10;
       break;
+    case "q11_entscheidungsstil":
+      stepNumber = 11;
+      break;
+    case "q12_greifbar":
+      stepNumber = 12;
+      break;
+    case "q13_nachhaltigkeit":
+      stepNumber = 13;
+      break;
     case "q_lebensziele":
-      stepTitle = "Lebensziele & Renten-Check";
+      stepTitle = "Rentenlücke & Altersvorsorge";
       totalSteps = undefined;
       break;
     case "q8_betraege":
       stepTitle = "Beträge & Sparrate";
       totalSteps = undefined;
       break;
-    case "q_optional":
-      stepTitle = "Werte & Präferenzen (optional)";
+    case "haushaltsrechnung":
+      stepTitle = "Haushaltsrechnung (50/30/20)";
+      totalSteps = undefined;
+      break;
+    case "sparplaner":
+      stepTitle = "Sparplaner & Zinseszins";
       totalSteps = undefined;
       break;
     case "soll_stand":
-      stepTitle = "Deine Zielallokation";
+      stepTitle = "1. Topfverteilungsvorschlag";
       totalSteps = undefined;
       break;
     case "ist_bestand":
-      stepTitle = "Was liegt aktuell wo?";
+      stepTitle = "2. Bestehende Anlagen";
+      totalSteps = undefined;
+      break;
+    case "ist_analyse":
+      stepTitle = "2. Analyse deiner Anlagen";
+      totalSteps = undefined;
+      break;
+    case "sparrate_allokation":
+      stepTitle = "3. Sparrate & Allokation";
       totalSteps = undefined;
       break;
     case "gate":
@@ -365,6 +487,12 @@ export default function App() {
   }
 
   const isExplainMode = !answers.erfahren;
+  const isQuestionSlide =
+    stepNumber !== undefined ||
+    step === "q8_betraege" ||
+    step === "q_lebensziele" ||
+    step === "haushaltsrechnung" ||
+    step === "sparplaner";
 
   return (
     <div className="min-h-screen bg-[#F7F4F0] text-[#3E2340] flex flex-col justify-between items-center selection:bg-[#B8873B]/20">
@@ -379,6 +507,7 @@ export default function App() {
             onBack={handleBack}
             onReset={handleReset}
             isExplainMode={isExplainMode}
+            isQuestionSlide={isQuestionSlide}
             onOpenArchitecture={() => setShowArchitectureModal(true)}
           />
         )}
@@ -386,10 +515,7 @@ export default function App() {
         {/* Main Step Content */}
         <main className="flex-1 flex flex-col">
           {step === "start" && (
-            <StartScreen
-              onStart={() => setStep("vorfrage")}
-              onOpenArchitecture={() => setShowArchitectureModal(true)}
-            />
+            <StartScreen onSelectModule={handleSelectStartModule} />
           )}
 
           {step === "vorfrage" && (
@@ -452,51 +578,103 @@ export default function App() {
             />
           )}
 
-          {step === "q6_reaktion" && (
+          {step === "q6_renditefokus" && (
             <QuestionScreen
               question={QUESTIONS[5]}
-              selectedValue={answers.reaktion}
+              selectedValue={answers.renditeFokus}
               onSelect={handleSelectQ6}
               isExplainMode={isExplainMode}
               onOpenGlossary={setActiveGlossaryKey}
             />
           )}
 
-          {step === "q7_renditefokus" && (
+          {step === "q7_verlusttoleranz" && (
             <QuestionScreen
               question={QUESTIONS[6]}
-              selectedValue={answers.renditeFokus}
+              selectedValue={answers.verlustToleranz}
               onSelect={handleSelectQ7}
               isExplainMode={isExplainMode}
               onOpenGlossary={setActiveGlossaryKey}
             />
           )}
 
-          {step === "q8_verlusttoleranz" && (
+          {step === "q8_erfahrung" && (
             <QuestionScreen
               question={QUESTIONS[7]}
-              selectedValue={answers.verlustToleranz}
+              selectedValue={answers.erfahrungLevel}
               onSelect={handleSelectQ8}
               isExplainMode={isExplainMode}
               onOpenGlossary={setActiveGlossaryKey}
             />
           )}
 
-          {step === "q9_erfahrung" && (
+          {step === "q9_ziel" && (
             <QuestionScreen
               question={QUESTIONS[8]}
-              selectedValue={answers.erfahrungLevel}
+              selectedValue={answers.ziel}
               onSelect={handleSelectQ9}
+              isExplainMode={isExplainMode}
+              onOpenGlossary={setActiveGlossaryKey}
+              hasCalculatedRentenluecke={answers.hasCalculatedRentenluecke}
+              rentenRate={answers.lebensziele?.rentenluecke.monatlicheSparrateFuerRente}
+              onNavigateToRentenluecke={() => {
+                setReturnStepAfterLebensziele("q9_ziel");
+                setStep("q_lebensziele");
+              }}
+            />
+          )}
+
+          {step === "q10_reaktion" && (
+            <QuestionScreen
+              question={QUESTIONS[9]}
+              selectedValue={answers.reaktion}
+              onSelect={handleSelectQ10}
               isExplainMode={isExplainMode}
               onOpenGlossary={setActiveGlossaryKey}
             />
           )}
 
-          {step === "q10_ziel" && (
+          {step === "q11_entscheidungsstil" && (
             <QuestionScreen
-              question={QUESTIONS[9]}
-              selectedValue={answers.ziel}
-              onSelect={handleSelectQ10}
+              question={QUESTIONS[10]}
+              selectedValue={answers.entscheidungsStil}
+              onSelect={handleSelectQ11}
+              isExplainMode={isExplainMode}
+              onOpenGlossary={setActiveGlossaryKey}
+            />
+          )}
+
+          {step === "q12_greifbar" && (
+            <QuestionScreen
+              question={QUESTIONS[11]}
+              selectedValue={
+                answers.greifbar === "greifbar"
+                  ? "physisch"
+                  : answers.greifbarScale !== undefined
+                  ? answers.greifbarScale <= 3
+                    ? "digital"
+                    : "ausgewogen"
+                  : undefined
+              }
+              onSelect={handleSelectQ12}
+              isExplainMode={isExplainMode}
+              onOpenGlossary={setActiveGlossaryKey}
+            />
+          )}
+
+          {step === "q13_nachhaltigkeit" && (
+            <QuestionScreen
+              question={QUESTIONS[12]}
+              selectedValue={
+                answers.nachhaltigkeitScale !== undefined
+                  ? answers.nachhaltigkeitScale >= 8
+                    ? "strikt"
+                    : answers.nachhaltigkeitScale >= 5
+                    ? "wichtig"
+                    : "pragmatisch"
+                  : undefined
+              }
+              onSelect={handleSelectQ13}
               isExplainMode={isExplainMode}
               onOpenGlossary={setActiveGlossaryKey}
             />
@@ -508,6 +686,8 @@ export default function App() {
               nettoeinkommen={answers.nettoeinkommen}
               onSubmit={handleSubmitLebensziele}
               onOpenGlossary={setActiveGlossaryKey}
+              onBackToStart={() => setStep("start")}
+              isStandaloneFromStart={returnStepAfterLebensziele === "start"}
             />
           )}
 
@@ -517,27 +697,44 @@ export default function App() {
               initialMonatsrate={answers.monatsrate}
               initialNettoeinkommen={answers.nettoeinkommen}
               monatlicheSparrateFuerRente={answers.lebensziele?.rentenluecke.monatlicheSparrateFuerRente}
+              hasCalculatedRentenluecke={answers.hasCalculatedRentenluecke}
+              onOpenRentenluecke={() => {
+                setReturnStepAfterLebensziele("q8_betraege");
+                setStep("q_lebensziele");
+              }}
               onSubmit={handleSubmitQ8}
               isExplainMode={isExplainMode}
             />
           )}
 
-          {step === "q_optional" && (
-            <OptionalQuestionsScreen
-              initialNachhaltigkeitScale={answers.nachhaltigkeitScale}
-              initialGreifbarScale={answers.greifbarScale}
-              initialEntscheidungsStil={answers.entscheidungsStil}
-              initialMarkenPraeferenz={answers.markenPraeferenz}
-              initialTechAffinitaet={answers.techAffinitaet}
-              onSubmit={handleSubmitOptional}
+          {step === "haushaltsrechnung" && (
+            <HaushaltsrechnungScreen
+              initialNetto={answers.nettoeinkommen}
+              onApplySavingsRate={handleApplyHaushaltSavings}
+              onOpenSparplaner={handleOpenSparplanerFromHaushalt}
+              onBackToStart={() => setStep("start")}
+            />
+          )}
+
+          {step === "sparplaner" && (
+            <SparplanerScreen
+              initialMonatsrate={answers.monatsrate}
+              initialEinmalbetrag={answers.einmalbetrag}
+              onApplyPlan={handleApplySparplan}
+              onBackToStart={() => setStep("start")}
             />
           )}
 
           {step === "soll_stand" && (
             <SollStandScreen
               answers={answers}
+              onUpdateAllocation={(alloc) =>
+                setAnswers((prev) => ({
+                  ...prev,
+                  customAllocation: alloc || undefined,
+                }))
+              }
               onContinueToIst={() => setStep("ist_bestand")}
-              onSkipToAuswertung={() => checkGateAndProceed(istBestand)}
               onOpenGlossary={setActiveGlossaryKey}
             />
           )}
@@ -548,6 +745,31 @@ export default function App() {
               isExplainMode={isExplainMode}
               onSubmit={handleIstBestandSubmit}
               onSkip={handleIstBestandSkip}
+              onOpenGlossary={setActiveGlossaryKey}
+            />
+          )}
+
+          {step === "ist_analyse" && (
+            <IstAnalyseScreen
+              answers={answers}
+              istBestand={istBestand}
+              onContinueToSparrate={() => setStep("sparrate_allokation")}
+              onOpenGlossary={setActiveGlossaryKey}
+            />
+          )}
+
+          {step === "sparrate_allokation" && (
+            <SparrateAllokationScreen
+              answers={answers}
+              istBestand={istBestand}
+              onUpdateMonatsrate={(rate) =>
+                setAnswers((prev) => ({
+                  ...prev,
+                  monatsrate: rate,
+                }))
+              }
+              onOpenFullResult={() => checkGateAndProceed(istBestand)}
+              onRestart={handleReset}
               onOpenGlossary={setActiveGlossaryKey}
             />
           )}
@@ -568,6 +790,7 @@ export default function App() {
               hasGateWarning={
                 hasGateBypassed &&
                 (answers.puffer === "unter3" ||
+                  answers.schulden === "konsum" ||
                   answers.schulden === "konsum_ueber5" ||
                   answers.schulden === "ueber5")
               }
