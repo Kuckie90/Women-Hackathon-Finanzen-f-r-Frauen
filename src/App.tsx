@@ -1,5 +1,5 @@
 /**
- * FinWise – Drei-Töpfe-Anlageaufteilung für Frauen
+ * Angelegt – Drei-Töpfe-Anlageaufteilung für Frauen
  */
 
 import { useState } from "react";

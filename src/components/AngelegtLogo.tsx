@@ -1,0 +1,103 @@
+import React from "react";
+
+interface AngelegtLogoProps {
+  className?: string;
+  size?: number;
+}
+
+export const AngelegtLogo: React.FC<AngelegtLogoProps> = ({
+  className = "w-10 h-10",
+  size,
+}) => {
+  const style = size ? { width: size, height: size } : undefined;
+
+  return (
+    <svg
+      viewBox="0 0 512 512"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`${className} shrink-0 select-none`}
+      style={style}
+      aria-label="Angelegt Eulen-Logo"
+    >
+      {/* Deep Burgundy Squircle Background - exactly matches the icon */}
+      <rect width="512" height="512" rx="112" fill="#4B1226" />
+
+      {/* Gold Graphic Elements */}
+      <g fill="#DDBB76">
+        {/* Owl Ear Tufts / Eyebrow Horns */}
+        <path d="M 172 144 C 182 155 204 170 256 170 C 308 170 330 155 340 144 C 330 174 308 190 286 195 C 272 188 240 188 226 195 C 204 190 182 174 172 144 Z" />
+
+        {/* Arched Head Dome */}
+        <path d="M 218 156 C 230 148 242 144 256 144 C 270 144 282 148 294 156 C 316 172 334 194 336 220 C 324 204 304 196 288 196 C 278 196 270 200 266 206 C 262 200 254 196 244 196 C 228 196 208 204 196 220 C 198 194 216 172 218 156 Z" />
+
+        {/* Left Eyeglass Circular Ring */}
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M 214 210 C 239 210 259 230 259 255 C 259 280 239 300 214 300 C 189 300 169 280 169 255 C 169 230 189 210 214 210 Z M 214 227 C 198 227 186 239 186 255 C 186 271 198 283 214 283 C 230 283 242 271 242 255 C 242 239 230 227 214 227 Z"
+        />
+
+        {/* Right Eyeglass Circular Ring */}
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M 298 210 C 323 210 343 230 343 255 C 343 280 323 300 298 300 C 273 300 253 280 253 255 C 253 230 273 210 298 210 Z M 298 227 C 282 227 270 239 270 255 C 270 271 282 283 298 283 C 314 283 326 271 326 255 C 326 239 314 227 298 227 Z"
+        />
+
+        {/* Eyeglasses Bridge */}
+        <rect x="250" y="250" width="12" height="10" rx="3" />
+
+        {/* Left Pupil (looking upper-right) */}
+        <circle cx="221" cy="250" r="17" />
+
+        {/* Right Pupil (looking upper-right) */}
+        <circle cx="305" cy="250" r="17" />
+
+        {/* Beak */}
+        <polygon points="256,275 246,260 266,260" />
+
+        {/* Owl Wing & Left Silhouette */}
+        <path d="M 248 288 C 224 306 190 330 168 376 C 172 344 184 316 200 298 C 188 306 178 322 170 348 C 168 332 172 308 184 290 C 176 296 172 308 170 320 C 168 300 176 278 190 264 C 184 270 180 278 178 286 C 182 260 200 240 216 232 C 206 244 204 262 210 278 C 218 286 234 290 248 288 Z" />
+
+        {/* Dynamic Diagonal Body Swoop */}
+        <path d="M 248 288 C 230 308 206 336 184 366 C 196 350 220 320 260 290 C 284 272 308 252 320 234 C 312 242 290 264 264 284 C 254 290 240 304 196 368 C 206 350 226 324 248 288 Z" />
+
+        {/* Lower Wing Taper */}
+        <path d="M 194 354 C 180 372 170 390 168 406 C 180 388 206 354 254 308 C 278 284 308 252 320 230 L 308 236 C 290 258 246 308 194 354 Z" />
+
+        {/* Coin 1: Flat Oval Coin (ground level) */}
+        <ellipse cx="234" cy="396" rx="20" ry="8" />
+
+        {/* Coin 2: Medium Stack (2 coins) */}
+        <path d="M 260 376 C 260 372 276 368 292 368 C 308 368 324 372 324 376 L 324 394 C 324 398 308 402 292 402 C 276 402 260 398 260 394 Z" />
+        <ellipse cx="292" cy="376" rx="32" ry="11" />
+        <path
+          d="M 260 388 C 260 392 276 396 292 396 C 308 396 324 392 324 388"
+          stroke="#4B1226"
+          strokeWidth="3"
+          fill="none"
+        />
+
+        {/* Coin 3: Tall Stack (3 coins) */}
+        <path d="M 336 326 C 336 320 354 314 372 314 C 390 314 408 320 408 326 L 408 394 C 408 400 390 406 372 406 C 354 406 336 400 336 394 Z" />
+        <ellipse cx="372" cy="326" rx="36" ry="12" />
+        <path
+          d="M 336 348 C 336 354 354 360 372 360 C 390 360 408 354 408 348"
+          stroke="#4B1226"
+          strokeWidth="3.5"
+          fill="none"
+        />
+        <path
+          d="M 336 372 C 336 378 354 384 372 384 C 390 384 408 378 408 372"
+          stroke="#4B1226"
+          strokeWidth="3.5"
+          fill="none"
+        />
+      </g>
+    </svg>
+  );
+};
+
+// Also export as AnGelegtLogo for backward compatibility
+export const AnGelegtLogo = AngelegtLogo;

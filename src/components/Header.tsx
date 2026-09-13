@@ -1,4 +1,5 @@
 import { ChevronLeft, RotateCcw, Layers } from "lucide-react";
+import { AngelegtLogo } from "./AngelegtLogo";
 
 interface HeaderProps {
   stepTitle?: string;
@@ -39,9 +40,10 @@ export function Header({
         </div>
 
         <div className="flex flex-col items-center">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
+            <AngelegtLogo className="w-6 h-6 rounded-md" />
             <span className="font-serif text-lg font-bold tracking-tight text-[#3E2340]">
-              AnGelegt
+              Angelegt
             </span>
             {onOpenArchitecture && (
               <button

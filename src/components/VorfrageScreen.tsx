@@ -38,12 +38,12 @@ export function VorfrageScreen({ onSelectMode }: VorfrageScreenProps) {
             <p className="text-sm md:text-base leading-relaxed text-[#3E2340]">
               Stell dir drei Gläser auf dem Küchentisch vor. Im{" "}
               <strong className="text-[#1B5E20] font-semibold">
-                Sicherheits-Glas (Sichere Anlagen)
+                Sicherheits-Glas (Sicherheit)
               </strong>{" "}
               liegt das Geld, das da sein muss, wenn morgen die Waschmaschine
               kaputtgeht – absolut risikofrei und sofort verfügbar. Das{" "}
               <strong className="text-[#3E2340] font-semibold">
-                Wachstums-Glas (Risikoaffiner & Wachstumsstärker)
+                Wachstums-Glas (Wachstum)
               </strong>{" "}
               ist dein Beet: Du säst heute, gießt regelmäßig und erntest in zehn
               oder zwanzig Jahren; Kursschwankungen werden durch die Zeit geglättet. Das{" "}
@@ -54,7 +54,7 @@ export function VorfrageScreen({ onSelectMode }: VorfrageScreenProps) {
               <strong className="text-[#3E2340]">
                 Dieses Geld darf man unter keinen Umständen brauchen müssen!
               </strong>{" "}
-              Ein Verlust bis zum Totalausfall darf dir wehtun, darf aber niemals deine Existenz gefährden. AnGelegt sagt dir, wie groß jedes Glas bei dir sein sollte.
+              Ein Verlust bis zum Totalausfall darf dir wehtun, darf aber niemals deine Existenz gefährden. Angelegt sagt dir, wie groß jedes Glas bei dir sein sollte.
             </p>
           </div>
 
